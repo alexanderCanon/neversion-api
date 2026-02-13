@@ -6,6 +6,8 @@ public record SserviceDetail(
     Long id,
     Integer serviceId,
     Integer categoryId,
+    String serviceName,
+    String categoryName,
     BigDecimal priceIndividual,
     BigDecimal priceFamiliar
 ) {

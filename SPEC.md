@@ -3,13 +3,13 @@
 ## Description
 This project it will be used by admin panel
 
-El proyecto debe seguir la arquitectura de puertos y adaptadores para mantener bajo acoplamiento entre la lógica de negocio y los componentes externos. Por defecto te encontraras con todas los modelos ya definidos, con su estructura de carpetas y sobre todo el paquete /domain/model ya tiene su record Java para el modelo puro, lo que vive en el centro. Todo el código debe ir en inglés y llevar comentarios para documentación solo si es necesario para que otros desarrolladores puedan entender que hace cada bloque de código
+The project should follow the ports and adapters (hexagonal) architecture to maintain loose coupling between business logic and external components. By default, you will find all models already defined, with their respective folder structure. In particular, the /domain/model package in all main modules contains the Java record for the core domain model, which forms the center of the application. The **sservice** package corresponds to the "services" table in the database. I named it this way to avoid confusion with the "service" package, where the business logic lives. I've already implemented this, so you can review and use it as a reference, and you may even suggest improvements, but ask me first.
 
-## Contexto del negocio
-El backend gestiona principalmente servicios (productos digitales) con categorías
+## Business Context
+The backend mainly manages services (digital products) with categories.
 
-### Entidad principal: **Services**
-Es el producto principal que se vende en el ecommerce
+### Main Entity: **Services**
+This is the main product sold in the ecommerce.
 
 ## Stack Tecnológico
 **Programming Language:** Java 17
@@ -23,57 +23,50 @@ Es el producto principal que se vende en el ecommerce
 **Serialization:** Spring Boot Starter JSON (Jackson)
 **Boilerplate:** Lombok
 
-## Primer paso
-Revisa el pom.xml para asegurarnos de tener las dependencias correctas, agreguemos una breve descripción del proyecto, coloquemos la versión inicial 1.0.0 y un nombre general (app) para luego construir la imagen con un archivo Dockerfile
+## First Step
+Review the pom.xml to ensure we have the correct dependencies, add a brief description of the project, set the initial version to 1.0.0, and use a general name (app). Then, build the image using a Dockerfile.
 
-## Arquitectura hexagonal (adaptadores y puertos)
-La estructura de paquetes la encuentras dentro del archivo STRUCTURE.md en la raiz del proyecto.
+## Hexagonal Architecture (Adapters and Ports)
+You can find the package structure in the STRUCTURE.md file at the root of the project. As mentioned before, the architecture is already created.
 
-## Inyección de Dependencias
-Se hace por medio de constructor, no con Autowired
-
-## Casos de Uso
-CREATE: Primera implementación, caso de uso, create, save...
-READ: Segunda implementación, caso de uso, get, read...
-UPDATE: Esto no se va a implementar por ahora
-DELETE: Tercerca implementación, caso de uso, delete (soft delete)...
+## Inject Dependencies
+With constructor, no Autowired annotation
 
 ## Testing
-Uso de JUnit y Mockito para Test. Utiliza assertThat de assertJ
+JUnit y Mockito for Test. Use assertThat from assertJ
 
 ```
 import static org.assertj.core.api.Assertions.*;
 ```
 
-## Configuración de aplicación
-Por defecto el perfil activo es dev. No leas el archivo application-dev.yaml. De eso me encargo yo
+## Application Configuration
+By default dev profile is active. Don't read my application-dev.yaml because environment variables are defined there.
 
 
 ## API Endpoints
-/api/v1/... Maneja bien el versionado de los endpoint
+/api/v1/...
 
-## Principios de arquitectura aplicados
-1. Dominio independiente
-2. Puertos como contratos
- - in: definen qué puede hacer la aplicación
- - out: define qué necesita la aplicación del exterior
-3. Adaptadores intercambiables
- - REST Adapter: implementa la interfaz http
- - JPA: implementa el puerto del repositorio
-4. Flujo de dependencias
- - Controller -> Port In -> Service -> Port Out <- JpaAdapter
-5. Mapper separados
- - DTO <-> Domain, Entity <-> Domain. NO Uso de MapStruct
+## Applied Architecture Principles
+1. Independent domain
+2. Ports as contracts
+   - In: defines what the application can do
+   - Out: defines what the application needs from the outside
+3. Interchangeable adapters
+   - REST Adapter: implements the HTTP interface
+   - JPA: implements the repository port
+4. Dependency flow
+   - Controller -> Port In -> Service -> Port Out <- JpaAdapter
+5. Separate mappers
+   - DTO <-> Domain, Entity <-> Domain. DO NOT use MapStruct
 
-## Notas importantes
-1. **Soft delete:** la entidad usa SQLDelete y SQLRestriction
-2. **Validacion:** Jakarta Validation para DTORequest, agrega todas las validaciones necesarias que crees conveniente, utiliza siempre NotBlank para String, y NotNull para el resto de campos donde aplique
-3. **Seguridad:** CSRF deshabilidado (por ahora)
-4. **Mapeo de Enum:** Usa JdbcTypeCode(SqlTypes.NAMED_ENUM) para compatibilidad con PostgreSQL ENUM
-5. **Records:** Usa Java Records para DTO de respuesta (si consideras que una clase podría ser Record entonces también puedes hacerlo para evitar boilerplate)
+## Important Notes
+1. **Soft delete:** The entity uses SQLDelete and SQLRestriction
+2. **Validation:** Use Jakarta Validation for DTORequest; add all necessary validations as appropriate, always use NotBlank for String fields, and NotNull for other applicable fields
+3. **Security:** CSRF is disabled (for now)
+4. **Enum Mapping:** Use JdbcTypeCode(SqlTypes.NAMED_ENUM) for PostgreSQL ENUM compatibility
+5. **Records:** Use Java Records for Request/Response DTOs (if you think a class could be a Record, use it to avoid boilerplate)
 
-## Docker configuration
-Puede variar dependiendo de las configuraciones del pom.xml
+## Docker configuration if exists
 ### `Dockerfile`
 ```dockerfile
 FROM eclipse-temurin:17-jdk-alpine
@@ -87,20 +80,4 @@ RUN ./mvnw package -DskipTests
 EXPOSE 8080
 
 CMD ["java", "-jar", "target/store-0.0.1-SNAPSHOT.jar"]
-```
-
-### `docker-compose.yaml`
-Para la orquestación, después podrá añadirse una base de datos local, redis o un frontend, por ahora lo dejemos solo con el backend, pero para tenerlo como referencia.
-```yaml
-services:
-  app:
-    image: spring
-    container_name: 
-    ports:
-      - "${PORT}:8080"
-    environment:
-      DB_URL: ${DB_URL}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      APP_PORT: 8080
 ```

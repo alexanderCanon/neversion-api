@@ -5,7 +5,9 @@ public record Credential(
     String email,
     String pass,
     Boolean isActive,
-    Long serviceDetailsId
+    Long serviceDetailsId,
+    String serviceName,
+    String categoryName
 ) {
 
 }

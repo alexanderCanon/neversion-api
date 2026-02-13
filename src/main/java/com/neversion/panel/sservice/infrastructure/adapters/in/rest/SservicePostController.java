@@ -12,6 +12,8 @@ import com.neversion.panel.sservice.domain.model.Sservice;
 import com.neversion.panel.sservice.infrastructure.adapters.in.rest.dto.SserviceRequest;
 import com.neversion.panel.sservice.infrastructure.adapters.in.rest.mapper.SserviceMapper;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/sservices")
 public class SservicePostController {
@@ -24,7 +26,7 @@ public class SservicePostController {
     }
 
     @PostMapping
-    public ResponseEntity<Sservice> createSservice(@RequestBody SserviceRequest request) {
+    public ResponseEntity<Sservice> createSservice(@Valid @RequestBody SserviceRequest request) {
         Sservice sservice = sserviceMapper.toDomain(request);
         Sservice createdSservice = createSserviceUseCase.create(sservice);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSservice);
