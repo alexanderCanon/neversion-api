@@ -1,17 +1,15 @@
-# Proyecto con Java Spring Boot - Ecommerce "Your Coffe Eyes"
+# Spring Boot Project Ecommerce "Neversion"
 
 ## Description
+This project it will be used by admin panel
 
-Genera un proyecto Backend para gestión de una cafetería. El proyecto debe seguir la arquitectura de puertos y adaptadores para mantener bajo acoplamiento entre la lógica de negocio y los componentes externos. Por ahora vamos a crear solo un modelo, productos. Todo el código debe ir en inglés y llevar comentarios para documentación solo si es necesario para que otros desarrolladores puedan entender que hace cada bloque de código
+El proyecto debe seguir la arquitectura de puertos y adaptadores para mantener bajo acoplamiento entre la lógica de negocio y los componentes externos. Por defecto te encontraras con todas los modelos ya definidos, con su estructura de carpetas y sobre todo el paquete /domain/model ya tiene su record Java para el modelo puro, lo que vive en el centro. Todo el código debe ir en inglés y llevar comentarios para documentación solo si es necesario para que otros desarrolladores puedan entender que hace cada bloque de código
 
 ## Contexto del negocio
-El backend gestiona principalmente inventario de productos de café, con las siguientes características:
-- Tipo de café: molido y en grano
-- Categoría: premium, balanceado, estándar
-- Tipo de tueste: medio, claro, oscuro
+El backend gestiona principalmente servicios (productos digitales) con categorías
 
-### Entidad principal: **Productos**
-Es el producto principal que se vende en la cafetería, después podrán ser implementados otros productos tales como, pan, sandwiches, malteadas...
+### Entidad principal: **Services**
+Es el producto principal que se vende en el ecommerce
 
 ## Stack Tecnológico
 **Programming Language:** Java 17
@@ -29,77 +27,30 @@ Es el producto principal que se vende en la cafetería, después podrán ser imp
 Revisa el pom.xml para asegurarnos de tener las dependencias correctas, agreguemos una breve descripción del proyecto, coloquemos la versión inicial 1.0.0 y un nombre general (app) para luego construir la imagen con un archivo Dockerfile
 
 ## Arquitectura hexagonal (adaptadores y puertos)
-Estructura de paquetes:
-- Vertical slicing
-- Paquete **exceptions** para manejar respuestas de error, manejador global de excepciones, excepciones personalizadas (resource not found exception)
-- Dentro de cada paquete del modelo general:
- - domain/ (nucleo del negocio)
-  - model/ (Record para la clase Java pura, enums (si aplica))
-  - port/out/ (Interfaz RepositoryPort para puerto de salida)
-  - service/ (lógica de dominio pura si es necesaria)
- - application/ (casos de uso)
-  - port/in/ (Interfaces para casos de uso)
-  - service/ (Implementación de los casos de uso y anotación @Service, una clase por cada caso de uso)
- - infrastructure/ (capa de infraestructura, los adapters)
-  - config/ (configuración de Spring Security)
-  - adapters/
-   - in/rest/ (API REST), aqui va una clase Controller para cada método POST, GET con la anotacion controller
-    - dto/ (DTO para Request y Response)
-    - mapper/ (clase con mapper manual para request, response, domain, lleva anotación component generico)
-   - out/ (para la persistencia)
-    - Entity (la entidad JPA con la anotacion Entity)
-    - RepositoryAdapter que extiende de JPA Repository
-    - JPAAdapter que implementa el RepositoryPort
-    - PersistenceMapper, clase para mapeo manual entre la Entity y la clase de dominio con anotacion Component generico
+La estructura de paquetes la encuentras dentro del archivo STRUCTURE.md en la raiz del proyecto.
 
 ## Inyección de Dependencias
 Se hace por medio de constructor, no con Autowired
 
 ## Casos de Uso
-Uno para crear producto y otro para obtener por medio de id y obtener todos
+CREATE: Primera implementación, caso de uso, create, save...
+READ: Segunda implementación, caso de uso, get, read...
+UPDATE: Esto no se va a implementar por ahora
+DELETE: Tercerca implementación, caso de uso, delete (soft delete)...
 
 ## Testing
-Uso de JUnit y Mockito para Test, crea 2 test para los casos de uso (service) que sean descriptivos, utiliza assertThat de assertJ
+Uso de JUnit y Mockito para Test. Utiliza assertThat de assertJ
 
 ```
 import static org.assertj.core.api.Assertions.*;
 ```
 
 ## Configuración de aplicación
-Perfiles activos: dev
+Por defecto el perfil activo es dev. No leas el archivo application-dev.yaml. De eso me encargo yo
 
-```yaml
-spring:
-  application:
-    name: 
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/store}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create-delete
-    show-sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    properties:
-      hibernate:
-        format_sql: true
-server:
-  port: ${PORT:8080}
-```
-
-### Enviroment files
-Crea 3 archivos, uno para template, para dev y para prod
 
 ## API Endpoints
-/api/v1/...
-
-Maneja bien el versionado de los endpoint
-
-## Esquema de base de datos
-Genera código DDL para la tabla inicial de acuerdo a las instrucciones previamente descritas, ten en cuenta que es la plantilla inicial para comenzar con el desarrollo del proyecto y también código para inserción de datos iniciales en la carpeta resource (data.sql y schema.sql).
+/api/v1/... Maneja bien el versionado de los endpoint
 
 ## Principios de arquitectura aplicados
 1. Dominio independiente
@@ -119,8 +70,7 @@ Genera código DDL para la tabla inicial de acuerdo a las instrucciones previame
 2. **Validacion:** Jakarta Validation para DTORequest, agrega todas las validaciones necesarias que crees conveniente, utiliza siempre NotBlank para String, y NotNull para el resto de campos donde aplique
 3. **Seguridad:** CSRF deshabilidado (por ahora)
 4. **Mapeo de Enum:** Usa JdbcTypeCode(SqlTypes.NAMED_ENUM) para compatibilidad con PostgreSQL ENUM
-5. **Records:** Usa Java Records para DTO de respuesta y modelo de dominio para inmutabiliad (si consideras que una clase podría ser Record entonces también puedes hacerlo para evitar boilerplate)
-6. **Inicia git:** Inicializa git, agrega el .gitignore y coloca todo lo que NO debe versionarse, en especial las variables de entorno y el application-dev.yaml para evitar exponer archivos sensibles. El commit inicial será siempre. "initial commit"
+5. **Records:** Usa Java Records para DTO de respuesta (si consideras que una clase podría ser Record entonces también puedes hacerlo para evitar boilerplate)
 
 ## Docker configuration
 Puede variar dependiendo de las configuraciones del pom.xml
@@ -140,7 +90,7 @@ CMD ["java", "-jar", "target/store-0.0.1-SNAPSHOT.jar"]
 ```
 
 ### `docker-compose.yaml`
-Para la orquestación, después podrá añadirse una base de datos local, redis o un frontend, por ahora lo dejemos solo con el backend
+Para la orquestación, después podrá añadirse una base de datos local, redis o un frontend, por ahora lo dejemos solo con el backend, pero para tenerlo como referencia.
 ```yaml
 services:
   app:
