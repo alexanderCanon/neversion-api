@@ -34,3 +34,6 @@ build/
 
 ### Profiles ###
 application-dev.yaml
+
+### Environment variables ###
+.env
