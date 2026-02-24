@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/sservices")
 public class SservicePostController {
+
     private final CreateSserviceUseCase createSserviceUseCase;
     private final SserviceMapper sserviceMapper;
 

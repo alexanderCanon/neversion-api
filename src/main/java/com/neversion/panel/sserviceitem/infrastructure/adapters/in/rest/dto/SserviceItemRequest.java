@@ -8,7 +8,8 @@ import jakarta.validation.constraints.Positive;
 
 public record SserviceItemRequest(
 
-        @NotNull @Positive BigDecimal priceAmount,
-        @NotBlank String duration,
-        @NotBlank String accountType) {
+                @Positive Integer serviceId,
+                @NotNull @Positive BigDecimal priceAmount,
+                @NotBlank String duration,
+                @NotBlank String accountType) {
 }

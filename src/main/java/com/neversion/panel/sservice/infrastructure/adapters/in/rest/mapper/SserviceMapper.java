@@ -46,11 +46,4 @@ public class SserviceMapper {
                         .toList());
     }
 
-    // private SserviceItemResponse toItemResponse(SserviceItem sserviceItem) {
-    // return new SserviceItemResponse(
-    // sserviceItem.getId(),
-    // sserviceItem.getPrice(),
-    // sserviceItem.getDuration(),
-    // sserviceItem.getAccountType());
-    // }
 }

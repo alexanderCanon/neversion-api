@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.neversion.panel.sserviceitem.infrastructure.adapters.in.rest.dto.SserviceItemRequest;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -14,5 +13,5 @@ public record SserviceRequest(
         String description,
         String imageUrl,
         String category,
-        @NotBlank @Valid List<SserviceItemRequest> items) {
+        List<SserviceItemRequest> items) {
 }

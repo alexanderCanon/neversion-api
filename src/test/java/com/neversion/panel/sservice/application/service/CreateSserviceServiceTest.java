@@ -18,66 +18,66 @@ import com.neversion.panel.sservice.domain.port.out.SserviceRepositoryPort;
 @DisplayName("CreateSserviceService Unit Tests")
 class CreateSserviceServiceTest {
 
-    @Mock
-    private SserviceRepositoryPort sserviceRepositoryPort;
+        @Mock
+        private SserviceRepositoryPort sserviceRepositoryPort;
 
-    private CreateSserviceService createSserviceService;
+        private CreateSserviceService createSserviceService;
 
-    @BeforeEach
-    void setUp() {
-        createSserviceService = new CreateSserviceService(sserviceRepositoryPort);
-    }
+        @BeforeEach
+        void setUp() {
+                createSserviceService = new CreateSserviceService(sserviceRepositoryPort);
+        }
 
-    @Test
-    @DisplayName("create - should return the saved Sservice with generated id")
-    void create_shouldReturnSavedSservice() {
-        // Given
-        Sservice input = Sservice.builder()
-                .name("Netflix")
-                .description("Streaming platform")
-                .imageUrl("https://img.example.com/netflix.png")
-                .category(CategoryType.PLATAFORMA)
-                .build();
+        @Test
+        @DisplayName("create - should return the saved Sservice with generated id")
+        void create_shouldReturnSavedSservice() {
+                // Given
+                Sservice input = Sservice.builder()
+                                .name("Netflix")
+                                .description("Streaming platform")
+                                .imageUrl("https://img.example.com/netflix.png")
+                                .category(CategoryType.PLATAFORMA)
+                                .build();
 
-        Sservice persisted = Sservice.builder()
-                .id(1)
-                .name("Netflix")
-                .description("Streaming platform")
-                .imageUrl("https://img.example.com/netflix.png")
-                .category(CategoryType.PLATAFORMA)
-                .build();
+                Sservice persisted = Sservice.builder()
+                                .id(1)
+                                .name("Netflix")
+                                .description("Streaming platform")
+                                .imageUrl("https://img.example.com/netflix.png")
+                                .category(CategoryType.PLATAFORMA)
+                                .build();
 
-        when(sserviceRepositoryPort.save(input)).thenReturn(persisted);
+                when(sserviceRepositoryPort.save(input)).thenReturn(persisted);
 
-        // When
-        Sservice result = createSserviceService.create(input);
+                // When
+                Sservice result = createSserviceService.create(input);
 
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1);
-        assertThat(result.getName()).isEqualTo("Netflix");
-        assertThat(result.getDescription()).isEqualTo("Streaming platform");
-        assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
-    }
+                // Then
+                assertThat(result).isNotNull();
+                assertThat(result.getId()).isEqualTo(1);
+                assertThat(result.getName()).isEqualTo("Netflix");
+                assertThat(result.getDescription()).isEqualTo("Streaming platform");
+                assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
+        }
 
-    @Test
-    @DisplayName("create - should delegate to repository port exactly once")
-    void create_shouldDelegateToRepositoryPort() {
-        // Given
-        Sservice input = Sservice.builder()
-                .name("Spotify")
-                .description("Music streaming")
-                .imageUrl("https://img.example.com/spotify.png")
-                .category(CategoryType.SUSCRIPCION)
-                .build();
+        @Test
+        @DisplayName("create - should delegate to repository port exactly once")
+        void create_shouldDelegateToRepositoryPort() {
+                // Given
+                Sservice input = Sservice.builder()
+                                .name("Spotify")
+                                .description("Music streaming")
+                                .imageUrl("https://img.example.com/spotify.png")
+                                .category(CategoryType.SUSCRIPCION)
+                                .build();
 
-        when(sserviceRepositoryPort.save(input)).thenReturn(input);
+                when(sserviceRepositoryPort.save(input)).thenReturn(input);
 
-        // When
-        createSserviceService.create(input);
+                // When
+                createSserviceService.create(input);
 
-        // Then
-        verify(sserviceRepositoryPort, times(1)).save(input);
-        verifyNoMoreInteractions(sserviceRepositoryPort);
-    }
+                // Then
+                verify(sserviceRepositoryPort, times(1)).save(input);
+                verifyNoMoreInteractions(sserviceRepositoryPort);
+        }
 }

@@ -1,6 +1,7 @@
 package com.neversion.panel.sservice.application.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.panel.sservice.application.port.in.CreateSserviceUseCase;
 import com.neversion.panel.sservice.domain.model.Sservice;
@@ -16,6 +17,7 @@ public class CreateSserviceService implements CreateSserviceUseCase {
     }
 
     @Override
+    @Transactional
     public Sservice create(Sservice sservice) {
         return sserviceRepositoryPort.save(sservice);
     }

@@ -13,31 +13,34 @@ import com.neversion.panel.sservice.domain.port.out.SserviceRepositoryPort;
 public class GetSserviceService implements GetSserviceUseCase {
 
     private final SserviceRepositoryPort sserviceRepositoryPort;
-    
+
     public GetSserviceService(SserviceRepositoryPort sserviceRepositoryPort) {
         this.sserviceRepositoryPort = sserviceRepositoryPort;
     }
 
     @Override
     public Sservice getById(Integer id) {
-        return sserviceRepositoryPort.findById(id).
-        orElseThrow(() -> new ResourceNotFoundException("Sservice with id " + id + " not found"));
+        Sservice sservice = sserviceRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sservice with id " + id + " not found"));
+        return sservice;
     }
 
     @Override
     public Sservice getByName(String name) {
-        return sserviceRepositoryPort.findByName(name).
-        orElseThrow(() -> new ResourceNotFoundException("Sservice with name " + name + " not found"));
+        Sservice sservice = sserviceRepositoryPort.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Sservice with name " + name + " not found"));
+        return sservice;
     }
 
     @Override
     public List<Sservice> getAll() {
-        return sserviceRepositoryPort.findAll();
+        List<Sservice> sservices = sserviceRepositoryPort.findAll();
+        return sservices;
     }
 
     // @Override
     // public List<Sservice> getByCategory() {
-    //     return sserviceRepositoryPort.findByCategory();
+    // return sserviceRepositoryPort.findByCategory();
     // }
 
-}   
+}
