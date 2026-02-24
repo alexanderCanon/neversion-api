@@ -10,27 +10,27 @@ import com.neversion.panel.sservice.domain.port.out.SserviceRepositoryPort;
 import com.neversion.panel.sservice.infrastructure.adapters.out.mapper.SservicePersistenceMapper;
 
 @Repository
-public class JpaSserviceAdapter implements SserviceRepositoryPort{
-    private final SserviceRepositoryAdapter sserviceRepositoryAdapter;
+public class JpaSserviceAdapter implements SserviceRepositoryPort {
+
+    private final SserviceRepositoryAdapter sserviceRepo;
     private final SservicePersistenceMapper sservicePersistenceMapper;
 
-    public JpaSserviceAdapter(SserviceRepositoryAdapter sserviceRepositoryAdapter,
-        SservicePersistenceMapper sservicePersistenceMapper
-    ){
-        this.sserviceRepositoryAdapter = sserviceRepositoryAdapter;
+    public JpaSserviceAdapter(SserviceRepositoryAdapter sserviceRepo,
+            SservicePersistenceMapper sservicePersistenceMapper) {
+        this.sserviceRepo = sserviceRepo;
         this.sservicePersistenceMapper = sservicePersistenceMapper;
     }
 
     @Override
     public Sservice save(Sservice sservice) {
         SserviceEntity sserviceEntity = sservicePersistenceMapper.toEntity(sservice);
-        SserviceEntity savedPlatform = sserviceRepositoryAdapter.save(sserviceEntity);
+        SserviceEntity savedPlatform = sserviceRepo.save(sserviceEntity);
         return sservicePersistenceMapper.toDomain(savedPlatform);
     }
 
     @Override
     public List<Sservice> findAll() {
-        return sserviceRepositoryAdapter.findAll()
+        return sserviceRepo.findAll()
                 .stream()
                 .map(sservicePersistenceMapper::toDomain)
                 .toList();
@@ -38,14 +38,22 @@ public class JpaSserviceAdapter implements SserviceRepositoryPort{
 
     @Override
     public Optional<Sservice> findById(Integer id) {
-        return sserviceRepositoryAdapter.findById(id)
-        .map(sservicePersistenceMapper :: toDomain);
+        return sserviceRepo.findById(id)
+                .map(sservicePersistenceMapper::toDomain);
     }
 
     @Override
     public Optional<Sservice> findByName(String name) {
-        return sserviceRepositoryAdapter.findByName(name)
-        .map(sservicePersistenceMapper :: toDomain);
+        return sserviceRepo.findByName(name)
+                .map(sservicePersistenceMapper::toDomain);
     }
+
+    // @Override
+    // public List<Sservice> findByCategory() {
+    // return sserviceRepositoryAdapter.findByCategory()
+    // .stream()
+    // .map(sservicePersistenceMapper::toDomain)
+    // .toList();
+    // }
 
 }

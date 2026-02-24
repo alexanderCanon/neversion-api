@@ -19,15 +19,13 @@ This is the main product sold in the ecommerce.
 **Database:** PostgreSQL
 **ORM:** Spring Data JPA + Hibernate
 **Validation:** Spring Boot Starter Validation (Jakarta)
+**Authentication:** Supabase Auth (JWT)
 **Security:** Spring Security 6
 **Serialization:** Spring Boot Starter JSON (Jackson)
 **Boilerplate:** Lombok
 
 ## First Step
-Review the pom.xml to ensure we have the correct dependencies, add a brief description of the project, set the initial version to 1.0.0, and use a general name (app). Then, build the image using a Dockerfile.
-
-## Hexagonal Architecture (Adapters and Ports)
-You can find the package structure in the STRUCTURE.md file at the root of the project. As mentioned before, the architecture is already created.
+Review the pom.xml to ensure we have the correct dependencies, later review the STRUCTURE.md file to understand the architecture.
 
 ## Inject Dependencies
 With constructor, no Autowired annotation
@@ -42,7 +40,6 @@ import static org.assertj.core.api.Assertions.*;
 ## Application Configuration
 By default dev profile is active. Don't read my application-dev.yaml because environment variables are defined there.
 
-
 ## API Endpoints
 /api/v1/...
 
@@ -55,29 +52,12 @@ By default dev profile is active. Don't read my application-dev.yaml because env
    - REST Adapter: implements the HTTP interface
    - JPA: implements the repository port
 4. Dependency flow
-   - Controller -> Port In -> Service -> Port Out <- JpaAdapter
+   - Controller -> UseCase (Port In) -> Service -> Port Out <- JpaAdapter
 5. Separate mappers
-   - DTO <-> Domain, Entity <-> Domain. DO NOT use MapStruct
+   - DTO <-> Domain, Entity <-> Domain. No MapStruct, Yes Builder
 
 ## Important Notes
-1. **Soft delete:** The entity uses SQLDelete and SQLRestriction
-2. **Validation:** Use Jakarta Validation for DTORequest; add all necessary validations as appropriate, always use NotBlank for String fields, and NotNull for other applicable fields
-3. **Security:** CSRF is disabled (for now)
-4. **Enum Mapping:** Use JdbcTypeCode(SqlTypes.NAMED_ENUM) for PostgreSQL ENUM compatibility
-5. **Records:** Use Java Records for Request/Response DTOs (if you think a class could be a Record, use it to avoid boilerplate)
-
-## Docker configuration if exists
-### `Dockerfile`
-```dockerfile
-FROM eclipse-temurin:17-jdk-alpine
-
-WORKDIR /app
-
-COPY . .
-
-RUN ./mvnw package -DskipTests
-
-EXPOSE 8080
-
-CMD ["java", "-jar", "target/store-0.0.1-SNAPSHOT.jar"]
-```
+1. **Validation:** Use Jakarta Validation for DTORequest, NotBlank for String fields, and NotNull for other applicable fields
+2. **Security:** CSRF is disabled (for now)
+3. **Records:** Use Java Records for Request/Response DTOs (if you think a class could be a Record, use it to avoid boilerplate)
+4. **Soft delete:** The entity uses SQLDelete and SQLRestriction

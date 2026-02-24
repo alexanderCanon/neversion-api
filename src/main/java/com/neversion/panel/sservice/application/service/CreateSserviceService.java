@@ -8,7 +8,9 @@ import com.neversion.panel.sservice.domain.port.out.SserviceRepositoryPort;
 
 @Service
 public class CreateSserviceService implements CreateSserviceUseCase {
+
     private final SserviceRepositoryPort sserviceRepositoryPort;
+
     public CreateSserviceService(SserviceRepositoryPort sserviceRepositoryPort) {
         this.sserviceRepositoryPort = sserviceRepositoryPort;
     }

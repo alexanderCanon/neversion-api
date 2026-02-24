@@ -21,7 +21,7 @@ public class SserviceGetController {
     private final GetSserviceUseCase getSserviceUseCase;
     private final SserviceMapper sserviceMapper;
 
-    public SserviceGetController(GetSserviceUseCase getSserviceUseCase, SserviceMapper sserviceMapper){
+    public SserviceGetController(GetSserviceUseCase getSserviceUseCase, SserviceMapper sserviceMapper) {
         this.getSserviceUseCase = getSserviceUseCase;
         this.sserviceMapper = sserviceMapper;
     }
@@ -30,7 +30,7 @@ public class SserviceGetController {
     public ResponseEntity<SserviceResponse> getPlatformById(@PathVariable Integer id) {
         Sservice sservice = getSserviceUseCase.getById(id);
         SserviceResponse response = sserviceMapper.toResponse(sservice);
-            return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -44,5 +44,5 @@ public class SserviceGetController {
                 .map(sserviceMapper::toResponse)
                 .toList();
         return ResponseEntity.ok(response);
-    } 
+    }
 }

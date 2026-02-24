@@ -11,7 +11,9 @@ import com.neversion.panel.sservice.domain.port.out.SserviceRepositoryPort;
 
 @Service
 public class GetSserviceService implements GetSserviceUseCase {
+
     private final SserviceRepositoryPort sserviceRepositoryPort;
+    
     public GetSserviceService(SserviceRepositoryPort sserviceRepositoryPort) {
         this.sserviceRepositoryPort = sserviceRepositoryPort;
     }
@@ -32,5 +34,10 @@ public class GetSserviceService implements GetSserviceUseCase {
     public List<Sservice> getAll() {
         return sserviceRepositoryPort.findAll();
     }
+
+    // @Override
+    // public List<Sservice> getByCategory() {
+    //     return sserviceRepositoryPort.findByCategory();
+    // }
 
 }   
