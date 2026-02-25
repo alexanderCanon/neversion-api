@@ -30,14 +30,14 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 - Response Payload: name, lastname, email, phone, is_active.
 
 ---
-## Table 1: services
+## Table 1: products
 
-- Description: Catalog of digital services sold.
+- Description: Catalog of digital products sold.
 
 | Column      | Type      | Constraints      | Description                              |
 |------------|------------|------------------|------------------------------------------|
 | id         | INT        | PK, IDENTITY |                                          |
-| name       | VARCHAR    | NOT NULL         | Service name.                            |
+| name       | VARCHAR    | NOT NULL         | Product name.                            |
 | description| TEXT       |          |                                          |
 | image_url  | VARCHAR    | NULLABLE         | Raw link (e.g., AWS Bucket).             |
 | is_active  | BOOLEAN    | DEFAULT true     | Soft delete flag.                        |
@@ -48,18 +48,18 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 
 ---
 
-## Table 2: service_items
-- Description: Linking table defining the specific offering (Service + Price).
+## Table 2: plans
+- Description: Linking table defining the specific offering (Product + Price).
 
 | Column            | Type    | Constraints         | Description                          |
 |------------------|---------|--------------------|--------------------------------------|
 | id               | BIGINT  | PK, AUTO-INCREMENT |                                      |
-| service_id       | INT     | FK                 | References services(id).             |
+| product_id       | INT     | FK                 | References products(id).             |
 | price            | NUMERIC | NULLABLE           | Price per profile/unit.              |
 | duration         | VARCHAR     | NULLABLE           | Duration in days.                  |
 | account_type     | account_type | NOT NULL | Describes 'familiar' or 'individual' |
 
-- Response Payload: Managed by Sservice (father Class).
+- Response Payload: Managed by Product (father Class).
 
 ## Table 3: users_guests
 - Description: Stores data for anonymous buyers (no registered account).
@@ -83,7 +83,7 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 | id               | BIGINT        | PK, AUTO-INCREMENT |                                                  |
 | email             | VARCHAR | NOT NULL           | Service account email (Can repeat).           |
 | pass              | VARCHAR | NOT NULL           | Plaintext password (Low risk).                |
-| service_id | INTEGER | NOT NULL | Service |
+| product_id | INTEGER | NOT NULL | Product |
 | seller           | VARCHAR       | NOT NULL           | Supplier name (Informational).                   |
 | price_seller     | NUMERIC(10,2) | NOT NULL           | Cost of goods (> 0).                             |
 | stock            | INT           | DEFAULT 1          | Varies by demand.                                |
@@ -97,7 +97,7 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 - Response Payload: id, email, pass, seller, price_seller, account_type, expiration_date, is_active.
 
 ## Table 5: subscriptions
-- Description: The Source of Truth for active customer services. Displays on the main dashboard.
+- Description: The Source of Truth for active customer products. Displays on the main dashboard.
 
 | Column         | Type     | Constraints            | Description                                              |
 |---------------|----------|-----------------------|----------------------------------------------------------|

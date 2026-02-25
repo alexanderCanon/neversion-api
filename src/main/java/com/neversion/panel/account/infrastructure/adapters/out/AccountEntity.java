@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import com.neversion.panel.account.domain.model.enums.AccountType;
 
 import jakarta.persistence.Column;
@@ -48,7 +45,6 @@ public class AccountEntity {
     Integer stock;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "account_type")
     AccountType accountType;
 

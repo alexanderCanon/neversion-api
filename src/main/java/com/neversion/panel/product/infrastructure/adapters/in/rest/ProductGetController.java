@@ -1,0 +1,48 @@
+package com.neversion.panel.product.infrastructure.adapters.in.rest;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.neversion.panel.product.application.port.in.GetProductUseCase;
+import com.neversion.panel.product.domain.model.Product;
+import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductResponse;
+import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
+
+@RestController
+@RequestMapping("/api/v1/products")
+public class ProductGetController {
+
+    private final GetProductUseCase getProductUseCase;
+    private final ProductMapper productMapper;
+
+    public ProductGetController(GetProductUseCase getProductUseCase, ProductMapper productMapper) {
+        this.getProductUseCase = getProductUseCase;
+        this.productMapper = productMapper;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getPlatformById(@PathVariable Integer id) {
+        Product product = getProductUseCase.getById(id);
+        ProductResponse response = productMapper.toResponse(product);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getPlatforms(@RequestParam(required = false) String name) {
+        if (name != null && !name.isBlank()) {
+            Product product = getProductUseCase.getByName(name);
+            ProductResponse response = productMapper.toResponse(product);
+            return ResponseEntity.ok(response);
+        }
+        List<ProductResponse> response = getProductUseCase.getAll().stream()
+                .map(productMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+}
