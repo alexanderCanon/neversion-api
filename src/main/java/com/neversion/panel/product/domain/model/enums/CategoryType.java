@@ -4,5 +4,5 @@ public enum CategoryType {
     PLATAFORMA,
     RECARGA,
     SUSCRIPCION,
-    GIFTCARD
+    GIFT_CARD
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.neversion.panel.exception.ResourceNotFoundException;
 import com.neversion.panel.product.application.port.in.GetProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
+import com.neversion.panel.product.domain.model.enums.CategoryType;
 import com.neversion.panel.product.domain.port.out.ProductRepositoryPort;
 
 @Service
@@ -19,7 +20,7 @@ public class GetProductService implements GetProductUseCase {
     }
 
     @Override
-    public Product getById(Integer id) {
+    public Product getById(Long id) {
         Product product = productRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
         return product;
@@ -38,9 +39,9 @@ public class GetProductService implements GetProductUseCase {
         return products;
     }
 
-    // @Override
-    // public List<Product> getByCategory() {
-    // return productRepositoryPort.findByCategory();
-    // }
+    @Override
+    public List<Product> getByCategory(CategoryType category) {
+        return productRepositoryPort.findByCategory(category);
+    }
 
 }

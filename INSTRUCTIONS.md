@@ -11,6 +11,10 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 1.1 Backend (Admin Scope)
 - Responsibility: Full control over all entities and manage relationships.
 
+```markdown
+- Operational tables, such as orders and inventory, require manual sales processing.
+```
+
 # 2. Database Schema: Management Module (Core)
 ## Table 0: public.profiles
 
@@ -48,7 +52,7 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 
 ---
 
-## Table 2: plans
+## Table 2: inventory
 - Description: Linking table defining the specific offering (Product + Price).
 
 | Column            | Type    | Constraints         | Description                          |
@@ -58,8 +62,8 @@ We focus solely on the backend with Spring Boot, so our **ultimate goal** is to 
 | price            | NUMERIC | NULLABLE           | Price per profile/unit.              |
 | duration         | VARCHAR     | NULLABLE           | Duration in days.                  |
 | account_type     | account_type | NOT NULL | Describes 'familiar' or 'individual' |
+| stock | INT | NOT NULL, DEFAULT 0, > 0 |
 
-- Response Payload: Managed by Product (father Class).
 
 ## Table 3: users_guests
 - Description: Stores data for anonymous buyers (no registered account).

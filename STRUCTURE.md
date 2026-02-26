@@ -1,8 +1,8 @@
 # MY HEXAGONAL ARCHITECTURE FOR SPRING PROJECTS
-Don't create any Java files, just packages structure, neither .gitkeep files
-
 
 src/main/java/com/example/project
+│
+├── config/ (Security global config)
 │
 ├── exceptions/
 │   ├── GlobalExceptionHandler.java
@@ -17,7 +17,7 @@ src/main/java/com/example/project
     │   │
     │   ├── port/
     │   │   └── out/
-    │   │       └── RepositoryPort.java
+    │   │       └── <Feature>RepositoryPort.java
     │   │
     │   └── service/
     │       └── <DomainService>.java
@@ -47,7 +47,7 @@ src/main/java/com/example/project
             │           └── <RestMapper>.java
             │
             └── out/
-                ├── Entity.java
-                ├── RepositoryAdapter.java
-                ├── JpaAdapter.java
-                └── PersistenceMapper.java
+                ├── <Feature>Entity.java
+                ├── SpringData<Feature>Repository.java
+                ├── Jpa<Feature>Adapter.java
+                └── <Feature>PersistenceMapper.java

@@ -1,0 +1,53 @@
+package com.neversion.panel.product.application.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.neversion.panel.exception.BusinessRuleException;
+import com.neversion.panel.exception.ResourceNotFoundException;
+import com.neversion.panel.product.application.port.in.UpdateProductUseCase;
+import com.neversion.panel.product.domain.model.Product;
+import com.neversion.panel.product.domain.port.out.ProductRepositoryPort;
+
+@Service
+public class UpdateProductService implements UpdateProductUseCase {
+
+    private static final int MIN_NAME_LENGTH = 3;
+
+    private final ProductRepositoryPort productRepositoryPort;
+
+    public UpdateProductService(ProductRepositoryPort productRepositoryPort) {
+        this.productRepositoryPort = productRepositoryPort;
+    }
+
+    @Override
+    @Transactional
+    public Product update(Long id, Product product) {
+        Product existingProduct = productRepositoryPort.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
+
+        validateName(product.getName());
+        checkDuplicateName(id, product.getName());
+
+        existingProduct.setName(product.getName());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setImageUrl(product.getImageUrl());
+        existingProduct.setCategory(product.getCategory());
+
+        return productRepositoryPort.save(existingProduct);
+    }
+
+    private void validateName(String name) {
+        if (name == null || name.length() < MIN_NAME_LENGTH) {
+            throw new BusinessRuleException("Product name must be at least " + MIN_NAME_LENGTH + " characters");
+        }
+    }
+
+    private void checkDuplicateName(Long currentId, String name) {
+        productRepositoryPort.findByName(name).ifPresent(existing -> {
+            if (currentId == null || !existing.getId().equals(currentId)) {
+                throw new BusinessRuleException("Product with name '" + name + "' already exists");
+            }
+        });
+    }
+}

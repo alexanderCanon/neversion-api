@@ -5,11 +5,13 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.neversion.panel.exception.BusinessRuleException;
 import com.neversion.panel.product.domain.model.Product;
 import com.neversion.panel.product.domain.model.enums.CategoryType;
 import com.neversion.panel.product.domain.port.out.ProductRepositoryPort;
@@ -18,66 +20,96 @@ import com.neversion.panel.product.domain.port.out.ProductRepositoryPort;
 @DisplayName("CreateProductService Unit Tests")
 class CreateProductServiceTest {
 
-        @Mock
-        private ProductRepositoryPort productRepositoryPort;
+    @Mock
+    private ProductRepositoryPort productRepositoryPort;
 
-        private CreateProductService createProductService;
+    private CreateProductService createProductService;
 
-        @BeforeEach
-        void setUp() {
-                createProductService = new CreateProductService(productRepositoryPort);
+    @BeforeEach
+    void setUp() {
+        createProductService = new CreateProductService(productRepositoryPort);
+    }
+
+    @Nested
+    @DisplayName("create")
+    class Create {
+
+        @Test
+        @DisplayName("should return the saved Product with generated id")
+        void shouldReturnSavedProduct() {
+            Product input = Product.builder()
+                    .name("Netflix")
+                    .description("Streaming platform")
+                    .imageUrl("https://img.example.com/netflix.png")
+                    .category(CategoryType.PLATAFORMA)
+                    .build();
+
+            Product persisted = Product.builder()
+                    .id(1L)
+                    .name("Netflix")
+                    .description("Streaming platform")
+                    .imageUrl("https://img.example.com/netflix.png")
+                    .category(CategoryType.PLATAFORMA)
+                    .build();
+
+            when(productRepositoryPort.existsByName("Netflix")).thenReturn(false);
+            when(productRepositoryPort.save(input)).thenReturn(persisted);
+
+            Product result = createProductService.create(input);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(1);
+            assertThat(result.getName()).isEqualTo("Netflix");
+            assertThat(result.getDescription()).isEqualTo("Streaming platform");
+            assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
         }
 
         @Test
-        @DisplayName("create - should return the saved Product with generated id")
-        void create_shouldReturnSavedProduct() {
-                // Given
-                Product input = Product.builder()
-                                .name("Netflix")
-                                .description("Streaming platform")
-                                .imageUrl("https://img.example.com/netflix.png")
-                                .category(CategoryType.PLATAFORMA)
-                                .build();
+        @DisplayName("should delegate to repository port exactly once")
+        void shouldDelegateToRepositoryPort() {
+            Product input = Product.builder()
+                    .name("Spotify")
+                    .description("Music streaming")
+                    .imageUrl("https://img.example.com/spotify.png")
+                    .category(CategoryType.SUSCRIPCION)
+                    .build();
 
-                Product persisted = Product.builder()
-                                .id(1)
-                                .name("Netflix")
-                                .description("Streaming platform")
-                                .imageUrl("https://img.example.com/netflix.png")
-                                .category(CategoryType.PLATAFORMA)
-                                .build();
+            when(productRepositoryPort.existsByName("Spotify")).thenReturn(false);
+            when(productRepositoryPort.save(input)).thenReturn(input);
 
-                when(productRepositoryPort.save(input)).thenReturn(persisted);
+            createProductService.create(input);
 
-                // When
-                Product result = createProductService.create(input);
-
-                // Then
-                assertThat(result).isNotNull();
-                assertThat(result.getId()).isEqualTo(1);
-                assertThat(result.getName()).isEqualTo("Netflix");
-                assertThat(result.getDescription()).isEqualTo("Streaming platform");
-                assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
+            verify(productRepositoryPort, times(1)).save(input);
+            verify(productRepositoryPort, times(1)).existsByName("Spotify");
+            verifyNoMoreInteractions(productRepositoryPort);
         }
 
         @Test
-        @DisplayName("create - should delegate to repository port exactly once")
-        void create_shouldDelegateToRepositoryPort() {
-                // Given
-                Product input = Product.builder()
-                                .name("Spotify")
-                                .description("Music streaming")
-                                .imageUrl("https://img.example.com/spotify.png")
-                                .category(CategoryType.SUSCRIPCION)
-                                .build();
+        @DisplayName("should throw exception when name is less than 3 characters")
+        void shouldThrowException_whenNameTooShort() {
+            Product input = Product.builder()
+                    .name("AB")
+                    .category(CategoryType.PLATAFORMA)
+                    .build();
 
-                when(productRepositoryPort.save(input)).thenReturn(input);
-
-                // When
-                createProductService.create(input);
-
-                // Then
-                verify(productRepositoryPort, times(1)).save(input);
-                verifyNoMoreInteractions(productRepositoryPort);
+            assertThatThrownBy(() -> createProductService.create(input))
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("at least 3 characters");
         }
+
+        @Test
+        @DisplayName("should throw exception when name already exists")
+        void shouldThrowException_whenDuplicateName() {
+            Product input = Product.builder()
+                    .name("Netflix")
+                    .category(CategoryType.PLATAFORMA)
+                    .build();
+
+            when(productRepositoryPort.existsByName("Netflix")).thenReturn(true);
+
+            assertThatThrownBy(() -> createProductService.create(input))
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("already exists");
+        }
+    }
 }

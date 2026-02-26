@@ -20,6 +20,7 @@ import com.neversion.panel.config.SecurityConfig;
 import com.neversion.panel.product.application.port.in.CreateProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
 import com.neversion.panel.product.domain.model.enums.CategoryType;
+import com.neversion.panel.product.infrastructure.adapters.in.rest.controller.ProductPostController;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
 @WebMvcTest(ProductPostController.class)
@@ -68,7 +69,7 @@ class ProductPostControllerIT {
                 .build();
 
         Product domainOutput = Product.builder()
-                .id(1)
+                .id(1L)
                 .name("Netflix")
                 .description("Streaming service")
                 .imageUrl("https://img.com/netflix.png")

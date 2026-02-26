@@ -1,24 +1,19 @@
 package com.neversion.panel.product.infrastructure.adapters.out;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.neversion.panel.product.domain.model.enums.CategoryType;
-import com.neversion.panel.plan.infrastructure.adapters.out.PlanEntity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,9 +29,9 @@ import lombok.Setter;
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "name")
     private String name;
@@ -57,15 +52,11 @@ public class ProductEntity {
     @Column(name = "category")
     private CategoryType category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<PlanEntity> items = new ArrayList<>();
-
     public ProductEntity() {
     }
 
-    public ProductEntity(Integer id, String name, String description, String imageUrl, Boolean isActive,
-            Instant createdAt, CategoryType category, List<PlanEntity> items) {
+    public ProductEntity(Long id, String name, String description, String imageUrl, Boolean isActive,
+            Instant createdAt, CategoryType category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -73,16 +64,5 @@ public class ProductEntity {
         this.isActive = isActive;
         this.createdAt = createdAt;
         this.category = category;
-        this.items = items;
-    }
-
-    public void addItem(PlanEntity item) {
-        items.add(item);
-        item.setProduct(this);
-    }
-
-    public void removeItem(PlanEntity item) {
-        items.remove(item);
-        item.setProduct(null);
     }
 }

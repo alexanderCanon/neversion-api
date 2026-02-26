@@ -1,6 +1,6 @@
 package com.neversion.panel.product.infrastructure.adapters.in.rest;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +22,7 @@ import com.neversion.panel.exception.ResourceNotFoundException;
 import com.neversion.panel.product.application.port.in.GetProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
 import com.neversion.panel.product.domain.model.enums.CategoryType;
+import com.neversion.panel.product.infrastructure.adapters.in.rest.controller.ProductGetController;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductResponse;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
@@ -37,7 +38,7 @@ class ProductGetControllerIT {
     @MockitoBean
     private ProductMapper productMapper;
 
-    private Product buildProduct(Integer id, String name) {
+    private Product buildProduct(Long id, String name) {
         return Product.builder()
                 .id(id)
                 .name(name)
@@ -46,8 +47,8 @@ class ProductGetControllerIT {
                 .build();
     }
 
-    private ProductResponse buildResponse(Integer id, String name) {
-        return new ProductResponse(id, name, "Test description", CategoryType.PLATAFORMA, List.of());
+    private ProductResponse buildResponse(Long id, String name) {
+        return new ProductResponse(name, "Test description", String.valueOf(CategoryType.PLATAFORMA));
     }
 
     // -- GET by ID --
@@ -59,10 +60,10 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 when service exists")
         void getById_shouldReturn200() throws Exception {
-            Product product = buildProduct(1, "Netflix");
-            ProductResponse response = buildResponse(1, "Netflix");
+            Product product = buildProduct(1L, "Netflix");
+            ProductResponse response = buildResponse(1L, "Netflix");
 
-            when(getProductUseCase.getById(1)).thenReturn(product);
+            when(getProductUseCase.getById(1L)).thenReturn(product);
             when(productMapper.toResponse(product)).thenReturn(response);
 
             mockMvc.perform(get("/api/v1/products/{id}", 1))
@@ -74,7 +75,7 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 404 when service does not exist")
         void getById_shouldReturn404_whenNotExists() throws Exception {
-            when(getProductUseCase.getById(anyInt()))
+            when(getProductUseCase.getById(anyLong()))
                     .thenThrow(new ResourceNotFoundException("Product with id 999 not found"));
 
             mockMvc.perform(get("/api/v1/products/{id}", 999))
@@ -93,8 +94,8 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 when service exists by name")
         void getByName_shouldReturn200() throws Exception {
-            Product product = buildProduct(1, "Netflix");
-            ProductResponse response = buildResponse(1, "Netflix");
+            Product product = buildProduct(1L, "Netflix");
+            ProductResponse response = buildResponse(1L, "Netflix");
 
             when(getProductUseCase.getByName("Netflix")).thenReturn(product);
             when(productMapper.toResponse(product)).thenReturn(response);
@@ -126,10 +127,10 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 with list of services")
         void getAll_shouldReturn200_withList() throws Exception {
-            Product s1 = buildProduct(1, "Netflix");
-            Product s2 = buildProduct(2, "Spotify");
-            ProductResponse r1 = buildResponse(1, "Netflix");
-            ProductResponse r2 = buildResponse(2, "Spotify");
+            Product s1 = buildProduct(1L, "Netflix");
+            Product s2 = buildProduct(2L, "Spotify");
+            ProductResponse r1 = buildResponse(1L, "Netflix");
+            ProductResponse r2 = buildResponse(2L, "Spotify");
 
             when(getProductUseCase.getAll()).thenReturn(List.of(s1, s2));
             when(productMapper.toResponse(s1)).thenReturn(r1);
