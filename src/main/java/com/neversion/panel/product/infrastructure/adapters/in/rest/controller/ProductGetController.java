@@ -1,6 +1,7 @@
 package com.neversion.panel.product.infrastructure.adapters.in.rest.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class ProductGetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID id) {
         Product product = getProductUseCase.getById(id);
         ProductResponse response = productMapper.toResponse(product);
         return ResponseEntity.ok(response);

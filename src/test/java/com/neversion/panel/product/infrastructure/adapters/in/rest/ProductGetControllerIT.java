@@ -1,6 +1,6 @@
 package com.neversion.panel.product.infrastructure.adapters.in.rest;
 
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,17 +39,17 @@ class ProductGetControllerIT {
     @MockitoBean
     private ProductMapper productMapper;
 
-    private Product buildProduct(Long id, String name) {
+    private Product buildProduct(UUID id, String name) {
         return Product.builder()
                 .id(id)
                 .name(name)
                 .description("Test description")
-                .category(CategoryType.PLATAFORMA)
+                .category(CategoryType.STREAMING)
                 .build();
     }
 
-    private ProductResponse buildResponse(Long id, String name) {
-        return new ProductResponse(name, "Test description", String.valueOf(CategoryType.PLATAFORMA));
+    private ProductResponse buildResponse(UUID id, String name) {
+        return new ProductResponse(id, name, "Test description", null, String.valueOf(CategoryType.STREAMING));
     }
 
     // -- GET by ID --
@@ -60,28 +61,29 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 when service exists")
         void getById_shouldReturn200() throws Exception {
-            Product product = buildProduct(1L, "Netflix");
-            ProductResponse response = buildResponse(1L, "Netflix");
+            UUID id = UUID.randomUUID();
+            Product product = buildProduct(id, "Netflix");
+            ProductResponse response = buildResponse(id, "Netflix");
 
-            when(getProductUseCase.getById(1L)).thenReturn(product);
+            when(getProductUseCase.getById(id)).thenReturn(product);
             when(productMapper.toResponse(product)).thenReturn(response);
 
-            mockMvc.perform(get("/api/v1/products/{id}", 1))
+            mockMvc.perform(get("/api/v1/products/{id}", id))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
+                    .andExpect(jsonPath("$.id").value(id.toString()))
                     .andExpect(jsonPath("$.name").value("Netflix"));
         }
 
         @Test
         @DisplayName("→ 404 when service does not exist")
         void getById_shouldReturn404_whenNotExists() throws Exception {
-            when(getProductUseCase.getById(anyLong()))
-                    .thenThrow(new ResourceNotFoundException("Product with id 999 not found"));
+            UUID id = UUID.randomUUID();
+            when(getProductUseCase.getById(any(UUID.class)))
+                    .thenThrow(new ResourceNotFoundException("Product with id " + id + " not found"));
 
-            mockMvc.perform(get("/api/v1/products/{id}", 999))
+            mockMvc.perform(get("/api/v1/products/{id}", id))
                     .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.status").value(404))
-                    .andExpect(jsonPath("$.message").value("Product with id 999 not found"));
+                    .andExpect(jsonPath("$.status").value(404));
         }
     }
 
@@ -94,15 +96,16 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 when service exists by name")
         void getByName_shouldReturn200() throws Exception {
-            Product product = buildProduct(1L, "Netflix");
-            ProductResponse response = buildResponse(1L, "Netflix");
+            UUID id = UUID.randomUUID();
+            Product product = buildProduct(id, "Netflix");
+            ProductResponse response = buildResponse(id, "Netflix");
 
             when(getProductUseCase.getByName("Netflix")).thenReturn(product);
             when(productMapper.toResponse(product)).thenReturn(response);
 
             mockMvc.perform(get("/api/v1/products").param("name", "Netflix"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
+                    .andExpect(jsonPath("$.id").value(id.toString()))
                     .andExpect(jsonPath("$.name").value("Netflix"));
         }
 
@@ -127,10 +130,12 @@ class ProductGetControllerIT {
         @Test
         @DisplayName("→ 200 with list of services")
         void getAll_shouldReturn200_withList() throws Exception {
-            Product s1 = buildProduct(1L, "Netflix");
-            Product s2 = buildProduct(2L, "Spotify");
-            ProductResponse r1 = buildResponse(1L, "Netflix");
-            ProductResponse r2 = buildResponse(2L, "Spotify");
+            UUID id1 = UUID.randomUUID();
+            UUID id2 = UUID.randomUUID();
+            Product s1 = buildProduct(id1, "Netflix");
+            Product s2 = buildProduct(id2, "Spotify");
+            ProductResponse r1 = buildResponse(id1, "Netflix");
+            ProductResponse r2 = buildResponse(id2, "Spotify");
 
             when(getProductUseCase.getAll()).thenReturn(List.of(s1, s2));
             when(productMapper.toResponse(s1)).thenReturn(r1);

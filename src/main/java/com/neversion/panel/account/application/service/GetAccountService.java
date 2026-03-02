@@ -2,14 +2,15 @@ package com.neversion.panel.account.application.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.neversion.panel.account.application.port.in.GetAccountUseCase;
 import com.neversion.panel.account.domain.model.Account;
-import com.neversion.panel.account.domain.model.enums.AccountType;
 import com.neversion.panel.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.panel.exception.ResourceNotFoundException;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Service
 public class GetAccountService implements GetAccountUseCase {
@@ -20,7 +21,7 @@ public class GetAccountService implements GetAccountUseCase {
     }
 
     @Override
-    public Account getById(Long id) {
+    public Account getById(UUID id) {
         return accountRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
     }

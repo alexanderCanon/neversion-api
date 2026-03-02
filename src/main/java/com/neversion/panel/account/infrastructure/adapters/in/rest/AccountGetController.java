@@ -2,6 +2,7 @@ package com.neversion.panel.account.infrastructure.adapters.in.rest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.panel.account.application.port.in.GetAccountUseCase;
 import com.neversion.panel.account.domain.model.Account;
-import com.neversion.panel.account.domain.model.enums.AccountType;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountResponse;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.mapper.AccountMapper;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -29,7 +30,7 @@ public class AccountGetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountResponse> getAccountById(@PathVariable Long id) {
+    public ResponseEntity<AccountResponse> getAccountById(@PathVariable UUID id) {
         Account account = getAccountUseCase.getById(id);
         AccountResponse response = accountMapper.toResponse(account);
         return ResponseEntity.ok(response);

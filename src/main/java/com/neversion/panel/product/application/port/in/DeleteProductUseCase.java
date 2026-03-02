@@ -1,5 +1,7 @@
 package com.neversion.panel.product.application.port.in;
 
+import java.util.UUID;
+
 public interface DeleteProductUseCase {
-    void delete(Long id);
+    void delete(UUID id);
 }

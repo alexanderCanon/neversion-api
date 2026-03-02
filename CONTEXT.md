@@ -36,3 +36,38 @@ I work under these rules:
     - Designed for growth.
     - Adapted to a business where validation is manual.
 - Before proposing changes or improvements, analyze my business model and respect this operating logic.
+
+## Use Cases and Business Rules
+
+### Business Rules
+
+These are the logical guidelines that the backend code must strictly follow:
+
+- **BR-01: Reservation Validity.** Every created reservation will have an exact lifespan of 60 minutes. If it expires without the customer uploading the proof of payment, the reservation status automatically changes to `cancelled`.
+- **BR-02: Price Freezing.** When creating a reservation, the system must record the current inventory price at that exact millisecond. Subsequent changes to the catalog price will not affect existing reservations.
+- **BR-03: Combo Discount.**
+    - If the cart has **1** service: List price is charged (0% discount).
+    - If the cart has **2 or more** services: An automatic discount of **2%** (or the tiered percentage defined by the client) is applied to the subtotal of the applicable products.
+- **BR-04: Discount Rule.** If an inventory product is created with a duration of "90 days" or more, the system must calculate a 3% discount on the proportional monthly base price. That is, products with 30-day duration always have the price defined dynamically.
+- **BR-05: Proof Anti-Fraud.** The same payment proof link or hash (`proof_url`) cannot be associated with more than one reservation in the system.
+- **BR-06: Individual Account Exclusivity.** An `account_id` of type `individual` cannot be assigned to more than one subscription with `active` status at the same time.
+- **BR-07: Reservation to Order Transition.** An order can only be created if a reservation with `uploaded` status is manually validated by the Administrator.
+
+Observation, there are two types of discounts:
+- **Discount Rule:** This discount is applied to accounts depending on the duration.
+- **Combo Discount:** This discount is applied to the subtotal of the applicable products.
+
+### Use Cases
+
+### Actor: ADMIN
+
+- **CU-A01: Manage Catalog (Theoretical Inventory).** The admin can create, read, update, or deactivate products (`products`) and their different variants (`inventory` - type, duration, price).
+- **CU-A02: Manage Raw Material (Physical Inventory).** The admin can register the actual credentials (`accounts`) purchased from providers, specifying email, password, cost (`price_seller`), type, and expiration date.
+- **CU-A03: Validate Payments (Reservation Flow).** The admin can view a list of reservations in `uploaded` status, open the payment receipt link (`proof_url`), and decide whether to approve it (creating the `order` and generating the subscription) or reject it (changing status to `cancelled`).
+- **CU-A04: Subscription Monitoring.** The admin can view a master table with all subscriptions. They must be able to filter by: status (active, expired, suspended), specific customer, or specific product, clearly visualizing the start and end dates (`purchase_date`, `renewal_date`).
+
+### Actor: CUSTOMER
+
+- **CU-C01: Explore Catalog.** The customer can view all active products and select variants (e.g., Netflix, Individual, 30 days) while seeing the price in real-time.
+- **CU-C02: Build Cart and Apply Combos.** The customer can add multiple services to the cart. The system must calculate and display the discount applied in real-time if the customer selects 2 or more services.
+- **CU-C03: Generate Reservation (Checkout).** The customer can enter as a guest (name, email, phone), upload their payment receipt, and generate the reservation. The system will show a timer (optional in UI) and confirm that their order is "Pending validation".

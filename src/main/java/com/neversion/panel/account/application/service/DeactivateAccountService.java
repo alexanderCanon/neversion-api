@@ -1,5 +1,7 @@
 package com.neversion.panel.account.application.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.neversion.panel.account.application.port.in.DeactivateAccountUseCase;
@@ -15,7 +17,7 @@ public class DeactivateAccountService implements DeactivateAccountUseCase {
     }
 
     @Override
-    public void deactivate(Long id) {
+    public void deactivate(UUID id) {
         accountRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
         accountRepositoryPort.deactivate(id);

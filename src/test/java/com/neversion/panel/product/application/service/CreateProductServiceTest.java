@@ -3,6 +3,8 @@ package com.neversion.panel.product.application.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,19 +39,21 @@ class CreateProductServiceTest {
         @Test
         @DisplayName("should return the saved Product with generated id")
         void shouldReturnSavedProduct() {
+            UUID generatedId = UUID.randomUUID();
+
             Product input = Product.builder()
                     .name("Netflix")
                     .description("Streaming platform")
                     .imageUrl("https://img.example.com/netflix.png")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             Product persisted = Product.builder()
-                    .id(1L)
+                    .id(generatedId)
                     .name("Netflix")
                     .description("Streaming platform")
                     .imageUrl("https://img.example.com/netflix.png")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             when(productRepositoryPort.existsByName("Netflix")).thenReturn(false);
@@ -58,10 +62,10 @@ class CreateProductServiceTest {
             Product result = createProductService.create(input);
 
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(1);
+            assertThat(result.getId()).isEqualTo(generatedId);
             assertThat(result.getName()).isEqualTo("Netflix");
             assertThat(result.getDescription()).isEqualTo("Streaming platform");
-            assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
+            assertThat(result.getCategory()).isEqualTo(CategoryType.STREAMING);
         }
 
         @Test
@@ -71,7 +75,7 @@ class CreateProductServiceTest {
                     .name("Spotify")
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIPCION)
+                    .category(CategoryType.SUSCRIP4U)
                     .build();
 
             when(productRepositoryPort.existsByName("Spotify")).thenReturn(false);
@@ -89,7 +93,7 @@ class CreateProductServiceTest {
         void shouldThrowException_whenNameTooShort() {
             Product input = Product.builder()
                     .name("AB")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             assertThatThrownBy(() -> createProductService.create(input))
@@ -102,7 +106,7 @@ class CreateProductServiceTest {
         void shouldThrowException_whenDuplicateName() {
             Product input = Product.builder()
                     .name("Netflix")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             when(productRepositoryPort.existsByName("Netflix")).thenReturn(true);

@@ -1,6 +1,7 @@
 package com.neversion.panel.product.infrastructure.adapters.out;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -29,9 +30,9 @@ import lombok.Setter;
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "name")
     private String name;
@@ -55,7 +56,7 @@ public class ProductEntity {
     public ProductEntity() {
     }
 
-    public ProductEntity(Long id, String name, String description, String imageUrl, Boolean isActive,
+    public ProductEntity(UUID id, String name, String description, String imageUrl, Boolean isActive,
             Instant createdAt, CategoryType category) {
         this.id = id;
         this.name = name;

@@ -34,7 +34,6 @@ public class InventoryPostController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Se requiere el ID del producto para agregar un detalle de inventario.");
         }
-        //TODO Exceptions must be managed in Exceptions package
 
         Inventory inventory = inventoryMapper.toDomain(request);
         Inventory createdInventory = addInventoryUseCase.add(request.productId(), inventory);

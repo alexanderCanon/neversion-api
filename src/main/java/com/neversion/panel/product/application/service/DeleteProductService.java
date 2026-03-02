@@ -1,5 +1,7 @@
 package com.neversion.panel.product.application.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,7 @@ public class DeleteProductService implements DeleteProductUseCase {
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(UUID id) {
         if (!productRepositoryPort.findById(id).isPresent()) {
             throw new ResourceNotFoundException("Product with id " + id + " not found");
         }

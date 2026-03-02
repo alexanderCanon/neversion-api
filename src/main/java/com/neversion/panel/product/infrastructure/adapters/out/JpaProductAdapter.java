@@ -2,6 +2,7 @@ package com.neversion.panel.product.infrastructure.adapters.out;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
@@ -38,7 +39,7 @@ public class JpaProductAdapter implements ProductRepositoryPort {
     }
 
     @Override
-    public Optional<Product> findById(Long id) {
+    public Optional<Product> findById(UUID id) {
         return productRepo.findById(id)
                 .map(productPersistenceMapper::toDomain);
     }
@@ -58,7 +59,7 @@ public class JpaProductAdapter implements ProductRepositoryPort {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(UUID id) {
         productRepo.deleteById(id);
     }
 

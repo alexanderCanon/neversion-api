@@ -1,6 +1,7 @@
 package com.neversion.panel.product.application.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class GetProductService implements GetProductUseCase {
     }
 
     @Override
-    public Product getById(Long id) {
+    public Product getById(UUID id) {
         Product product = productRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
         return product;

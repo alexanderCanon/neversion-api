@@ -152,6 +152,7 @@ CREATE TABLE reservations (
   inventory_id BIGINT NOT NULL REFERENCES inventory(id),
   user_guest_id UUID NOT NULL REFERENCES users_guests(id),
   profile_id UUID REFERENCES public.profiles(id),
+  discount numeric(10,2) DEFAULT 0,
   qty INT NOT NULL DEFAULT 1 CHECK (qty > 0),
   status reserv_status NOT NULL DEFAULT 'pending',
   proof_url TEXT UNIQUE,
@@ -177,9 +178,10 @@ CREATE TABLE reservation_details (
 -- orders
 CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid(),
-  reservation_id UUID UNIQUE NOT NULL REFERENCES reservations(id)
+  reservation_id UUID UNIQUE NOT NULL REFERENCES reservations(id),
   profile_id UUID REFERENCES public.profiles(id),
   user_guest_id UUID REFERENCES users_guests(id),
+  discount numeric(10,2) DEFAULT 0,
   total NUMERIC(10,2) NOT NULL CHECK (total > 0),
   status order_status NOT NULL DEFAULT 'validated',
   proof_url TEXT,

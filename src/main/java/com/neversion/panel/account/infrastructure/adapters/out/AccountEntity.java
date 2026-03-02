@@ -3,8 +3,10 @@ package com.neversion.panel.account.infrastructure.adapters.out;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
-import com.neversion.panel.account.domain.model.enums.AccountType;
+import com.neversion.panel.shared.domain.model.enums.AccountStatus;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,62 +17,65 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "accounts")
 @Getter
+@Setter
 public class AccountEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    Long id;
+    private UUID id;
 
     @Column(name = "email")
-    String email;
+    private String email;
 
     @Column(name = "pass")
-    String pass;
+    private String pass;
 
-    @Column(name = "service_id")
-    Integer serviceId;
+    @Column(name = "product_id")
+    private UUID productId;
 
     @Column(name = "seller")
-    String seller;
+    private String seller;
 
     @Column(name = "price_seller")
-    BigDecimal priceSeller;
-
-    @Column(name = "stock")
-    Integer stock;
+    private BigDecimal priceSeller;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type")
-    AccountType accountType;
+    private AccountType accountType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private AccountStatus status;
 
     @Column(name = "expiration_date")
-    LocalDate expirationDate;
+    private LocalDate expirationDate;
 
     @Column(name = "is_active")
-    Boolean isActive;
+    private Boolean isActive;
 
     @Column(name = "created_at")
-    Instant createdAt;
+    private Instant createdAt;
 
     public AccountEntity() {
     }
 
-    public AccountEntity(Long id, String email, String pass, Integer serviceId, String seller,
-            BigDecimal priceSeller, Integer stock, AccountType accountType, LocalDate expirationDate,
-            Boolean isActive) {
+    public AccountEntity(UUID id, String email, String pass, UUID productId, String seller,
+            BigDecimal priceSeller, AccountType accountType, AccountStatus status,
+            LocalDate expirationDate, Boolean isActive) {
         this.id = id;
         this.email = email;
         this.pass = pass;
-        this.serviceId = serviceId;
+        this.productId = productId;
         this.seller = seller;
         this.priceSeller = priceSeller;
-        this.stock = stock;
         this.accountType = accountType;
+        this.status = status;
         this.expirationDate = expirationDate;
         this.isActive = isActive;
     }

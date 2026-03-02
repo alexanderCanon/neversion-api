@@ -3,20 +3,20 @@ package com.neversion.panel.inventory.infrastructure.adapters.in.rest.mapper;
 import org.springframework.stereotype.Component;
 
 import com.neversion.panel.inventory.domain.model.Inventory;
-import com.neversion.panel.inventory.domain.model.enums.AccountType;
 import com.neversion.panel.inventory.infrastructure.adapters.in.rest.dto.InventoryRequest;
 import com.neversion.panel.inventory.infrastructure.adapters.in.rest.dto.InventoryResponse;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Component
 public class InventoryMapper {
 
     public Inventory toDomain(InventoryRequest request) {
         if (request == null)
-            return null; //ese null podria lanzar un NullPointerException
+            return null;
 
         return Inventory.builder()
                 .price(request.priceAmount())
-                .duration(request.duration())
+                .durationDays(request.durationDays())
                 .accountType(AccountType.valueOf(request.accountType().toUpperCase()))
                 .stock(request.stock())
                 .build();
@@ -27,9 +27,9 @@ public class InventoryMapper {
             return null;
 
         return new InventoryResponse(
-                inventory.getProduct().getId(),
+                inventory.getProductId(),
                 inventory.getPrice(),
-                inventory.getDuration(),
+                inventory.getDurationDays(),
                 inventory.getAccountType(),
                 inventory.getStock());
     }

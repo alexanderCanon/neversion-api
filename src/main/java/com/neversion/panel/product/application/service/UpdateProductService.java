@@ -1,5 +1,7 @@
 package com.neversion.panel.product.application.service;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +24,7 @@ public class UpdateProductService implements UpdateProductUseCase {
 
     @Override
     @Transactional
-    public Product update(Long id, Product product) {
+    public Product update(UUID id, Product product) {
         Product existingProduct = productRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
 
@@ -43,7 +45,7 @@ public class UpdateProductService implements UpdateProductUseCase {
         }
     }
 
-    private void checkDuplicateName(Long currentId, String name) {
+    private void checkDuplicateName(UUID currentId, String name) {
         productRepositoryPort.findByName(name).ifPresent(existing -> {
             if (currentId == null || !existing.getId().equals(currentId)) {
                 throw new BusinessRuleException("Product with name '" + name + "' already exists");

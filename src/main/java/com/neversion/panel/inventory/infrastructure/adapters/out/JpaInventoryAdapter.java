@@ -2,13 +2,14 @@ package com.neversion.panel.inventory.infrastructure.adapters.out;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
 import com.neversion.panel.inventory.domain.model.Inventory;
-import com.neversion.panel.inventory.domain.model.enums.AccountType;
 import com.neversion.panel.inventory.domain.port.out.InventoryRepositoryPort;
 import com.neversion.panel.inventory.infrastructure.adapters.out.mapper.InventoryPersistenceMapper;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Repository
 public class JpaInventoryAdapter implements InventoryRepositoryPort {
@@ -48,7 +49,7 @@ public class JpaInventoryAdapter implements InventoryRepositoryPort {
     }
 
     @Override
-    public List<Inventory> findByProductId(Long productId) {
+    public List<Inventory> findByProductId(UUID productId) {
         return inventoryRepository.findByProductId(productId)
                 .stream()
                 .map(inventoryPersistenceMapper::toDomain)
@@ -56,7 +57,7 @@ public class JpaInventoryAdapter implements InventoryRepositoryPort {
     }
 
     @Override
-    public boolean existsByProductId(Long productId) {
+    public boolean existsByProductId(UUID productId) {
         return inventoryRepository.existsByProductId(productId);
     }
 

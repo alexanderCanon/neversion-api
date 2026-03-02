@@ -1,17 +1,21 @@
 package com.neversion.panel.order.domain.model;
 
-import java.time.Instant;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
+import com.neversion.panel.order.domain.model.enums.OrderStatus;
+
 public record Order(
-    Long id,
-    UUID profileId,
-    UUID userGuestId,
-    BigDecimal total,
-    String proofUrl,
-    String notes,
-    Instant createdAt
-) {
+        UUID id,
+        UUID reservationId,
+        UUID profileId,
+        UUID userGuestId,
+        BigDecimal discount,
+        BigDecimal total,
+        OrderStatus status,
+        String proofUrl,
+        String notes,
+        Instant createdAt) {
 
 }

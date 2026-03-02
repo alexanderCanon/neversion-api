@@ -1,5 +1,7 @@
 package com.neversion.panel.account.application.port.in;
 
+import java.util.UUID;
+
 public interface DeactivateAccountUseCase {
-    void deactivate(Long id);
+    void deactivate(UUID id);
 }

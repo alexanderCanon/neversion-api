@@ -1,5 +1,7 @@
 package com.neversion.panel.product.infrastructure.adapters.in.rest.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +21,7 @@ public class ProductDeleteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         deleteProductUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }

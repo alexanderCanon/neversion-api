@@ -3,13 +3,14 @@ package com.neversion.panel.account.infrastructure.adapters.out;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
 import com.neversion.panel.account.domain.model.Account;
-import com.neversion.panel.account.domain.model.enums.AccountType;
 import com.neversion.panel.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.panel.account.infrastructure.adapters.out.mapper.AccountPersistenceMapper;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Repository
 public class JpaAccountAdapter implements AccountRepositoryPort {
@@ -32,7 +33,7 @@ public class JpaAccountAdapter implements AccountRepositoryPort {
     }
 
     @Override
-    public Optional<Account> findById(Long id) {
+    public Optional<Account> findById(UUID id) {
         return accountRepositoryAdapter.findById(id)
                 .map(accountPersistenceMapper::toDomain);
     }
@@ -78,7 +79,7 @@ public class JpaAccountAdapter implements AccountRepositoryPort {
     }
 
     @Override
-    public void deactivate(Long id) {
+    public void deactivate(UUID id) {
         accountRepositoryAdapter.deactivate(id);
     }
 }

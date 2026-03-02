@@ -13,20 +13,22 @@ public class InventoryPersistenceMapper {
             return null;
         return Inventory.builder()
                 .id(entity.getId())
+                .productId(entity.getProductId())
                 .price(entity.getPrice())
-                .duration(entity.getDuration())
+                .durationDays(entity.getDurationDays())
                 .accountType(entity.getAccountType())
                 .stock(entity.getStock())
                 .build();
-            }
-            
+    }
+
     public InventoryEntity toEntity(Inventory domain) {
         if (domain == null)
             return null;
         return InventoryEntity.builder()
                 .id(domain.getId())
+                .productId(domain.getProductId())
                 .price(domain.getPrice())
-                .duration(domain.getDuration())
+                .durationDays(domain.getDurationDays())
                 .accountType(domain.getAccountType())
                 .stock(domain.getStock())
                 .build();

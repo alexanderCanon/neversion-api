@@ -2,8 +2,9 @@ package com.neversion.panel.account.infrastructure.adapters.in.rest.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
-import com.neversion.panel.account.domain.model.enums.AccountType;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
@@ -23,8 +24,8 @@ public class AccountRequest {
     @NotBlank(message = "Password is required")
     String pass;
 
-    @NotNull(message = "Service id is required")
-    Integer serviceId;
+    @NotNull(message = "Product id is required")
+    UUID productId;
 
     @NotBlank(message = "Seller is required")
     @Size(max = 255, message = "Seller must not exceed 255 characters")
@@ -33,8 +34,6 @@ public class AccountRequest {
     @NotNull(message = "Price seller is required")
     @DecimalMin(value = "0.01", message = "Price seller must be greater than 0")
     BigDecimal priceSeller;
-
-    Integer stock;
 
     @NotNull(message = "Account type is required")
     AccountType accountType;

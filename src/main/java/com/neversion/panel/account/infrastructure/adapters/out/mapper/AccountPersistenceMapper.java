@@ -13,11 +13,11 @@ public class AccountPersistenceMapper {
                 entity.getId(),
                 entity.getEmail(),
                 entity.getPass(),
-                entity.getServiceId(),
+                entity.getProductId(),
                 entity.getSeller(),
                 entity.getPriceSeller(),
-                entity.getStock(),
                 entity.getAccountType(),
+                entity.getStatus(),
                 entity.getExpirationDate(),
                 entity.getIsActive(),
                 entity.getCreatedAt());
@@ -28,11 +28,11 @@ public class AccountPersistenceMapper {
                 account.id(),
                 account.email(),
                 account.pass(),
-                account.serviceId(),
+                account.productId(),
                 account.seller(),
                 account.priceSeller(),
-                account.stock(),
                 account.accountType(),
+                account.status(),
                 account.expirationDate(),
                 account.isActive());
     }

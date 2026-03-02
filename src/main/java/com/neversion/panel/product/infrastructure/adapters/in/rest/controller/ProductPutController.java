@@ -1,5 +1,7 @@
 package com.neversion.panel.product.infrastructure.adapters.in.rest.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +30,7 @@ public class ProductPutController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable UUID id,
             @Valid @RequestBody ProductRequest request) {
         Product product = productMapper.toDomain(request);
         Product updatedProduct = updateProductUseCase.update(id, product);

@@ -29,8 +29,10 @@ public class ProductMapper {
             return null;
 
         return new ProductResponse(
+                product.getId(),
                 product.getName(),
                 product.getDescription(),
+                product.getImageUrl(),
                 product.getCategory().toString());
     }
 }

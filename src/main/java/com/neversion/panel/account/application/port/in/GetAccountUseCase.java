@@ -2,12 +2,13 @@ package com.neversion.panel.account.application.port.in;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import com.neversion.panel.account.domain.model.Account;
-import com.neversion.panel.account.domain.model.enums.AccountType;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 public interface GetAccountUseCase {
-    Account getById(Long id);
+    Account getById(UUID id);
 
     List<Account> getBySeller(String seller);
 

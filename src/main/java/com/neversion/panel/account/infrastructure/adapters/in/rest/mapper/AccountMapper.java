@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.neversion.panel.account.domain.model.Account;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountResponse;
+import com.neversion.panel.shared.domain.model.enums.AccountStatus;
 
 @Component
 public class AccountMapper {
@@ -14,11 +15,11 @@ public class AccountMapper {
                 null,
                 request.getEmail(),
                 request.getPass(),
-                request.getServiceId(),
+                request.getProductId(),
                 request.getSeller(),
                 request.getPriceSeller(),
-                request.getStock() != null ? request.getStock() : 1,
                 request.getAccountType(),
+                AccountStatus.AVAILABLE,
                 request.getExpirationDate(),
                 true,
                 null);
@@ -29,11 +30,11 @@ public class AccountMapper {
                 account.id(),
                 account.email(),
                 account.pass(),
-                account.serviceId(),
+                account.productId(),
                 account.seller(),
                 account.priceSeller(),
-                account.stock(),
                 account.accountType(),
+                account.status(),
                 account.expirationDate(),
                 account.isActive());
     }

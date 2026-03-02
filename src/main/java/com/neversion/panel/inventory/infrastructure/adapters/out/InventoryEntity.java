@@ -1,21 +1,21 @@
 package com.neversion.panel.inventory.infrastructure.adapters.out;
 
 import java.math.BigDecimal;
-import jakarta.persistence.Version;
+import java.time.Instant;
+import java.util.UUID;
 
-import com.neversion.panel.inventory.domain.model.enums.AccountType;
-import com.neversion.panel.product.infrastructure.adapters.out.ProductEntity;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +26,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@SQLDelete(sql = "UPDATE inventory SET is_active = false WHERE id = ?")
+@SQLRestriction("is_active = true")
 public class InventoryEntity {
 
     @Id
@@ -34,17 +36,13 @@ public class InventoryEntity {
     private Long id;
 
     @Column(name = "product_id")
-    private Integer productId;
+    private UUID productId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
-    private ProductEntity product;
-
-    @Column(name = "price", precision = 10, scale = 2)
+    @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "duration")
-    private String duration;
+    @Column(name = "duration_days")
+    private Integer durationDays;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type")
@@ -53,28 +51,24 @@ public class InventoryEntity {
     @Column(name = "stock")
     private Integer stock;
 
-    @Version
-    private Long version;
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     public InventoryEntity() {
     }
 
-    public InventoryEntity(
-            Long id,
-            Integer productId,
-            ProductEntity product,
-            BigDecimal price,
-            String duration,
-            AccountType accountType,
-            Integer stock,
-            Long version) {
+    public InventoryEntity(Long id, UUID productId, BigDecimal price, Integer durationDays,
+            AccountType accountType, Integer stock, Boolean isActive, Instant createdAt) {
         this.id = id;
         this.productId = productId;
-        this.product = product;
         this.price = price;
-        this.duration = duration;
-        this.stock = stock;
+        this.durationDays = durationDays;
         this.accountType = accountType;
-        this.version = version;
+        this.stock = stock;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
     }
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,13 +42,13 @@ class GetProductServiceTest {
         @Test
         @DisplayName("should return Product when it exists")
         void shouldReturnProduct_whenExists() {
-            Long id = 1L;
+            UUID id = UUID.randomUUID();
             Product expected = Product.builder()
                     .id(id)
                     .name("Netflix")
                     .description("Streaming platform")
                     .imageUrl("https://img.example.com/netflix.png")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             when(productRepositoryPort.findById(id)).thenReturn(Optional.of(expected));
@@ -57,14 +58,14 @@ class GetProductServiceTest {
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(id);
             assertThat(result.getName()).isEqualTo("Netflix");
-            assertThat(result.getCategory()).isEqualTo(CategoryType.PLATAFORMA);
+            assertThat(result.getCategory()).isEqualTo(CategoryType.STREAMING);
             verify(productRepositoryPort).findById(id);
         }
 
         @Test
         @DisplayName("should throw ResourceNotFoundException when Product does not exist")
         void shouldThrowResourceNotFoundException_whenNotExists() {
-            Long id = 999L;
+            UUID id = UUID.randomUUID();
             when(productRepositoryPort.findById(id)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> getProductService.getById(id))
@@ -82,11 +83,11 @@ class GetProductServiceTest {
         void shouldReturnProduct_whenExists() {
             String name = "Spotify";
             Product expected = Product.builder()
-                    .id(2L)
+                    .id(UUID.randomUUID())
                     .name(name)
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIPCION)
+                    .category(CategoryType.SUSCRIP4U)
                     .build();
 
             when(productRepositoryPort.findByName(name)).thenReturn(Optional.of(expected));
@@ -95,7 +96,7 @@ class GetProductServiceTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getName()).isEqualTo(name);
-            assertThat(result.getCategory()).isEqualTo(CategoryType.SUSCRIPCION);
+            assertThat(result.getCategory()).isEqualTo(CategoryType.SUSCRIP4U);
             verify(productRepositoryPort).findByName(name);
         }
 
@@ -119,19 +120,19 @@ class GetProductServiceTest {
         @DisplayName("should return list of Products when they exist")
         void shouldReturnListOfProducts() {
             Product netflix = Product.builder()
-                    .id(1L)
+                    .id(UUID.randomUUID())
                     .name("Netflix")
                     .description("Streaming platform")
                     .imageUrl("https://img.example.com/netflix.png")
-                    .category(CategoryType.PLATAFORMA)
+                    .category(CategoryType.STREAMING)
                     .build();
 
             Product spotify = Product.builder()
-                    .id(2L)
+                    .id(UUID.randomUUID())
                     .name("Spotify")
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIPCION)
+                    .category(CategoryType.SUSCRIP4U)
                     .build();
 
             when(productRepositoryPort.findAll()).thenReturn(List.of(netflix, spotify));
@@ -167,15 +168,15 @@ class GetProductServiceTest {
         @Test
         @DisplayName("should return list of Products by category")
         void shouldReturnListOfProducts_byCategory() {
-            CategoryType category = CategoryType.PLATAFORMA;
+            CategoryType category = CategoryType.STREAMING;
             Product netflix = Product.builder()
-                    .id(1L)
+                    .id(UUID.randomUUID())
                     .name("Netflix")
                     .category(category)
                     .build();
 
             Product disney = Product.builder()
-                    .id(2L)
+                    .id(UUID.randomUUID())
                     .name("Disney+")
                     .category(category)
                     .build();
@@ -195,7 +196,7 @@ class GetProductServiceTest {
         @Test
         @DisplayName("should return empty list when no Products found for category")
         void shouldReturnEmptyList_whenNoProductsInCategory() {
-            CategoryType category = CategoryType.PLATAFORMA;
+            CategoryType category = CategoryType.STREAMING;
             when(productRepositoryPort.findByCategory(category)).thenReturn(Collections.emptyList());
 
             List<Product> result = getProductService.getByCategory(category);
