@@ -1,83 +1,17 @@
 # General instructions
-Product managing and its inventory, first catalog product must be created, then his variants in inventory, price, stock and more info (you'll find inside Domain Model)
+Business context for this phase: > The customer enters, sees the catalog, chooses products (digital services) and creates a "Reservation" (a temporary cart). When creating the reservation, they must attach the payment proof (proof_url). The system must save the price at that moment and give the reservation a lifespan of exactly 60 minutes.
 
-## Tech Instructions
-My operative system is Windows 11, so we use Powershell for commands.
+Your task is to program the first increment (Phase 1):
 
-## Tables
-| Column | Type | Constraints |
-| --- | --- | --- |
-| id | BIGINT | IDENTITY, PK |
-| name | VARCHAR(255) | NOT NULL, MIN 3 |
-| description | TEXT | NULLABLE |
-| image_url | VARCHAR(255) | NULLABLE |
-| category | category_type (ENUM) | platform, recharge, giftcard, subscription |
+### Package: reservations (previously called booking, update fields and attributes with the new name where applicable)
+- Create the controller and route for POST /api/reservations.
+- Strict rules for the POST /api/reservations endpoint:
 
-| Column | Type | Constraints |
-| --- | --- | --- |
-| id | BIGINT | IDENTITY, PK |
-| product_id | BIGINT | FK |
-| price | NUMERIC(10,2) | NOT NULL, DEFAULT 0.00 |
-| duration | VARCHAR(100) | NOT NULL, "X days" |
-| account_type | account_type (ENUM) | familiar, individual |
-| stock | INT | NOT NULL, DEFAULT 0, > 0 |
-
-
-## Tablas
-| id | BIGINT | IDENTITY, PK | | --- | --- | --- | | name | VARCHAR(255) | NOT NULL, MIN 3 | | description | TEXT | NULLABLE | | image_url | VARCHAR(255) | NULLABLE | | category | category_type (ENUM) | platform, recharge, giftcard, subscription |
-
-| id | BIGINT | IDENTITY, PK | | --- | --- | --- | | product_id | BIGINT | FK | | price | NUMERIC(10,2) | NOT NULL, DEFAULT 0.00 | | duration | VARCHAR(100) | NOT NULL, “X days” | | account_type | account_type (ENUM) | familiar, individual | | stock | INT | NOT NULL, DEFAULT 0, > 0 |
-
-The final objective is to have the following endpoints:
-1. Create a product and another to retrieve all or by ID
-2. Add inventory details referencing the product by its id, for add and get all operations (no need to retrieve individual records by ID)
-3. Below you will find the use cases which could require their own endpoint
-
-**Business Rules:**
-Products:
-- name minimum 3 characters
-- category mandatory
-- no duplicate names (if you decide so)
-- cannot be deleted if it has active inventories
-
-Inventory:
-- price never negative
-- stock never negative
-- duration cannot be empty
-- product must exist
+Must receive in the body: guest customer data (name, email, phone), an array of items (inventory_id, qty) and the proof_url.
+Must validate that the proof_url does not already exist in the database (to prevent fraud).
+Must fetch the current price from the inventory table and save it as unit_price in reservation_details to freeze the price.
+Must calculate and insert the expiration date (expiration_date) by adding exactly 60 minutes to the current time.
+The entire creation operation (user, reservation and details) must be done within a Database Transaction to ensure integrity.
 
 **Discount Rule**: If an inventory product is created with a duration of "90 days" or more, the system must calculate a 3% discount on the proportional monthly base price. That is, products with 30-day duration always have the price defined dynamically.
 
-**Required Flows (Separate Use Cases):**
-- Flow A: Create a Product (independent).
-- Flow B: Add inventory details to an existing Product (using the product ID in the URL).
-
-## Use Cases
-**PRODUCT**
-CreateProduct
-UpdateProduct
-DeleteProduct
-GetProductById
-ListProductsByCategory
-**INVENTORY**
-CreateInventory (o AddProductToInventory)
-UpdateInventoryPrice
-UpdateInventoryStock
-DeleteInventory
-GetInventoryByProduct
-DecreaseStock
-IncreaseStock
-
-Aggregates (DDD):
-Product and Inventory must be separate Aggregate Roots.
-
-Do NOT use bidirectional relationships.
-Inventory must reference Product only by productId.
-Domain must not depend on JPA entities.
-
-Requirements:
-- Use @Version for optimistic locking in InventoryEntity
-- Use getReferenceById for product validation optimization
-- Return proper HTTP status codes
-- No comments in the code
-- Clean package structure

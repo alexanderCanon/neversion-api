@@ -1,10 +1,10 @@
-package com.neversion.panel.booking.domain.model;
+package com.neversion.panel.reservation.domain.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.neversion.panel.booking.domain.model.enums.BookingState;
+import com.neversion.panel.reservation.domain.model.enums.BookingState;
 
 public record Booking(
     Long id,
