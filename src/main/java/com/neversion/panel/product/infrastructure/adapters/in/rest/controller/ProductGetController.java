@@ -16,8 +16,14 @@ import com.neversion.panel.product.domain.model.enums.CategoryType;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductResponse;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/products")
+@Tag(name = "Products", description = "Product catalog management")
 public class ProductGetController {
 
     private final GetProductUseCase getProductUseCase;
@@ -29,6 +35,9 @@ public class ProductGetController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get product by ID", description = "Retrieve a single product by its UUID")
+    @ApiResponse(responseCode = "200", description = "Product found")
+    @ApiResponse(responseCode = "404", description = "Product not found")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID id) {
         Product product = getProductUseCase.getById(id);
         ProductResponse response = productMapper.toResponse(product);
@@ -36,9 +45,11 @@ public class ProductGetController {
     }
 
     @GetMapping
+    @Operation(summary = "Get products", description = "Retrieve products filtered by name, category, or all")
+    @ApiResponse(responseCode = "200", description = "Products retrieved successfully")
     public ResponseEntity<?> getProducts(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String category) {
+            @Parameter(description = "Filter by exact product name") @RequestParam(required = false) String name,
+            @Parameter(description = "Filter by category (STREAMING, SOFTWARE, GIFTCARD, RECHARGE, SUSCRIP4U)") @RequestParam(required = false) String category) {
         if (name != null && !name.isBlank()) {
             Product product = getProductUseCase.getByName(name);
             ProductResponse response = productMapper.toResponse(product);

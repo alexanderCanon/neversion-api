@@ -14,10 +14,14 @@ import com.neversion.panel.inventory.infrastructure.adapters.in.rest.dto.Invento
 import com.neversion.panel.inventory.infrastructure.adapters.in.rest.dto.InventoryResponse;
 import com.neversion.panel.inventory.infrastructure.adapters.in.rest.mapper.InventoryMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/inventory")
+@Tag(name = "Inventory", description = "Inventory variant management (product pricing plans)")
 public class InventoryPostController {
 
     private final AddInventoryUseCase addInventoryUseCase;
@@ -29,6 +33,10 @@ public class InventoryPostController {
     }
 
     @PostMapping
+    @Operation(summary = "Add inventory variant", description = "Create a new inventory variant (pricing plan) for a product")
+    @ApiResponse(responseCode = "201", description = "Inventory variant created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request or missing product ID")
+    @ApiResponse(responseCode = "404", description = "Product not found")
     public ResponseEntity<?> createInventory(@Valid @RequestBody InventoryRequest request) {
         if (request.productId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,

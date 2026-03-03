@@ -15,10 +15,14 @@ import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductRe
 import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductResponse;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@Tag(name = "Products")
 public class ProductPutController {
 
     private final UpdateProductUseCase updateProductUseCase;
@@ -30,6 +34,10 @@ public class ProductPutController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update a product", description = "Update an existing product by its UUID")
+    @ApiResponse(responseCode = "200", description = "Product updated successfully")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    @ApiResponse(responseCode = "400", description = "Invalid request")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable UUID id,
             @Valid @RequestBody ProductRequest request) {
         Product product = productMapper.toDomain(request);

@@ -1,11 +1,11 @@
 package com.neversion.panel.product.infrastructure.adapters.out;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import com.neversion.panel.infrastructure.AuditableEntity;
 import com.neversion.panel.product.domain.model.enums.CategoryType;
 
 import jakarta.persistence.Column;
@@ -27,7 +27,7 @@ import lombok.Setter;
 @Builder
 @SQLDelete(sql = "UPDATE products SET is_active = false WHERE id = ?")
 @SQLRestriction("is_active = true")
-public class ProductEntity {
+public class ProductEntity extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,12 +43,6 @@ public class ProductEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private CategoryType category;
@@ -56,14 +50,11 @@ public class ProductEntity {
     public ProductEntity() {
     }
 
-    public ProductEntity(UUID id, String name, String description, String imageUrl, Boolean isActive,
-            Instant createdAt, CategoryType category) {
+    public ProductEntity(UUID id, String name, String description, String imageUrl, CategoryType category) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
         this.category = category;
     }
 }

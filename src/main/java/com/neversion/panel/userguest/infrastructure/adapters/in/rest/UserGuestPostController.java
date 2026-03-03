@@ -13,10 +13,14 @@ import com.neversion.panel.userguest.infrastructure.adapters.in.rest.dto.UserGue
 import com.neversion.panel.userguest.infrastructure.adapters.in.rest.dto.UserGuestResponse;
 import com.neversion.panel.userguest.infrastructure.adapters.in.rest.mapper.UserGuestMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/user-guests")
+@Tag(name = "Guest Users")
 public class UserGuestPostController {
     private final CreateUserGuestUseCase createUserGuestUseCase;
     private final UserGuestMapper userGuestMapper;
@@ -27,6 +31,9 @@ public class UserGuestPostController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a guest user", description = "Register a new guest user")
+    @ApiResponse(responseCode = "201", description = "Guest user created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request or business rule violation")
     public ResponseEntity<UserGuestResponse> createUserGuest(@Valid @RequestBody UserGuestRequest request) {
         UserGuest userGuest = userGuestMapper.toDomain(request);
         UserGuest created = createUserGuestUseCase.create(userGuest);

@@ -1,7 +1,8 @@
 package com.neversion.panel.profile.infrastructure.adapters.out;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import com.neversion.panel.infrastructure.AuditableEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "profiles")
 @Getter
-public class ProfileEntity {
+public class ProfileEntity extends AuditableEntity {
 
     @Id
     @Column(name = "id")
@@ -30,22 +31,15 @@ public class ProfileEntity {
     @Column(name = "phone")
     String phone;
 
-    @Column(name = "is_active")
-    Boolean isActive;
-
-    @Column(name = "created_at")
-    Instant createdAt;
-
-    public ProfileEntity() {}
+    public ProfileEntity() {
+    }
 
     public ProfileEntity(UUID id, String name, String lastname, String email,
-        String phone, Boolean isActive, Instant createdAt) {
+            String phone) {
         this.id = id;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
         this.phone = phone;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
     }
 }

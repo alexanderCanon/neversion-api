@@ -17,10 +17,14 @@ import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.Reser
 import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.ReservationResponse;
 import com.neversion.panel.reservation.infrastructure.adapters.in.rest.mapper.ReservationRestMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
+@Tag(name = "Reservations", description = "Reservation management for guest purchases")
 public class ReservationController {
 
     private final CreateReservationUseCase createReservationUseCase;
@@ -34,6 +38,9 @@ public class ReservationController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a reservation", description = "Create a new reservation with guest info, items, and optional payment proof")
+    @ApiResponse(responseCode = "201", description = "Reservation created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request, duplicate proof URL, or insufficient stock")
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody ReservationRequest request) {
 

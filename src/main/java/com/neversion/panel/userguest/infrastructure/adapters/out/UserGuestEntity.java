@@ -1,7 +1,11 @@
 package com.neversion.panel.userguest.infrastructure.adapters.out;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import com.neversion.panel.infrastructure.AuditableEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,12 +13,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 
-@Entity
 @Table(name = "users_guests")
+@Entity
 @Getter
-public class UserGuestEntity {
+@Builder
+@SQLDelete(sql = "UPDATE users_guests SET is_active = false WHERE id = ?")
+@SQLRestriction("is_active = true")
+public class UserGuestEntity extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,19 +38,13 @@ public class UserGuestEntity {
     @Column(name = "phone")
     String phone;
 
-    @Column(name = "is_active")
-    Boolean isActive;
+    public UserGuestEntity() {
+    }
 
-    @Column(name = "created_at")
-    Instant createdAt;
-
-    public UserGuestEntity() {}
-
-    public UserGuestEntity(UUID id, String name, String email, String phone, Boolean isActive) {
+    public UserGuestEntity(UUID id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.isActive = isActive;
     }
 }

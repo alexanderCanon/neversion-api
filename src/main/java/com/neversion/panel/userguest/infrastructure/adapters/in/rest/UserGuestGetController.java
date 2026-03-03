@@ -15,8 +15,14 @@ import com.neversion.panel.userguest.domain.model.UserGuest;
 import com.neversion.panel.userguest.infrastructure.adapters.in.rest.dto.UserGuestResponse;
 import com.neversion.panel.userguest.infrastructure.adapters.in.rest.mapper.UserGuestMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/user-guests")
+@Tag(name = "Guest Users", description = "Guest user management for reservations")
 public class UserGuestGetController {
 
     private final GetUserGuestUseCase getUserGuestUseCase;
@@ -28,6 +34,9 @@ public class UserGuestGetController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get guest user by ID", description = "Retrieve a single guest user by its UUID")
+    @ApiResponse(responseCode = "200", description = "Guest user found")
+    @ApiResponse(responseCode = "404", description = "Guest user not found")
     public ResponseEntity<UserGuestResponse> getUserGuestById(@PathVariable UUID id) {
         UserGuest userGuest = getUserGuestUseCase.getById(id);
         UserGuestResponse response = userGuestMapper.toResponse(userGuest);
@@ -35,27 +44,29 @@ public class UserGuestGetController {
     }
 
     @GetMapping
+    @Operation(summary = "Get guest users", description = "Retrieve guest users filtered by name or phone")
+    @ApiResponse(responseCode = "200", description = "Guest users retrieved successfully")
     public ResponseEntity<?> getUserGuests(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) String phone) {
+            @Parameter(description = "Filter by guest name") @RequestParam(required = false) String name,
+            @Parameter(description = "Filter by phone number") @RequestParam(required = false) String phone) {
 
         if (name != null && !name.isBlank()) {
             List<UserGuestResponse> response = getUserGuestUseCase.getByName(name).stream()
-                .map(userGuestMapper::toResponse)
-                .toList();
+                    .map(userGuestMapper::toResponse)
+                    .toList();
             return ResponseEntity.ok(response);
         }
 
         if (phone != null && !phone.isBlank()) {
             List<UserGuestResponse> response = getUserGuestUseCase.getByPhone(phone).stream()
-                .map(userGuestMapper::toResponse)
-                .toList();
+                    .map(userGuestMapper::toResponse)
+                    .toList();
             return ResponseEntity.ok(response);
         }
 
         List<UserGuestResponse> response = getUserGuestUseCase.getAll().stream()
-            .map(userGuestMapper::toResponse)
-            .toList();
+                .map(userGuestMapper::toResponse)
+                .toList();
         return ResponseEntity.ok(response);
     }
 }

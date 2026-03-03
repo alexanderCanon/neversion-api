@@ -20,7 +20,7 @@ public class AccountPersistenceMapper {
                 entity.getStatus(),
                 entity.getExpirationDate(),
                 entity.getIsActive(),
-                entity.getCreatedAt());
+                entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant() : null);
     }
 
     public AccountEntity toEntity(Account account) {
@@ -33,7 +33,6 @@ public class AccountPersistenceMapper {
                 account.priceSeller(),
                 account.accountType(),
                 account.status(),
-                account.expirationDate(),
-                account.isActive());
+                account.expirationDate());
     }
 }

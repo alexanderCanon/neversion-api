@@ -10,8 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.panel.userguest.application.port.in.DeactivateUserGuestUseCase;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/user-guests")
+@Tag(name = "Guest Users")
 public class UserGuestDeleteController {
 
     private final DeactivateUserGuestUseCase deactivateUserGuestUseCase;
@@ -21,6 +26,9 @@ public class UserGuestDeleteController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deactivate a guest user", description = "Soft-delete a guest user by its UUID")
+    @ApiResponse(responseCode = "204", description = "Guest user deactivated successfully")
+    @ApiResponse(responseCode = "404", description = "Guest user not found")
     public ResponseEntity<Void> deactivateUserGuest(@PathVariable UUID id) {
         deactivateUserGuestUseCase.deactivate(id);
         return ResponseEntity.noContent().build();

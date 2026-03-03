@@ -17,8 +17,14 @@ import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountRe
 import com.neversion.panel.account.infrastructure.adapters.in.rest.mapper.AccountMapper;
 import com.neversion.panel.shared.domain.model.enums.AccountType;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/accounts")
+@Tag(name = "Accounts", description = "Digital service account management")
 public class AccountGetController {
 
     private final GetAccountUseCase getAccountUseCase;
@@ -30,6 +36,9 @@ public class AccountGetController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get account by ID", description = "Retrieve a single account by its UUID")
+    @ApiResponse(responseCode = "200", description = "Account found")
+    @ApiResponse(responseCode = "404", description = "Account not found")
     public ResponseEntity<AccountResponse> getAccountById(@PathVariable UUID id) {
         Account account = getAccountUseCase.getById(id);
         AccountResponse response = accountMapper.toResponse(account);
@@ -37,11 +46,13 @@ public class AccountGetController {
     }
 
     @GetMapping
+    @Operation(summary = "Get accounts", description = "Retrieve accounts filtered by seller, type, expiration, or active status")
+    @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully")
     public ResponseEntity<?> getAccounts(
-            @RequestParam(required = false) String seller,
-            @RequestParam(required = false) AccountType accountType,
-            @RequestParam(required = false) LocalDate expirationBefore,
-            @RequestParam(required = false) Boolean isActive) {
+            @Parameter(description = "Filter by seller name") @RequestParam(required = false) String seller,
+            @Parameter(description = "Filter by account type (FAMILIAR, INDIVIDUAL)") @RequestParam(required = false) AccountType accountType,
+            @Parameter(description = "Filter by expiration date before (YYYY-MM-DD)") @RequestParam(required = false) LocalDate expirationBefore,
+            @Parameter(description = "Filter by active status") @RequestParam(required = false) Boolean isActive) {
 
         if (seller != null && !seller.isBlank()) {
             List<AccountResponse> response = getAccountUseCase.getBySeller(seller).stream()

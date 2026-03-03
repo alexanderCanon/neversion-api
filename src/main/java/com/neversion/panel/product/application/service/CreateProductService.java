@@ -23,7 +23,6 @@ public class CreateProductService implements CreateProductUseCase {
     @Transactional
     public Product create(Product product) {
         validateName(product.getName());
-        checkDuplicateName(null, product.getName());
         return productRepositoryPort.save(product);
     }
 
@@ -31,9 +30,7 @@ public class CreateProductService implements CreateProductUseCase {
         if (name == null || name.length() < MIN_NAME_LENGTH) {
             throw new BusinessRuleException("Product name must be at least " + MIN_NAME_LENGTH + " characters");
         }
-    }
 
-    private void checkDuplicateName(Integer currentId, String name) {
         if (productRepositoryPort.existsByName(name)) {
             throw new BusinessRuleException("Product with name '" + name + "' already exists");
         }

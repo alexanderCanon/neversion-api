@@ -1,7 +1,8 @@
 package com.neversion.panel.reservation.infrastructure.adapters.out;
 
-import java.time.Instant;
 import java.util.UUID;
+
+import com.neversion.panel.infrastructure.AuditableEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class GuestUserEntity {
+public class GuestUserEntity extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,22 +35,13 @@ public class GuestUserEntity {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
     public GuestUserEntity() {
     }
 
-    public GuestUserEntity(UUID id, String name, String email, String phone,
-            Boolean isActive, Instant createdAt) {
+    public GuestUserEntity(UUID id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
     }
 }

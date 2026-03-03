@@ -9,23 +9,26 @@ import com.neversion.panel.userguest.infrastructure.adapters.out.UserGuestEntity
 public class UserGuestPersistenceMapper {
 
     public UserGuest toDomain(UserGuestEntity entity) {
-        return new UserGuest(
-            entity.getId(),
-            entity.getName(),
-            entity.getEmail(),
-            entity.getPhone(),
-            entity.getIsActive(),
-            entity.getCreatedAt()
-        );
+        if (entity == null)
+            return null;
+        return UserGuest.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .phone(entity.getPhone())
+                .isActive(entity.getIsActive())
+                .createdAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant() : null)
+                .build();
     }
 
-    public UserGuestEntity toEntity(UserGuest userGuest) {
-        return new UserGuestEntity(
-            userGuest.id(),
-            userGuest.name(),
-            userGuest.email(),
-            userGuest.phone(),
-            userGuest.isActive()
-        );
+    public UserGuestEntity toEntity(UserGuest domain) {
+        if (domain == null)
+            return null;
+        return UserGuestEntity.builder()
+                .id(domain.id())
+                .name(domain.name())
+                .email(domain.email())
+                .phone(domain.phone())
+                .build();
     }
 }

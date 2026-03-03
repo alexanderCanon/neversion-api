@@ -10,12 +10,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.neversion.panel.product.application.port.in.CreateProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductRequest;
+import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductResponse;
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@Tag(name = "Products")
 public class ProductPostController {
 
     private final CreateProductUseCase createProductUseCase;
@@ -27,9 +32,13 @@ public class ProductPostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequest request) {
+    @Operation(summary = "Create a product", description = "Create a new product in the catalog")
+    @ApiResponse(responseCode = "201", description = "Product created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request or business rule violation")
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
         Product product = productMapper.toDomain(request);
-        Product createdProduct = createProductUseCase.create(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+        Product created = createProductUseCase.create(product);
+        ProductResponse response = productMapper.toResponse(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

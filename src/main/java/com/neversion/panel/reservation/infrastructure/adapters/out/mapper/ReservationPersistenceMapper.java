@@ -26,7 +26,6 @@ public class ReservationPersistenceMapper {
                 .name(domain.name())
                 .email(domain.email())
                 .phone(domain.phone())
-                .isActive(true)
                 .build();
     }
 

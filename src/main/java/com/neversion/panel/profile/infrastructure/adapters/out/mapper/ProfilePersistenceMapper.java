@@ -10,13 +10,12 @@ public class ProfilePersistenceMapper {
 
     public Profile toDomain(ProfileEntity entity) {
         return new Profile(
-            entity.getId(),
-            entity.getName(),
-            entity.getLastname(),
-            entity.getEmail(),
-            entity.getPhone(),
-            entity.getIsActive(),
-            entity.getCreatedAt()
-        );
+                entity.getId(),
+                entity.getName(),
+                entity.getLastname(),
+                entity.getEmail(),
+                entity.getPhone(),
+                entity.getIsActive(),
+                entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant() : null);
     }
 }

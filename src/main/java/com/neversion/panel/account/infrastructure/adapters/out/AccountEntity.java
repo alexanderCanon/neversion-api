@@ -1,10 +1,10 @@
 package com.neversion.panel.account.infrastructure.adapters.out;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.neversion.panel.infrastructure.AuditableEntity;
 import com.neversion.panel.shared.domain.model.enums.AccountStatus;
 import com.neversion.panel.shared.domain.model.enums.AccountType;
 
@@ -23,7 +23,7 @@ import lombok.Setter;
 @Table(name = "accounts")
 @Getter
 @Setter
-public class AccountEntity {
+public class AccountEntity extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -56,18 +56,12 @@ public class AccountEntity {
     @Column(name = "expiration_date")
     private LocalDate expirationDate;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
-
     public AccountEntity() {
     }
 
     public AccountEntity(UUID id, String email, String pass, UUID productId, String seller,
             BigDecimal priceSeller, AccountType accountType, AccountStatus status,
-            LocalDate expirationDate, Boolean isActive) {
+            LocalDate expirationDate) {
         this.id = id;
         this.email = email;
         this.pass = pass;
@@ -77,6 +71,5 @@ public class AccountEntity {
         this.accountType = accountType;
         this.status = status;
         this.expirationDate = expirationDate;
-        this.isActive = isActive;
     }
 }

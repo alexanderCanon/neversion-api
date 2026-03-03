@@ -33,152 +33,152 @@ import com.neversion.panel.reservation.infrastructure.adapters.in.rest.mapper.Re
 @DisplayName("ReservationController Integration Tests")
 class ReservationControllerIT {
 
-        @Autowired
-        private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-        @Autowired
-        private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-        @MockitoBean
-        private CreateReservationUseCase createReservationUseCase;
+    @MockitoBean
+    private CreateReservationUseCase createReservationUseCase;
 
-        @MockitoBean
-        private ReservationRestMapper reservationRestMapper;
+    @MockitoBean
+    private ReservationRestMapper reservationRestMapper;
 
-        private static final String VALID_REQUEST = """
-                        {
-                            "guestName": "John Doe",
-                            "guestEmail": "john@example.com",
-                            "guestPhone": "555-0100",
-                            "items": [
-                                { "inventoryId": 1, "qty": 2 }
-                            ],
-                            "proofUrl": "https://bank.com/receipt/abc123"
-                        }
-                        """;
+    private static final String VALID_REQUEST = """
+            {
+                "guestName": "John Doe",
+                "guestEmail": "john@example.com",
+                "guestPhone": "555-0100",
+                "items": [
+                    { "inventoryId": 1, "qty": 2 }
+                ],
+                "proofUrl": "https://bank.com/receipt/abc123"
+            }
+            """;
 
-        // -- Happy path --
+    // -- Happy path --
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 201 CREATED when request is valid")
-        void createReservation_shouldReturn201_whenRequestIsValid() throws Exception {
-                UUID reservationId = UUID.randomUUID();
+    @Test
+    @DisplayName("POST /api/v1/reservations → 201 CREATED when request is valid")
+    void createReservation_shouldReturn201_whenRequestIsValid() throws Exception {
+        UUID reservationId = UUID.randomUUID();
 
-                Reservation domain = Reservation.builder()
-                                .id(reservationId)
-                                .status(ReservationStatus.PENDING)
-                                .proofUrl("https://bank.com/receipt/abc123")
-                                .expirationDate(OffsetDateTime.now().plusMinutes(60))
-                                .createdAt(OffsetDateTime.now())
-                                .details(List.of(
-                                                new ReservationDetail(UUID.randomUUID(), reservationId, 1L, 2,
-                                                                new BigDecimal("9.99"))))
-                                .build();
+        Reservation domain = Reservation.builder()
+                .id(reservationId)
+                .status(ReservationStatus.PENDING)
+                .proofUrl("https://bank.com/receipt/abc123")
+                .expirationDate(OffsetDateTime.now().plusMinutes(60))
+                .createdAt(OffsetDateTime.now())
+                .details(List.of(
+                        new ReservationDetail(UUID.randomUUID(), reservationId, 1L, 2,
+                                new BigDecimal("9.99"))))
+                .build();
 
-                when(reservationRestMapper.toGuestDomain(any())).thenCallRealMethod();
-                when(reservationRestMapper.toItemCommands(any())).thenCallRealMethod();
-                when(createReservationUseCase.create(any(), any(), anyString())).thenReturn(domain);
-                when(reservationRestMapper.toResponse(any())).thenCallRealMethod();
+        when(reservationRestMapper.toGuestDomain(any())).thenCallRealMethod();
+        when(reservationRestMapper.toItemCommands(any())).thenCallRealMethod();
+        when(createReservationUseCase.create(any(), any(), anyString())).thenReturn(domain);
+        when(reservationRestMapper.toResponse(any())).thenCallRealMethod();
 
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(VALID_REQUEST))
-                                .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.id").value(reservationId.toString()))
-                                .andExpect(jsonPath("$.status").value("PENDING"));
-        }
+        mockMvc.perform(post("/api/v1/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_REQUEST))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(reservationId.toString()))
+                .andExpect(jsonPath("$.status").value("PENDING"));
+    }
 
-        // -- Validation tests --
+    // -- Validation tests --
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 400 when guestEmail is blank")
-        void createReservation_shouldReturn400_whenGuestEmailIsBlank() throws Exception {
-                String body = """
-                                {
-                                    "guestName": "John Doe",
-                                    "guestEmail": "",
-                                    "guestPhone": "555-0100",
-                                    "items": [{ "inventoryId": 1, "qty": 1 }],
-                                    "proofUrl": "https://bank.com/receipt/abc"
-                                }
-                                """;
+    @Test
+    @DisplayName("POST /api/v1/reservations → 400 when guestEmail is blank")
+    void createReservation_shouldReturn400_whenGuestEmailIsBlank() throws Exception {
+        String body = """
+                {
+                    "guestName": "John Doe",
+                    "guestEmail": "",
+                    "guestPhone": "555-0100",
+                    "items": [{ "inventoryId": 1, "qty": 1 }],
+                    "proofUrl": "https://bank.com/receipt/abc"
+                }
+                """;
 
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
-                                .andExpect(status().isBadRequest());
-        }
+        mockMvc.perform(post("/api/v1/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isBadRequest());
+    }
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 400 when guestEmail is invalid")
-        void createReservation_shouldReturn400_whenGuestEmailIsInvalid() throws Exception {
-                String body = """
-                                {
-                                    "guestName": "John",
-                                    "guestEmail": "not-an-email",
-                                    "guestPhone": "555-0100",
-                                    "items": [{ "inventoryId": 1, "qty": 1 }],
-                                    "proofUrl": "https://bank.com/receipt/abc"
-                                }
-                                """;
+    @Test
+    @DisplayName("POST /api/v1/reservations → 400 when guestEmail is invalid")
+    void createReservation_shouldReturn400_whenGuestEmailIsInvalid() throws Exception {
+        String body = """
+                {
+                    "guestName": "John",
+                    "guestEmail": "not-an-email",
+                    "guestPhone": "555-0100",
+                    "items": [{ "inventoryId": 1, "qty": 1 }],
+                    "proofUrl": "https://bank.com/receipt/abc"
+                }
+                """;
 
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
-                                .andExpect(status().isBadRequest());
-        }
+        mockMvc.perform(post("/api/v1/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isBadRequest());
+    }
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 400 when items list is null")
-        void createReservation_shouldReturn400_whenItemsIsNull() throws Exception {
-                String body = """
-                                {
-                                    "guestName": "John",
-                                    "guestEmail": "john@example.com",
-                                    "guestPhone": "555-0100",
-                                    "proofUrl": "https://bank.com/receipt/abc"
-                                }
-                                """;
+    @Test
+    @DisplayName("POST /api/v1/reservations → 400 when items list is null")
+    void createReservation_shouldReturn400_whenItemsIsNull() throws Exception {
+        String body = """
+                {
+                    "guestName": "John",
+                    "guestEmail": "john@example.com",
+                    "guestPhone": "555-0100",
+                    "proofUrl": "https://bank.com/receipt/abc"
+                }
+                """;
 
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
-                                .andExpect(status().isBadRequest());
-        }
+        mockMvc.perform(post("/api/v1/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isBadRequest());
+    }
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 201 when proofUrl is omitted (optional)")
-        void createReservation_shouldReturn201_whenProofUrlIsOmitted() throws Exception {
-                UUID reservationId = UUID.randomUUID();
-                String body = """
-                                {
-                                    "guestName": "John",
-                                    "guestEmail": "john@example.com",
-                                    "guestPhone": "555-0100",
-                                    "items": [{ "inventoryId": 1, "qty": 1 }]
-                                }
-                                """;
+    @Test
+    @DisplayName("POST /api/v1/reservations → 201 when proofUrl is omitted (optional)")
+    void createReservation_shouldReturn201_whenProofUrlIsOmitted() throws Exception {
+        UUID reservationId = UUID.randomUUID();
+        String body = """
+                {
+                    "guestName": "John",
+                    "guestEmail": "john@example.com",
+                    "guestPhone": "555-0100",
+                    "items": [{ "inventoryId": 1, "qty": 1 }]
+                }
+                """;
 
-                Reservation domain = Reservation.builder()
-                                .id(reservationId)
-                                .status(ReservationStatus.PENDING)
-                                .expirationDate(OffsetDateTime.now().plusMinutes(60))
-                                .createdAt(OffsetDateTime.now())
-                                .details(List.of(
-                                                new ReservationDetail(UUID.randomUUID(), reservationId, 1L, 1,
-                                                                new BigDecimal("9.99"))))
-                                .build();
+        Reservation domain = Reservation.builder()
+                .id(reservationId)
+                .status(ReservationStatus.PENDING)
+                .expirationDate(OffsetDateTime.now().plusMinutes(60))
+                .createdAt(OffsetDateTime.now())
+                .details(List.of(
+                        new ReservationDetail(UUID.randomUUID(), reservationId, 1L, 1,
+                                new BigDecimal("9.99"))))
+                .build();
 
-                when(reservationRestMapper.toGuestDomain(any())).thenCallRealMethod();
-                when(reservationRestMapper.toItemCommands(any())).thenCallRealMethod();
-                when(createReservationUseCase.create(any(), any(), isNull())).thenReturn(domain);
-                when(reservationRestMapper.toResponse(any())).thenCallRealMethod();
+        when(reservationRestMapper.toGuestDomain(any())).thenCallRealMethod();
+        when(reservationRestMapper.toItemCommands(any())).thenCallRealMethod();
+        when(createReservationUseCase.create(any(), any(), isNull())).thenReturn(domain);
+        when(reservationRestMapper.toResponse(any())).thenCallRealMethod();
 
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
-                                .andExpect(status().isCreated());
-        }
+        mockMvc.perform(post("/api/v1/reservations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isCreated());
+    }
 
     @Test
     @DisplayName("POST /api/v1/reservations → 400 when proofUrl already used (fraud)")
