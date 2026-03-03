@@ -7,15 +7,14 @@ import java.util.UUID;
 import com.neversion.panel.order.domain.model.enums.OrderStatus;
 
 public record Order(
-        UUID id,
-        UUID reservationId,
-        UUID profileId,
-        UUID userGuestId,
-        BigDecimal discount,
-        BigDecimal total,
-        OrderStatus status,
-        String proofUrl,
-        String notes,
-        Instant createdAt) {
+                UUID id,
+                UUID reservationId,
+                UUID userGuestId,
+                BigDecimal discount,
+                BigDecimal total,
+                OrderStatus status,
+                String proofUrl,
+                String notes,
+                Instant createdAt) {
 
 }

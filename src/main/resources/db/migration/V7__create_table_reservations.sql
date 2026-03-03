@@ -3,7 +3,6 @@ CREATE TABLE reservations (
   id UUID DEFAULT gen_random_uuid(),
   inventory_id BIGINT NOT NULL REFERENCES inventory(id),
   user_guest_id UUID NOT NULL REFERENCES users_guests(id),
-  profile_id UUID REFERENCES public.profiles(id),
   discount numeric(10,2) DEFAULT 0,
   qty INT NOT NULL DEFAULT 1 CHECK (qty > 0),
   status reserv_status NOT NULL DEFAULT 'pending',

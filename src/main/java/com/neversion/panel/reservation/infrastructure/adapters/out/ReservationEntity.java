@@ -36,9 +36,6 @@ public class ReservationEntity {
     @Column(name = "inventory_id", nullable = false)
     private Long inventoryId;
 
-    @Column(name = "profile_id")
-    private UUID profileId;
-
     @Column(name = "discount")
     private BigDecimal discount;
 
@@ -61,13 +58,12 @@ public class ReservationEntity {
     public ReservationEntity() {
     }
 
-    public ReservationEntity(UUID id, UUID userGuestId, Long inventoryId, UUID profileId,
+    public ReservationEntity(UUID id, UUID userGuestId, Long inventoryId,
             BigDecimal discount, Integer qty, ReservationStatus status, String proofUrl,
             OffsetDateTime expirationDate, OffsetDateTime createdAt) {
         this.id = id;
         this.userGuestId = userGuestId;
         this.inventoryId = inventoryId;
-        this.profileId = profileId;
         this.discount = discount;
         this.qty = qty;
         this.status = status;

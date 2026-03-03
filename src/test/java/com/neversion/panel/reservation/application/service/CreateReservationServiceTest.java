@@ -5,7 +5,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,8 +74,8 @@ class CreateReservationServiceTest {
                     .userGuestId(GUEST_ID)
                     .proofUrl(proofUrl)
                     .status(ReservationStatus.PENDING)
-                    .expirationDate(OffsetDateTime.now().plusMinutes(60))
-                    .createdAt(OffsetDateTime.now())
+                    .expirationDate(Instant.now().plus(60, ChronoUnit.MINUTES))
+                    .createdAt(Instant.now())
                     .build();
 
             ReservationDetail savedDetail = new ReservationDetail(
@@ -136,7 +137,7 @@ class CreateReservationServiceTest {
                     .userGuestId(GUEST_ID)
                     .proofUrl(proofUrl)
                     .status(ReservationStatus.PENDING)
-                    .expirationDate(OffsetDateTime.now().plusMinutes(60))
+                    .expirationDate(Instant.now().plus(60, ChronoUnit.MINUTES))
                     .build();
 
             when(reservationRepositoryPort.existsByProofUrl(proofUrl)).thenReturn(false);
@@ -174,7 +175,7 @@ class CreateReservationServiceTest {
 
             // Capture the reservation to check expiration
             ArgumentCaptor<Reservation> captor = ArgumentCaptor.forClass(Reservation.class);
-            OffsetDateTime before = OffsetDateTime.now().plusMinutes(59);
+            Instant before = Instant.now().plus(59, ChronoUnit.MINUTES);
 
             when(reservationRepositoryPort.save(captor.capture())).thenAnswer(inv -> {
                 Reservation r = inv.getArgument(0);
@@ -186,7 +187,7 @@ class CreateReservationServiceTest {
             service.create(guest, items, proofUrl);
 
             // Then
-            OffsetDateTime after = OffsetDateTime.now().plusMinutes(61);
+            Instant after = Instant.now().plus(61, ChronoUnit.MINUTES);
             Reservation captured = captor.getValue();
             assertThat(captured.getExpirationDate()).isAfter(before);
             assertThat(captured.getExpirationDate()).isBefore(after);

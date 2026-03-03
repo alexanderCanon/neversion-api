@@ -16,9 +16,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.neversion.panel.BaseIntegrationTest;
+import com.neversion.panel.config.SecurityConfig;
 import com.neversion.panel.exception.ResourceNotFoundException;
 import com.neversion.panel.product.application.port.in.GetProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
@@ -28,7 +32,10 @@ import com.neversion.panel.product.infrastructure.adapters.in.rest.dto.ProductRe
 import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.ProductMapper;
 
 @WebMvcTest(ProductGetController.class)
-class ProductGetControllerIT {
+@Import(SecurityConfig.class)
+@ActiveProfiles("test")
+@DisplayName("ProductGetController Slicing Tests")
+class ProductGetControllerIT extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

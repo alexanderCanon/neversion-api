@@ -10,8 +10,6 @@ import com.neversion.panel.product.domain.model.enums.CategoryType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,8 +41,7 @@ public class ProductEntity extends AuditableEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category")
+    @Column(name = "category", columnDefinition = "category_type")
     private CategoryType category;
 
     public ProductEntity() {

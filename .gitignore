@@ -1,4 +1,3 @@
-HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -38,3 +37,7 @@ application-prod.yaml
 
 ### Environment variables ###
 .env
+
+### Markdown files ###
+SECURITY.md
+HELP.md

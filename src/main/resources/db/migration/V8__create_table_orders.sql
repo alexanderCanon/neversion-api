@@ -2,7 +2,6 @@
 CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid(),
   reservation_id UUID UNIQUE NOT NULL REFERENCES reservations(id),
-  profile_id UUID REFERENCES public.profiles(id),
   user_guest_id UUID REFERENCES users_guests(id),
   discount numeric(10,2) DEFAULT 0,
   total NUMERIC(10,2) NOT NULL CHECK (total > 0),
@@ -10,13 +9,7 @@ CREATE TABLE orders (
   proof_url TEXT,
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  PRIMARY KEY(id),
-
-  CONSTRAINT owner_xor_order CHECK (
-    (profile_id IS NOT NULL AND user_guest_id IS NULL)
-    OR
-    (profile_id IS NULL AND user_guest_id IS NOT NULL)
-  )
+  PRIMARY KEY(id)
 );
 
 CREATE INDEX idx_orders_created_at ON orders(created_at);
@@ -34,3 +27,9 @@ CREATE TABLE order_details (
 );
 
 CREATE INDEX idx_order_details_order ON order_details(order_id);
+
+-- CONSTRAINT owner_xor_order CHECK (
+--     (profile_id IS NOT NULL AND user_guest_id IS NULL)
+--     OR
+--     (profile_id IS NULL AND user_guest_id IS NOT NULL)
+--   );

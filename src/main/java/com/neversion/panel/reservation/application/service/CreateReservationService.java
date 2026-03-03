@@ -54,7 +54,7 @@ public class CreateReservationService implements CreateReservationUseCase {
                 .userGuestId(savedGuest.id())
                 .proofUrl(proofUrl)
                 .status(ReservationStatus.PENDING)
-                .expirationDate(expirationDate)
+                .expirationDate(expirationDate.toInstant())
                 .build();
 
         Reservation savedReservation = reservationRepositoryPort.save(reservation);

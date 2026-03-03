@@ -1,5 +1,7 @@
 package com.neversion.panel.reservation.infrastructure.adapters.out.mapper;
 
+import java.time.ZoneOffset;
+
 import org.springframework.stereotype.Component;
 
 import com.neversion.panel.reservation.domain.model.GuestUser;
@@ -33,12 +35,11 @@ public class ReservationPersistenceMapper {
         return Reservation.builder()
                 .id(entity.getId())
                 .userGuestId(entity.getUserGuestId())
-                .profileId(entity.getProfileId())
                 .discount(entity.getDiscount())
                 .proofUrl(entity.getProofUrl())
                 .status(entity.getStatus())
-                .expirationDate(entity.getExpirationDate())
-                .createdAt(entity.getCreatedAt())
+                .expirationDate(entity.getExpirationDate().toInstant())
+                .createdAt(entity.getCreatedAt().toInstant())
                 .build();
     }
 
@@ -55,13 +56,12 @@ public class ReservationPersistenceMapper {
         return ReservationEntity.builder()
                 .id(domain.getId())
                 .userGuestId(domain.getUserGuestId())
-                .profileId(domain.getProfileId())
                 .discount(domain.getDiscount())
                 .inventoryId(inventoryId)
                 .qty(qty)
                 .proofUrl(domain.getProofUrl())
                 .status(domain.getStatus())
-                .expirationDate(domain.getExpirationDate())
+                .expirationDate(domain.getExpirationDate().atOffset(ZoneOffset.UTC))
                 .build();
     }
 
