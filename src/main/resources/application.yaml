@@ -22,3 +22,9 @@ server:
 logging:
   level:
     root: INFO
+    org.springframework.security: DEBUG
+    com.neversion.panel.config: DEBUG
+
+supabase:
+  jwt:
+    secret: ${SUPABASE_JWT_SECRET}
