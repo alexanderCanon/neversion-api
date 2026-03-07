@@ -1,0 +1,64 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::163053485479:role/GitHubActionsDeployRole
+          aws-region: us-east-2
+
+      - name: Login a Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build y Push de la imagen a ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: mi-app-backend
+          IMAGE_TAG: latest # Usamos latest para simplificar el MVP, aunque en el futuro usaremos ${{ github.sha }}
+        run: |
+          # Tu Dockerfile multi-stage se encarga de compilar y empaquetar
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Desplegar en EC2 vía AWS SSM
+        env:
+          INSTANCE_ID: i-01c173c56307b50b2
+        run: |
+          aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "#!/bin/bash",
+              "set -e",
+              "# 1. Autenticar Docker con ECR",
+              "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 163053485479.dkr.ecr.us-east-2.amazonaws.com",
+              
+              "# 2. Obtener Token de GitHub desde SSM y clonar/actualizar repo",
+              "TOKEN=\$(aws ssm get-parameter --name \"/prod/backend/GITHUB_TOKEN\" --with-decryption --query \"Parameter.Value\" --output text)",
+              "APP_DIR=\"/home/ssm-user/app\"",
+              "if [ ! -d \"\$APP_DIR/.git\" ]; then",
+              "  git clone https://x-access-token:\$TOKEN@github.com/alexanderCanon/panel-neversion.git \$APP_DIR",
+              "else",
+              "  cd \$APP_DIR && git pull origin main",
+              "fi",
+              
+              "# 3. Descargar la nueva imagen y levantar servicios",
+              "cd \$APP_DIR",
+              "docker compose -f docker-compose.prod.yaml pull app",
+              "docker compose -f docker-compose.prod.yaml up -d app"
+            ]'
