@@ -34,3 +34,14 @@ build/
 
 ### Profiles ###
 application-dev.yaml
+application-prod.yaml
+
+### Enviroment files ###
+.env
+
+### Markdown files ###
+SPEC.md
+SECURITY.md
+
+### Other ###
+**/resources/jsonfiles/*
