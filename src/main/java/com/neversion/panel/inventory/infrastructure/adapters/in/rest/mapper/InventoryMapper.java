@@ -11,26 +11,24 @@ import com.neversion.panel.shared.domain.model.enums.AccountType;
 public class InventoryMapper {
 
     public Inventory toDomain(InventoryRequest request) {
-        if (request == null)
-            return null;
-
-        return Inventory.builder()
+        return request != null ? Inventory.builder()
                 .price(request.priceAmount())
                 .durationDays(request.durationDays())
                 .accountType(AccountType.valueOf(request.accountType().toUpperCase()))
                 .stock(request.stock())
-                .build();
+                .maxProfiles(request.maxProfiles())
+                .build() : null;
     }
 
     public InventoryResponse toResponse(Inventory inventory) {
-        if (inventory == null)
-            return null;
-
-        return new InventoryResponse(
-                inventory.getProductId(),
-                inventory.getPrice(),
-                inventory.getDurationDays(),
-                inventory.getAccountType(),
-                inventory.getStock());
+        return inventory != null ? InventoryResponse.builder()
+                .id(inventory.getId())
+                .productId(inventory.getProductId())
+                .price(inventory.getPrice())
+                .durationDays(inventory.getDurationDays())
+                .accountType(inventory.getAccountType().name())
+                .stock(inventory.getStock())
+                .maxProfiles(inventory.getMaxProfiles())
+                .build() : null;
     }
 }

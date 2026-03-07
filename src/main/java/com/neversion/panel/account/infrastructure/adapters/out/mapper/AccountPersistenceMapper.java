@@ -9,30 +9,30 @@ import com.neversion.panel.account.infrastructure.adapters.out.AccountEntity;
 public class AccountPersistenceMapper {
 
     public Account toDomain(AccountEntity entity) {
-        return new Account(
-                entity.getId(),
-                entity.getEmail(),
-                entity.getPass(),
-                entity.getProductId(),
-                entity.getSeller(),
-                entity.getPriceSeller(),
-                entity.getAccountType(),
-                entity.getStatus(),
-                entity.getExpirationDate(),
-                entity.getIsActive(),
-                entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant() : null);
+        return entity != null ? Account.builder()
+                .id(entity.getId())
+                .email(entity.getEmail())
+                .pass(entity.getPass())
+                .inventoryId(entity.getInventoryId())
+                .seller(entity.getSeller())
+                .priceSeller(entity.getPriceSeller())
+                .accountType(entity.getAccountType())
+                .status(entity.getStatus())
+                .expirationDate(entity.getExpirationDate())
+                .build() : null;
     }
 
     public AccountEntity toEntity(Account account) {
-        return new AccountEntity(
-                account.id(),
-                account.email(),
-                account.pass(),
-                account.productId(),
-                account.seller(),
-                account.priceSeller(),
-                account.accountType(),
-                account.status(),
-                account.expirationDate());
+        return account != null ? AccountEntity.builder()
+                .id(account.getId())
+                .email(account.getEmail())
+                .pass(account.getPass())
+                .inventoryId(account.getInventoryId())
+                .seller(account.getSeller())
+                .priceSeller(account.getPriceSeller())
+                .accountType(account.getAccountType())
+                .status(account.getStatus())
+                .expirationDate(account.getExpirationDate())
+                .build() : null;
     }
 }

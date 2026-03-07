@@ -6,7 +6,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,15 +19,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * Main security configuration.
- *
- * <ul>
- * <li>Stateless session (no cookies/sessions — pure JWT).</li>
- * <li>CSRF disabled (stateless REST API).</li>
- * <li>CORS enabled with sensible defaults.</li>
- * <li>OAuth2 Resource Server validating Supabase JWTs (HS256).</li>
- * <li>RBAC matrix as defined in SECURITY.md.</li>
- * </ul>
+ * Global security configuration.
+ * <p>
+ * Handles cross-cutting security concerns only (stateless sessions, CSRF,
+ * CORS, JWT decoder, public docs endpoints). Per-feature RBAC rules are
+ * contributed by {@link HttpSecurityCustomizer} beans in each module's
+ * {@code infrastructure/config} package.
+ * </p>
  */
 @Configuration
 @EnableWebSecurity
@@ -37,10 +34,17 @@ public class SecurityConfig {
     @Value("${supabase.jwt.secret}")
     private String supabaseJwtSecret;
 
-    private final SupabaseJwtAuthConverter supabaseJwtAuthConverter;
+    @Value("${cors.allowed-origins:*}")
+    private String allowedOrigins;
 
-    public SecurityConfig(SupabaseJwtAuthConverter supabaseJwtAuthConverter) {
+    private final SupabaseJwtAuthConverter supabaseJwtAuthConverter;
+    private final List<HttpSecurityCustomizer> securityCustomizers;
+
+    public SecurityConfig(
+            SupabaseJwtAuthConverter supabaseJwtAuthConverter,
+            List<HttpSecurityCustomizer> securityCustomizers) {
         this.supabaseJwtAuthConverter = supabaseJwtAuthConverter;
+        this.securityCustomizers = securityCustomizers;
     }
 
     @Bean
@@ -58,51 +62,26 @@ public class SecurityConfig {
 
                 // -- Disable form login & HTTP Basic (API-only) --
                 .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
+                .httpBasic(basic -> basic.disable());
 
-                // ================================================================
-                // RBAC Access Matrix (from SECURITY.md, adapted to /api/v1/ paths)
-                // ================================================================
-                .authorizeHttpRequests(auth -> auth
+        // -- Public docs & health --
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/actuator/**").permitAll());
 
-                        // ---- Swagger / OpenAPI docs (public) ----
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+        // -- Delegate per-feature RBAC rules --
+        for (HttpSecurityCustomizer customizer : securityCustomizers) {
+            customizer.customize(http);
+        }
 
-                        // ---- Products: GET is public, mutating is ADMIN ----
-                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
+        // -- Catch-all: everything else requires authentication --
+        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
 
-                        // ---- Inventory: GET is public, mutating is ADMIN ----
-                        .requestMatchers(HttpMethod.GET, "/api/v1/inventory/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/inventory/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/inventory/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/inventory/**").hasRole("ADMIN")
-
-                        // ---- Accounts: strictly admin-only ----
-                        .requestMatchers("/api/v1/accounts/**").hasRole("ADMIN")
-
-                        // ---- Reservations: create & view/edit by UUID is public, delete is ADMIN ----
-                        .requestMatchers(HttpMethod.POST, "/api/v1/reservations").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/reservations/{id}").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/reservations/{id}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/reservations/**").hasRole("ADMIN")
-
-                        // ---- User Guests: create & view/edit by UUID is public, delete is ADMIN ----
-                        .requestMatchers(HttpMethod.POST, "/api/v1/user-guests").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/user-guests/{id}").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/user-guests/{id}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user-guests/**").hasRole("ADMIN")
-
-                        // ---- Everything else requires authentication ----
-                        .anyRequest().authenticated())
-
-                // -- OAuth2 Resource Server: validate JWTs with our custom converter --
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(supabaseJwtAuthConverter)));
+        // -- OAuth2 Resource Server: validate JWTs with our custom converter --
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                        .decoder(jwtDecoder())
+                        .jwtAuthenticationConverter(supabaseJwtAuthConverter)));
 
         return http.build();
     }
@@ -124,7 +103,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

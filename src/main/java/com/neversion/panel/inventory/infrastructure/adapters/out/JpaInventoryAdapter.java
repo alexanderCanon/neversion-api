@@ -14,61 +14,61 @@ import com.neversion.panel.shared.domain.model.enums.AccountType;
 @Repository
 public class JpaInventoryAdapter implements InventoryRepositoryPort {
 
-    private final SpringDataInventoryRepository inventoryRepository;
-    private final InventoryPersistenceMapper inventoryPersistenceMapper;
+    private final SpringDataInventoryRepository inventoryRepo;
+    private final InventoryPersistenceMapper inventoryMapper;
 
-    public JpaInventoryAdapter(SpringDataInventoryRepository inventoryRepository,
-            InventoryPersistenceMapper inventoryPersistenceMapper) {
-        this.inventoryRepository = inventoryRepository;
-        this.inventoryPersistenceMapper = inventoryPersistenceMapper;
+    public JpaInventoryAdapter(SpringDataInventoryRepository inventoryRepo,
+            InventoryPersistenceMapper inventoryMapper) {
+        this.inventoryRepo = inventoryRepo;
+        this.inventoryMapper = inventoryMapper;
     }
 
     @Override
     public Inventory save(Inventory inventory) {
-        InventoryEntity entity = inventoryPersistenceMapper.toEntity(inventory);
-        InventoryEntity saved = inventoryRepository.saveAndFlush(entity);
-        InventoryEntity loaded = inventoryRepository.findById(saved.getId())
+        InventoryEntity entity = inventoryMapper.toEntity(inventory);
+        InventoryEntity saved = inventoryRepo.saveAndFlush(entity);
+        InventoryEntity loaded = inventoryRepo.findById(saved.getId())
                 .orElseThrow();
-        return inventoryPersistenceMapper.toDomain(loaded);
+        return inventoryMapper.toDomain(loaded);
     }
 
     @Override
     public List<Inventory> findAll() {
-        return inventoryRepository.findAll()
+        return inventoryRepo.findAll()
                 .stream()
-                .map(inventoryPersistenceMapper::toDomain)
+                .map(inventoryMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Inventory> findByAccountType(AccountType accountType) {
-        return inventoryRepository.findByAccountType(accountType)
+        return inventoryRepo.findByAccountType(accountType)
                 .stream()
-                .map(inventoryPersistenceMapper::toDomain)
+                .map(inventoryMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Inventory> findByProductId(UUID productId) {
-        return inventoryRepository.findByProductId(productId)
+        return inventoryRepo.findByProductId(productId)
                 .stream()
-                .map(inventoryPersistenceMapper::toDomain)
+                .map(inventoryMapper::toDomain)
                 .toList();
     }
 
     @Override
     public boolean existsByProductId(UUID productId) {
-        return inventoryRepository.existsByProductId(productId);
+        return inventoryRepo.existsByProductId(productId);
     }
 
     @Override
     public Optional<Inventory> findById(Long id) {
-        return inventoryRepository.findById(id)
-                .map(inventoryPersistenceMapper::toDomain);
+        return inventoryRepo.findById(id)
+                .map(inventoryMapper::toDomain);
     }
 
     @Override
     public void deleteById(Long id) {
-        inventoryRepository.deleteById(id);
+        inventoryRepo.deleteById(id);
     }
 }

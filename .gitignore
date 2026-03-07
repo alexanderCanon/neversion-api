@@ -41,3 +41,6 @@ application-prod.yaml
 ### Markdown files ###
 SECURITY.md
 HELP.md
+
+### JSON ###
+**/resources/jsonfiles/*

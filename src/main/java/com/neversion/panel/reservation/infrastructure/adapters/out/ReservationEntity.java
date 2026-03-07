@@ -8,8 +8,6 @@ import com.neversion.panel.reservation.domain.model.enums.ReservationStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,24 +28,20 @@ public class ReservationEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_guest_id", nullable = false)
+    @Column(name = "user_guest_id")
     private UUID userGuestId;
-
-    @Column(name = "inventory_id", nullable = false)
-    private Long inventoryId;
 
     @Column(name = "discount")
     private BigDecimal discount;
 
-    @Column(name = "qty", nullable = false)
-    private Integer qty;
+    @Column(name = "total", nullable = false)
+    private BigDecimal total;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "reserv_status")
     private ReservationStatus status;
 
-    @Column(name = "proof_url", unique = true)
-    private String proofUrl;
+    @Column(name = "receipt_url", unique = true)
+    private String receiptUrl;
 
     @Column(name = "expiration_date", nullable = false)
     private OffsetDateTime expirationDate;
@@ -58,16 +52,15 @@ public class ReservationEntity {
     public ReservationEntity() {
     }
 
-    public ReservationEntity(UUID id, UUID userGuestId, Long inventoryId,
-            BigDecimal discount, Integer qty, ReservationStatus status, String proofUrl,
+    public ReservationEntity(UUID id, UUID userGuestId, BigDecimal discount, BigDecimal total,
+            ReservationStatus status, String receiptUrl,
             OffsetDateTime expirationDate, OffsetDateTime createdAt) {
         this.id = id;
         this.userGuestId = userGuestId;
-        this.inventoryId = inventoryId;
         this.discount = discount;
-        this.qty = qty;
+        this.total = total;
         this.status = status;
-        this.proofUrl = proofUrl;
+        this.receiptUrl = receiptUrl;
         this.expirationDate = expirationDate;
         this.createdAt = createdAt;
     }

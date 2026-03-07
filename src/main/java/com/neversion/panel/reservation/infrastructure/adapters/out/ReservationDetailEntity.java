@@ -37,15 +37,19 @@ public class ReservationDetailEntity {
     @Column(name = "unit_price", precision = 10, scale = 2, nullable = false)
     private BigDecimal unitPrice;
 
+    @Column(name = "subtotal", insertable = false, updatable = false)
+    private BigDecimal subtotal;
+
     public ReservationDetailEntity() {
     }
 
     public ReservationDetailEntity(UUID id, UUID reservationId, Long inventoryId,
-            Integer qty, BigDecimal unitPrice) {
+            Integer qty, BigDecimal unitPrice, BigDecimal subtotal) {
         this.id = id;
         this.reservationId = reservationId;
         this.inventoryId = inventoryId;
         this.qty = qty;
         this.unitPrice = unitPrice;
+        this.subtotal = subtotal;
     }
 }

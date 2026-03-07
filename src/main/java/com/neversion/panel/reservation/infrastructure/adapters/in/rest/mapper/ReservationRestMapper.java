@@ -7,20 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.neversion.panel.reservation.application.port.in.ReservationItemCommand;
-import com.neversion.panel.reservation.domain.model.GuestUser;
 import com.neversion.panel.reservation.domain.model.Reservation;
 import com.neversion.panel.reservation.domain.model.ReservationDetail;
 import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.ReservationDetailResponse;
 import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.ReservationItemRequest;
-import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.ReservationRequest;
 import com.neversion.panel.reservation.infrastructure.adapters.in.rest.dto.ReservationResponse;
 
 @Component
 public class ReservationRestMapper {
-
-    public GuestUser toGuestDomain(ReservationRequest request) {
-        return new GuestUser(null, request.guestName(), request.guestEmail(), request.guestPhone());
-    }
 
     public List<ReservationItemCommand> toItemCommands(List<ReservationItemRequest> items) {
         if (items == null) {
@@ -40,8 +34,11 @@ public class ReservationRestMapper {
 
         return new ReservationResponse(
                 reservation.getId(),
+                reservation.getUserGuestId(),
                 reservation.getStatus(),
-                reservation.getProofUrl(),
+                reservation.getDiscount(),
+                reservation.getTotal(),
+                reservation.getReceiptUrl(),
                 reservation.getExpirationDate(),
                 reservation.getCreatedAt(),
                 detailResponses);
@@ -52,6 +49,7 @@ public class ReservationRestMapper {
                 detail.id(),
                 detail.inventoryId(),
                 detail.qty(),
-                detail.unitPrice());
+                detail.unitPrice(),
+                detail.subtotal());
     }
 }

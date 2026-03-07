@@ -10,23 +10,19 @@ import com.neversion.panel.userguest.infrastructure.adapters.in.rest.dto.UserGue
 public class UserGuestMapper {
 
     public UserGuest toDomain(UserGuestRequest request) {
-        return new UserGuest(
-            null,
-            request.getName(),
-            request.getEmail(),
-            request.getPhone(),
-            true,
-            null
-        );
+        return request != null ? UserGuest.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .build() : null;
     }
 
     public UserGuestResponse toResponse(UserGuest userGuest) {
-        return new UserGuestResponse(
-            userGuest.id(),
-            userGuest.name(),
-            userGuest.email(),
-            userGuest.phone(),
-            userGuest.isActive()
-        );
+        return userGuest != null ? UserGuestResponse.builder()
+                .id(userGuest.getId())
+                .name(userGuest.getName())
+                .email(userGuest.getEmail())
+                .phone(userGuest.getPhone())
+                .build() : null;
     }
 }

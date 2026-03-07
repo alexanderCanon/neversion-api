@@ -13,5 +13,6 @@ public record InventoryRequest(
                 @NotNull @Positive BigDecimal priceAmount,
                 @NotNull @Positive Integer durationDays,
                 @NotBlank String accountType,
-                @NotNull @Positive Integer stock) {
+                @NotNull @Positive Integer stock,
+                @Positive Integer maxProfiles) {
 }

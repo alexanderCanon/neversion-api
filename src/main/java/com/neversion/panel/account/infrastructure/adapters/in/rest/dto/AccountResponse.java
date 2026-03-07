@@ -4,19 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.neversion.panel.shared.domain.model.enums.AccountStatus;
-import com.neversion.panel.shared.domain.model.enums.AccountType;
+import lombok.Builder;
 
+@Builder
 public record AccountResponse(
-                UUID id,
-                String email,
-                String pass,
-                UUID productId,
-                String seller,
-                BigDecimal priceSeller,
-                AccountType accountType,
-                AccountStatus status,
-                LocalDate expirationDate,
-                Boolean isActive) {
+        UUID id,
+        String email,
+        String pass,
+        Long inventoryId,
+        String seller,
+        BigDecimal priceSeller,
+        String accountType,
+        String status,
+        LocalDate expirationDate) {
 
 }

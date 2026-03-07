@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+// import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.panel.config.SecurityConfig;
 import com.neversion.panel.product.application.port.in.CreateProductUseCase;
 import com.neversion.panel.product.domain.model.Product;
@@ -34,8 +34,8 @@ class ProductPostControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    // @Autowired
+    // private ObjectMapper objectMapper;
 
     @MockitoBean
     private CreateProductUseCase createProductUseCase;

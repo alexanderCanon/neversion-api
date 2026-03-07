@@ -3,12 +3,15 @@ package com.neversion.panel.inventory.infrastructure.adapters.in.rest.dto;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import com.neversion.panel.shared.domain.model.enums.AccountType;
+import lombok.Builder;
 
+@Builder
 public record InventoryResponse(
+                Long id,
                 UUID productId,
                 BigDecimal price,
                 Integer durationDays,
-                AccountType accountType,
-                Integer stock) {
+                String accountType,
+                Integer stock,
+                Integer maxProfiles) {
 }

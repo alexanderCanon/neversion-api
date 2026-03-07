@@ -1,12 +1,20 @@
 # AGENTS.md - Neversion Panel Backend
 
+This file can iterate and change over time, so always check it before starting any task.
+
 ## Project Overview
+- **Framework:** Spring
 - **Type**: Spring Boot 3.5.10 REST API
 - **Language**: Java 17
 - **Build Tool**: Maven (./mvnw)
 - **Architecture**: Hexagonal (Ports & Adapters)
-- **Database**: PostgreSQL (Supabase), H2 for tests
-
+- **Database**: PostgreSQL (Supabase), PostgreSQL Testcontainers for IT (Integration Tests)
+- **ORM:** Spring Data JPA + Hibernate
+- **Validation:** Spring Boot Starter Validation (Jakarta)
+- **Authentication:** Supabase Auth (JWT)
+- **Security:** Spring Security 6
+- **Serialization:** Spring Boot Starter JSON (Jackson)
+- **Boilerplate:** Lombok (Builder, Getter and Setter annotations)
 ---
 
 ## Build Commands
@@ -41,16 +49,16 @@
 ## Code Style Guidelines
 
 ### Project Structure
-Follow `STRUCTURE.md` - Hexagonal architecture with these layers:
+Follow `SPEC.md` - Hexagonal architecture with these layers:
 ```
 <feature>/
 ├── domain/
 │   ├── model/          # Domain entities, enums
 │   ├── port/out/      # Repository interfaces (ports)
-│   └── service/       # Domain services
+│   └── service/       # Domain services (business logic)
 ├── application/
 │   ├── port/in/       # Use case interfaces
-│   └── service/       # Application services (use case implementations)
+│   └── service/       # Application services (use case implementations). Orchestration only. No business logic.
 └── infrastructure/
     ├── adapters/in/   # REST controllers, DTOs, mappers
     └── adapters/out/  # JPA entities, repositories, persistence mappers
@@ -60,23 +68,13 @@ Follow `STRUCTURE.md` - Hexagonal architecture with these layers:
 - **Use constructor injection only**
 - Never use `@Autowired` on fields
 
-```java
-public class ProductPostController {
-    private final CreateProductUseCase createProductUseCase;
-
-    public ProductPostController(CreateProductUseCase createProductUseCase) {
-        this.createProductUseCase = createProductUseCase;
-    }
-}
-```
-
 ### Naming Conventions
 - **Packages**: lowercase (e.g., `com.neversion.panel.product`)
 - **Classes**: PascalCase (e.g., `ProductService`, `ProductEntity`)
 - **Interfaces**: `<Name>Port`, `<Name>UseCase`, `<Name>Repository`
 - **DTOs**: `<Name>Request`, `<Name>Response`
 - **Controllers**: `<Feature><Operation>Controller` (e.g., `ProductPostController`)
-- **Tests**: `<ServiceName>Test` (e.g., `CreateProductServiceTest`)
+- **Tests**: `<ServiceName>UT` (e.g., `CreateProductServiceUT`) for Unit Tests, and so on.
 - **Methods**: camelCase
 - **Constants**: UPPER_SNAKE_CASE
 
@@ -85,31 +83,11 @@ public class ProductPostController {
 - Use `@Builder` with Lombok for mutable DTOs
 - Validate with Jakarta Validation (`@NotBlank`, `@NotNull`, etc.)
 
-```java
-public record ProductRequest(
-    @NotBlank String name,
-    String description,
-    String imageUrl,
-    @NotNull CategoryType category
-) {}
-```
-
 ### Domain Model
 - Use Lombok `@Builder`, `@Getter`, `@Setter`
-- **No comments in code** (per project requirements)
+- **Well commented code**
 - Domain must NOT depend on JPA entities
-- Use `@Version` for optimistic locking on entities
-
-```java
-@Getter
-@Setter
-@Builder
-public class Product {
-    private Integer id;
-    private String name;
-    private CategoryType category;
-}
-```
+- Use `@Version` for optimistic locking on entities if is necessary
 
 ### Mappers
 - Separate mapper classes for each conversion:
@@ -179,7 +157,7 @@ class CreateProductServiceTest {
 
 ### Test Configuration
 - Profile: `test` (activated via `application-test.yaml`)
-- Database: H2 in-memory
+- Database: PostgreSQL Testcontainers for IT (Integration Tests)
 - Use `@ActiveProfiles("test")` if manual activation needed
 
 ---
@@ -189,7 +167,6 @@ class CreateProductServiceTest {
 - CSRF disabled (for API-only)
 - Supabase Auth (JWT) for authentication
 - Never expose credentials in responses
-
 ---
 
 ## Important Notes
@@ -197,4 +174,5 @@ class CreateProductServiceTest {
 2. **Inventory references Product by ID only** - no bidirectional relationships
 3. **Product cannot be deleted if has active inventories**
 4. **Duration discounts**: 90+ days = 3% monthly discount
-5. Validate all inputs with Jakarta Validation annotations
+5. **Validate all inputs with Jakarta Validation annotations**
+6. **Soft delete:** The entity uses SQLDelete and SQLRestriction

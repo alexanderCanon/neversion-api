@@ -9,28 +9,26 @@ import com.neversion.panel.inventory.infrastructure.adapters.out.InventoryEntity
 public class InventoryPersistenceMapper {
 
     public Inventory toDomain(InventoryEntity entity) {
-        if (entity == null)
-            return null;
-        return Inventory.builder()
+        return entity != null ? Inventory.builder()
                 .id(entity.getId())
                 .productId(entity.getProductId())
                 .price(entity.getPrice())
                 .durationDays(entity.getDurationDays())
                 .accountType(entity.getAccountType())
                 .stock(entity.getStock())
-                .build();
+                .maxProfiles(entity.getMaxProfiles())
+                .build() : null;
     }
 
     public InventoryEntity toEntity(Inventory domain) {
-        if (domain == null)
-            return null;
-        return InventoryEntity.builder()
+        return domain != null ? InventoryEntity.builder()
                 .id(domain.getId())
                 .productId(domain.getProductId())
                 .price(domain.getPrice())
                 .durationDays(domain.getDurationDays())
                 .accountType(domain.getAccountType())
                 .stock(domain.getStock())
-                .build();
+                .maxProfiles(domain.getMaxProfiles())
+                .build() : null;
     }
 }

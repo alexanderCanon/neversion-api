@@ -19,7 +19,8 @@ public class Reservation {
     private UUID id;
     private UUID userGuestId;
     private BigDecimal discount;
-    private String proofUrl;
+    private BigDecimal total;
+    private String receiptUrl;
     private ReservationStatus status;
     private Instant expirationDate;
     private Instant createdAt;
@@ -28,13 +29,14 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(UUID id, UUID userGuestId, BigDecimal discount,
-            String proofUrl, ReservationStatus status, Instant expirationDate,
+    public Reservation(UUID id, UUID userGuestId, BigDecimal discount, BigDecimal total,
+            String receiptUrl, ReservationStatus status, Instant expirationDate,
             Instant createdAt, List<ReservationDetail> details) {
         this.id = id;
         this.userGuestId = userGuestId;
         this.discount = discount;
-        this.proofUrl = proofUrl;
+        this.total = total;
+        this.receiptUrl = receiptUrl;
         this.status = status;
         this.expirationDate = expirationDate;
         this.createdAt = createdAt;

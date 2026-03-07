@@ -1,4 +1,12 @@
+# ══════════════════════════════════════════════════════════════════
+# Docker Compose — DEV profile
+# Purpose: Local development on your machine.
+# Includes a local PostgreSQL container so you don't need
+# an external database for development.
+# ══════════════════════════════════════════════════════════════════
+
 services:
+  # ── Local PostgreSQL (dev only) ─────────────────────────────────
   db:
     image: postgres:latest
     container_name: panel-db
@@ -6,7 +14,7 @@ services:
     environment:
       POSTGRES_DB: paneldb
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: mysecretpassword
     ports:
       - "5432:5432"
     volumes:
@@ -17,6 +25,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Spring Boot Application ─────────────────────────────────────
   app:
     build: .
     container_name: panel-app
@@ -25,10 +34,16 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      # Activate dev profile (local DB, SQL logging, Swagger enabled)
+      SPRING_PROFILES_ACTIVE: dev
+      # Connect to the local PostgreSQL container using its service name
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/paneldb
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      # Supabase JWT secret for local testing
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-your-dev-jwt-secret}
+      # CORS: allow all origins in dev
+      CORS_ALLOWED_ORIGINS: "*"
     ports:
       - "8080:8080"
 

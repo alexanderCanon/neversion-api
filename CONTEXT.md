@@ -1,4 +1,5 @@
 # General Business Context
+This is general context about business, validations, use cases, etc. But it can be updated as the project iterates, because the instructions are in PROMPT.md file, then if this context is not updated yet, then update it.
 
 ## General Description
 I sell digital products, mainly streaming services like Netflix, HBO, Disney, etc. I don't sell physical products. Everything I deliver are digital accesses, accounts, or profiles within those accounts.

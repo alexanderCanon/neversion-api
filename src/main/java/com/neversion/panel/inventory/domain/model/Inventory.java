@@ -20,17 +20,19 @@ public class Inventory {
         private Integer durationDays;
         private AccountType accountType;
         private Integer stock;
+        private Integer maxProfiles;
 
         public Inventory() {
         }
 
         public Inventory(Long id, UUID productId, BigDecimal price, Integer durationDays,
-                        AccountType accountType, Integer stock) {
+                        AccountType accountType, Integer stock, Integer maxProfiles) {
                 this.id = id;
                 this.productId = productId;
                 this.price = price;
                 this.durationDays = durationDays;
                 this.accountType = accountType;
                 this.stock = stock;
+                this.maxProfiles = maxProfiles;
         }
 }

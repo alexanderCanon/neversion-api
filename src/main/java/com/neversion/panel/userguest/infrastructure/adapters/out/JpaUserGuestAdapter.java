@@ -12,54 +12,54 @@ import com.neversion.panel.userguest.infrastructure.adapters.out.mapper.UserGues
 
 @Repository
 public class JpaUserGuestAdapter implements UserGuestRepositoryPort {
-    private final UserGuestRepositoryAdapter userGuestRepositoryAdapter;
-    private final UserGuestPersistenceMapper userGuestPersistenceMapper;
+    private final SpringDataUserGuestRepository userGuestRepo;
+    private final UserGuestPersistenceMapper userGuestMapper;
 
-    public JpaUserGuestAdapter(UserGuestRepositoryAdapter userGuestRepositoryAdapter,
-        UserGuestPersistenceMapper userGuestPersistenceMapper) {
-        this.userGuestRepositoryAdapter = userGuestRepositoryAdapter;
-        this.userGuestPersistenceMapper = userGuestPersistenceMapper;
+    public JpaUserGuestAdapter(SpringDataUserGuestRepository userGuestRepo,
+            UserGuestPersistenceMapper userGuestMapper) {
+        this.userGuestRepo = userGuestRepo;
+        this.userGuestMapper = userGuestMapper;
     }
 
     @Override
     public UserGuest save(UserGuest userGuest) {
-        UserGuestEntity entity = userGuestPersistenceMapper.toEntity(userGuest);
-        UserGuestEntity saved = userGuestRepositoryAdapter.save(entity);
-        return userGuestPersistenceMapper.toDomain(saved);
+        UserGuestEntity entity = userGuestMapper.toEntity(userGuest);
+        UserGuestEntity saved = userGuestRepo.save(entity);
+        return userGuestMapper.toDomain(saved);
     }
 
     @Override
     public Optional<UserGuest> findById(UUID id) {
-        return userGuestRepositoryAdapter.findById(id)
-            .map(userGuestPersistenceMapper::toDomain);
+        return userGuestRepo.findById(id)
+                .map(userGuestMapper::toDomain);
     }
 
     @Override
     public List<UserGuest> findByName(String name) {
-        return userGuestRepositoryAdapter.findByName(name)
-            .stream()
-            .map(userGuestPersistenceMapper::toDomain)
-            .toList();
+        return userGuestRepo.findByName(name)
+                .stream()
+                .map(userGuestMapper::toDomain)
+                .toList();
     }
 
     @Override
     public List<UserGuest> findByPhone(String phone) {
-        return userGuestRepositoryAdapter.findByPhone(phone)
-            .stream()
-            .map(userGuestPersistenceMapper::toDomain)
-            .toList();
+        return userGuestRepo.findByPhone(phone)
+                .stream()
+                .map(userGuestMapper::toDomain)
+                .toList();
     }
 
     @Override
     public List<UserGuest> findAll() {
-        return userGuestRepositoryAdapter.findAll()
-            .stream()
-            .map(userGuestPersistenceMapper::toDomain)
-            .toList();
+        return userGuestRepo.findAll()
+                .stream()
+                .map(userGuestMapper::toDomain)
+                .toList();
     }
 
     @Override
     public void deactivate(UUID id) {
-        userGuestRepositoryAdapter.deactivate(id);
+        userGuestRepo.deactivate(id);
     }
 }

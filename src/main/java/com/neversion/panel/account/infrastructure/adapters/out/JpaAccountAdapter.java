@@ -14,72 +14,73 @@ import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Repository
 public class JpaAccountAdapter implements AccountRepositoryPort {
-    private final AccountRepositoryAdapter accountRepositoryAdapter;
-    private final AccountPersistenceMapper accountPersistenceMapper;
 
-    public JpaAccountAdapter(AccountRepositoryAdapter accountRepositoryAdapter,
-            AccountPersistenceMapper accountPersistenceMapper) {
-        this.accountRepositoryAdapter = accountRepositoryAdapter;
-        this.accountPersistenceMapper = accountPersistenceMapper;
+    private final SpringDataAccountAdapter accountRepo;
+    private final AccountPersistenceMapper accountMapper;
+
+    public JpaAccountAdapter(SpringDataAccountAdapter accountRepo,
+            AccountPersistenceMapper accountMapper) {
+        this.accountRepo = accountRepo;
+        this.accountMapper = accountMapper;
     }
 
     @Override
     public Account save(Account account) {
-        AccountEntity entity = accountPersistenceMapper.toEntity(account);
-        AccountEntity saved = accountRepositoryAdapter.saveAndFlush(entity);
-        AccountEntity loaded = accountRepositoryAdapter.findById(saved.getId())
+        AccountEntity entity = accountMapper.toEntity(account);
+        AccountEntity saved = accountRepo.save(entity);
+        AccountEntity loaded = accountRepo.findById(saved.getId())
                 .orElseThrow();
-        return accountPersistenceMapper.toDomain(loaded);
+        return accountMapper.toDomain(loaded);
     }
 
     @Override
     public Optional<Account> findById(UUID id) {
-        return accountRepositoryAdapter.findById(id)
-                .map(accountPersistenceMapper::toDomain);
+        return accountRepo.findById(id)
+                .map(accountMapper::toDomain);
     }
 
     @Override
     public List<Account> findBySeller(String seller) {
-        return accountRepositoryAdapter.findBySeller(seller)
+        return accountRepo.findBySeller(seller)
                 .stream()
-                .map(accountPersistenceMapper::toDomain)
+                .map(accountMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Account> findByAccountType(AccountType accountType) {
-        return accountRepositoryAdapter.findByAccountType(accountType)
+        return accountRepo.findByAccountType(accountType)
                 .stream()
-                .map(accountPersistenceMapper::toDomain)
+                .map(accountMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Account> findByExpirationDateBefore(LocalDate date) {
-        return accountRepositoryAdapter.findByExpirationDateBefore(date)
+        return accountRepo.findByExpirationDateBefore(date)
                 .stream()
-                .map(accountPersistenceMapper::toDomain)
+                .map(accountMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Account> findByIsActive(Boolean isActive) {
-        return accountRepositoryAdapter.findByIsActive(isActive)
+        return accountRepo.findByIsActive(isActive)
                 .stream()
-                .map(accountPersistenceMapper::toDomain)
+                .map(accountMapper::toDomain)
                 .toList();
     }
 
     @Override
     public List<Account> findAll() {
-        return accountRepositoryAdapter.findAll()
+        return accountRepo.findAll()
                 .stream()
-                .map(accountPersistenceMapper::toDomain)
+                .map(accountMapper::toDomain)
                 .toList();
     }
 
     @Override
     public void deactivate(UUID id) {
-        accountRepositoryAdapter.deactivate(id);
+        accountRepo.deactivate(id);
     }
 }

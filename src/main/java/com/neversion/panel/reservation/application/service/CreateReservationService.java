@@ -1,23 +1,33 @@
 package com.neversion.panel.reservation.application.service;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.neversion.panel.exception.BusinessRuleException;
 import com.neversion.panel.inventory.application.port.in.GetInventoryUseCase;
 import com.neversion.panel.inventory.domain.model.Inventory;
 import com.neversion.panel.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.panel.reservation.application.port.in.ReservationItemCommand;
-import com.neversion.panel.reservation.domain.model.GuestUser;
 import com.neversion.panel.reservation.domain.model.Reservation;
 import com.neversion.panel.reservation.domain.model.ReservationDetail;
 import com.neversion.panel.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.panel.reservation.domain.port.out.ReservationRepositoryPort;
+import com.neversion.panel.reservation.domain.service.ReservationPricingService;
 
+/**
+ * UC1: Create Reservation (Checkout).
+ * <p>
+ * The guest user ID is optional at creation — can be attached later via
+ * PUT /reservations/{id}/guest. Persists the reservation header with
+ * status = PENDING, saves each item capturing the current price (BR-02),
+ * and computes the total applying combo discount (BR-03).
+ * </p>
+ */
 @Service
 public class CreateReservationService implements CreateReservationUseCase {
 
@@ -25,56 +35,66 @@ public class CreateReservationService implements CreateReservationUseCase {
 
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final GetInventoryUseCase getInventoryUseCase;
+    private final ReservationPricingService reservationPricingService;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
-            GetInventoryUseCase getInventoryUseCase) {
+            GetInventoryUseCase getInventoryUseCase,
+            ReservationPricingService reservationPricingService) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.getInventoryUseCase = getInventoryUseCase;
+        this.reservationPricingService = reservationPricingService;
     }
 
     @Override
     @Transactional
-    public Reservation create(GuestUser guest, List<ReservationItemCommand> items, String proofUrl) {
-
-        // Only check anti-fraud if proofUrl is provided
-        if (proofUrl != null && !proofUrl.isBlank()) {
-            if (reservationRepositoryPort.existsByProofUrl(proofUrl)) {
-                throw new BusinessRuleException(
-                        "The proof_url provided has already been used. Please upload a different payment receipt.");
-            }
-        }
-
-        GuestUser savedGuest = reservationRepositoryPort.findOrCreateGuest(guest);
+    public Reservation create(UUID userGuestId, List<ReservationItemCommand> items) {
 
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expirationDate = now.plusMinutes(EXPIRATION_MINUTES);
 
+        // Build reservation details with frozen prices (BR-02)
+        List<ReservationDetail> detailsToSave = new ArrayList<>();
+        for (ReservationItemCommand item : items) {
+            Inventory inventory = getInventoryUseCase.getById(item.inventoryId());
+            detailsToSave.add(new ReservationDetail(
+                    null,
+                    null, // reservationId set after save
+                    item.inventoryId(),
+                    item.qty(),
+                    inventory.getPrice(),
+                    null)); // subtotal is DB-computed
+        }
+
+        // Calculate pricing using domain service (BR-03)
+        BigDecimal grossTotal = reservationPricingService.calculateGrossTotal(detailsToSave);
+        BigDecimal discount = reservationPricingService.calculateComboDiscount(grossTotal, items.size());
+        BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
+
         Reservation reservation = Reservation.builder()
-                .userGuestId(savedGuest.id())
-                .proofUrl(proofUrl)
+                .userGuestId(userGuestId) // nullable — can be attached later
                 .status(ReservationStatus.PENDING)
+                .discount(discount)
+                .total(finalTotal)
                 .expirationDate(expirationDate.toInstant())
                 .build();
 
         Reservation savedReservation = reservationRepositoryPort.save(reservation);
 
-        List<ReservationDetail> details = new ArrayList<>();
-        for (ReservationItemCommand item : items) {
-            Inventory inventory = getInventoryUseCase.getById(item.inventoryId());
-
-            ReservationDetail detail = new ReservationDetail(
+        // Persist each detail linked to the saved reservation
+        List<ReservationDetail> savedDetails = new ArrayList<>();
+        for (ReservationDetail detail : detailsToSave) {
+            ReservationDetail linked = new ReservationDetail(
                     null,
                     savedReservation.getId(),
-                    item.inventoryId(),
-                    item.qty(),
-                    inventory.getPrice());
-
-            ReservationDetail savedDetail = reservationRepositoryPort.saveDetail(detail);
-            details.add(savedDetail);
+                    detail.inventoryId(),
+                    detail.qty(),
+                    detail.unitPrice(),
+                    null);
+            savedDetails.add(reservationRepositoryPort.saveDetail(linked));
         }
 
-        savedReservation.setDetails(details);
+        savedReservation.setDetails(savedDetails);
         return savedReservation;
     }
 }

@@ -65,10 +65,10 @@ public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
      * Attempts to read the role from {@code raw_app_meta_data.role},
      * then falls back to {@code user_metadata.role}.
      */
-    @SuppressWarnings("unchecked")
+    // @SuppressWarnings("unchecked")
     private String extractRole(Jwt jwt) {
         // Primary: raw_app_meta_data.role (Supabase stores custom roles here)
-        Map<String, Object> appMetadata = jwt.getClaim("raw_app_meta_data");
+        Map<String, Object> appMetadata = jwt.getClaim("app_metadata");
         if (appMetadata != null && appMetadata.containsKey("role")) {
             return String.valueOf(appMetadata.get("role"));
         }

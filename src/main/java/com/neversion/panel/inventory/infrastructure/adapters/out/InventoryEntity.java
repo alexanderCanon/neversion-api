@@ -11,8 +11,6 @@ import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,23 +42,26 @@ public class InventoryEntity extends AuditableEntity {
     @Column(name = "duration_days")
     private Integer durationDays;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_type")
+    @Column(name = "account_type", columnDefinition = "account_type")
     private AccountType accountType;
 
     @Column(name = "stock")
     private Integer stock;
 
+    @Column(name = "max_profiles")
+    private Integer maxProfiles;
+
     public InventoryEntity() {
     }
 
     public InventoryEntity(Long id, UUID productId, BigDecimal price, Integer durationDays,
-            AccountType accountType, Integer stock) {
+            AccountType accountType, Integer stock, Integer maxProfiles) {
         this.id = id;
         this.productId = productId;
         this.price = price;
         this.durationDays = durationDays;
         this.accountType = accountType;
         this.stock = stock;
+        this.maxProfiles = maxProfiles;
     }
 }

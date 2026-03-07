@@ -8,21 +8,26 @@ import com.neversion.panel.infrastructure.AuditableEntity;
 import com.neversion.panel.shared.domain.model.enums.AccountStatus;
 import com.neversion.panel.shared.domain.model.enums.AccountType;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Table(name = "accounts")
+@SQLDelete(sql = "UPDATE accounts SET is_active = false WHERE id = ?")
+@SQLRestriction("is_active = true")
 @Getter
 @Setter
+@Builder
 public class AccountEntity extends AuditableEntity {
 
     @Id
@@ -36,8 +41,8 @@ public class AccountEntity extends AuditableEntity {
     @Column(name = "pass")
     private String pass;
 
-    @Column(name = "product_id")
-    private UUID productId;
+    @Column(name = "inventory_id")
+    private Long inventoryId;
 
     @Column(name = "seller")
     private String seller;
@@ -45,12 +50,10 @@ public class AccountEntity extends AuditableEntity {
     @Column(name = "price_seller")
     private BigDecimal priceSeller;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_type")
+    @Column(name = "account_type", columnDefinition = "account_type")
     private AccountType accountType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "account_status")
     private AccountStatus status;
 
     @Column(name = "expiration_date")
@@ -59,13 +62,13 @@ public class AccountEntity extends AuditableEntity {
     public AccountEntity() {
     }
 
-    public AccountEntity(UUID id, String email, String pass, UUID productId, String seller,
+    public AccountEntity(UUID id, String email, String pass, Long inventoryId, String seller,
             BigDecimal priceSeller, AccountType accountType, AccountStatus status,
             LocalDate expirationDate) {
         this.id = id;
         this.email = email;
         this.pass = pass;
-        this.productId = productId;
+        this.inventoryId = inventoryId;
         this.seller = seller;
         this.priceSeller = priceSeller;
         this.accountType = accountType;

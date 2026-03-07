@@ -6,36 +6,35 @@ import com.neversion.panel.account.domain.model.Account;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.panel.account.infrastructure.adapters.in.rest.dto.AccountResponse;
 import com.neversion.panel.shared.domain.model.enums.AccountStatus;
+import com.neversion.panel.shared.domain.model.enums.AccountType;
 
 @Component
 public class AccountMapper {
 
     public Account toDomain(AccountRequest request) {
-        return new Account(
-                null,
-                request.getEmail(),
-                request.getPass(),
-                request.getProductId(),
-                request.getSeller(),
-                request.getPriceSeller(),
-                request.getAccountType(),
-                AccountStatus.AVAILABLE,
-                request.getExpirationDate(),
-                true,
-                null);
+        return request != null ? Account.builder()
+                .email(request.email())
+                .pass(request.pass())
+                .inventoryId(request.inventoryId())
+                .seller(request.seller())
+                .priceSeller(request.priceSeller())
+                .accountType(AccountType.valueOf(request.accountType()))
+                .status(AccountStatus.valueOf(request.status()))
+                .expirationDate(request.expirationDate())
+                .build() : null;
     }
 
     public AccountResponse toResponse(Account account) {
-        return new AccountResponse(
-                account.id(),
-                account.email(),
-                account.pass(),
-                account.productId(),
-                account.seller(),
-                account.priceSeller(),
-                account.accountType(),
-                account.status(),
-                account.expirationDate(),
-                account.isActive());
+        return account != null ? AccountResponse.builder()
+                .id(account.getId())
+                .email(account.getEmail())
+                .pass(account.getPass())
+                .inventoryId(account.getInventoryId())
+                .seller(account.getSeller())
+                .priceSeller(account.getPriceSeller())
+                .accountType(account.getAccountType().name())
+                .status(account.getStatus().name())
+                .expirationDate(account.getExpirationDate())
+                .build() : null;
     }
 }
