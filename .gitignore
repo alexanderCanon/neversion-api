@@ -35,12 +35,12 @@ build/
 application-dev.yaml
 application-prod.yaml
 
-### Environment variables ###
+### Enviroment files ###
 .env
 
 ### Markdown files ###
+SPEC.md
 SECURITY.md
-HELP.md
 
-### JSON ###
+### Other ###
 **/resources/jsonfiles/*
