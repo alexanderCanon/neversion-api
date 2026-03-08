@@ -1,7 +1,9 @@
-name: Deploy Backend to EC2
+name: CI/CD Pipeline - Spring Boot to EC2
 
 on:
   push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
 
 permissions:
@@ -9,33 +11,61 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+# ==========================================
+# STAGE 1: CONTINUOUS INTEGRATION
+# ==========================================
+ci-tests:
+    name: Build & Run Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v3
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-      - name: Configurar credenciales de AWS
+      - name: Setup Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Execute Maven Tests
+        run: chmod +x mvnw && ./mvnw test -B
+
+# ==========================================
+# STAGE 2: CONTINUOUS DEPLOYMENT
+# ==========================================
+  cd-deploy:
+    name: Deploy to AWS EC2
+    needs: ci-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::163053485479:role/GitHubActionsDeployRole
           aws-region: us-east-2
 
-      - name: Login a Amazon ECR
+      - name: Auth with Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build y Push de la imagen a ECR
+      - name: Build and Push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: mi-app-backend
-          IMAGE_TAG: latest # Usamos latest para simplificar el MVP, aunque en el futuro usaremos ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Tu Dockerfile multi-stage se encarga de compilar y empaquetar
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Desplegar en EC2 vía AWS SSM
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Deploy to EC2 via AWS SSM
         env:
           INSTANCE_ID: i-01c173c56307b50b2
         run: |
@@ -45,10 +75,10 @@ jobs:
             --parameters 'commands=[
               "#!/bin/bash",
               "set -e",
-              "# 1. Autenticar Docker con ECR",
+              "# 1. Authenticate Docker with AWS ECR",
               "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 163053485479.dkr.ecr.us-east-2.amazonaws.com",
               
-              "# 2. Obtener Token de GitHub desde SSM y clonar/actualizar repo",
+              "# 2. Clone or Update Application Repository",
               "TOKEN=\$(aws ssm get-parameter --name \"/prod/backend/GITHUB_TOKEN\" --with-decryption --query \"Parameter.Value\" --output text)",
               "APP_DIR=\"/home/ssm-user/app\"",
               "if [ ! -d \"\$APP_DIR/.git\" ]; then",
@@ -56,9 +86,12 @@ jobs:
               "else",
               "  cd \$APP_DIR && git pull origin main",
               "fi",
-              
-              "# 3. Descargar la nueva imagen y levantar servicios",
+              "",
+              "# 3. Fetch SSM Parameters and Generate .env File",
               "cd \$APP_DIR",
+              "aws ssm get-parameters-by-path --path \"/prod/backend/\" --with-decryption --query \"Parameters[*]\" | jq -r \".[] | (.Name | split(\\\"/\\\") | last) + \\\"=\\\" + .Value\" > .env",
+              "",
+              "# 4. Pull Latest Image and Recreate Container",
               "docker compose -f docker-compose.prod.yaml pull app",
               "docker compose -f docker-compose.prod.yaml up -d app"
             ]'
