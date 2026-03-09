@@ -68,40 +68,52 @@ jobs:
         env:
           INSTANCE_ID: i-01c173c56307b50b2
         run: |
+          cat << 'EOF' > deploy_script.sh
+          #!/bin/bash
+          set -e
+          
+          echo "### Authenticating Docker..."
+          aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 163053485479.dkr.ecr.us-east-2.amazonaws.com
+          
+          echo "### Cloning repository..."
+          TOKEN=$(aws ssm get-parameter --name "/prod/backend/GITHUB_TOKEN" --with-decryption --query "Parameter.Value" --output text)
+          APP_DIR="/home/ssm-user/app"
+          
+          if [ ! -d "$APP_DIR/.git" ]; then
+            git clone "https://x-access-token:${TOKEN}@github.com/alexanderCanon/panel-neversion.git" "$APP_DIR"
+          else
+            cd "$APP_DIR" && git pull origin main
+          fi
+          
+          echo "### Fetching SSM Parameters and Generating .env File..."
+          cd "$APP_DIR"
+          aws ssm get-parameters-by-path --path "/prod/backend/" --with-decryption --query "Parameters[*]" | jq -r '.[] | (.Name | split("/") | last) + "=" + .Value' > .env
+          
+          echo "### Starting Docker Compose..."
+          docker compose -f docker-compose.prod.yaml pull app
+          docker compose -f docker-compose.prod.yaml up -d app
+          EOF
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=[
-              "#!/bin/bash",
-              "set -e",
-              "",
-              "echo \"### Authenticating Docker...\"",
-              "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 163053485479.dkr.ecr.us-east-2.amazonaws.com",
-              "",
-              "echo \"### Cloning repository...\"",
-              "TOKEN=\$(aws ssm get-parameter --name \"/prod/backend/GITHUB_TOKEN\" --with-decryption --query \"Parameter.Value\" --output text)",
-              "APP_DIR=\"/home/ssm-user/app\"",
-              "if [ ! -d \"\$APP_DIR/.git\" ]; then",
-              "  git clone https://x-access-token:\$TOKEN@github.com/alexanderCanon/panel-neversion.git \$APP_DIR",
-              "else",
-              "  cd \$APP_DIR && git pull origin main",
-              "fi",
-              "",
-              "echo \"### Fetching SSM Parameters and Generating .env File...\"",
-              "cd \$APP_DIR",
-              "aws ssm get-parameters-by-path --path \"/prod/backend/\" --with-decryption --query \"Parameters[*]\" | jq -r \".[] | (.Name | split(\\\"/\\\") | last) + \\\"=\\\" + .Value\" > .env",
-              "",
-              "echo \"### Starting Docker Compose...\"",
-              "docker compose -f docker-compose.prod.yaml pull app",
-              "docker compose -f docker-compose.prod.yaml up -d app"
-            ]' \
+            --parameters commands="$(cat deploy_script.sh)" \
             --query "Command.CommandId" \
             --output text)
+            
           echo "Command ID: $COMMAND_ID sent to EC2. Waiting for execution..."
+          
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID"
+            --instance-id "$INSTANCE_ID" || EXIT_CODE=$?
+            
           echo "=== STDOUT ==="
           aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardOutputContent" --output text
+          
           echo "=== STDERR ==="
           aws ssm get-command-invocation --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" --query "StandardErrorContent" --output text
+          
+          if [ "${EXIT_CODE:-0}" -ne 0 ]; then
+            echo "Deployment failed with exit code $EXIT_CODE. Check the STDERR above."
+            exit $EXIT_CODE
+          fi
