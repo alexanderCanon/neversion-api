@@ -94,10 +94,12 @@ jobs:
           docker compose -f docker-compose.prod.yaml up -d app
           EOF
 
+          jq -n --arg script "$(cat deploy_script.sh)" '{"commands": [$script]}' > ssm_params.json
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands="$(cat deploy_script.sh)" \
+            --parameters file://ssm_params.json \
             --query "Command.CommandId" \
             --output text)
             
@@ -115,5 +117,5 @@ jobs:
           
           if [ "${EXIT_CODE:-0}" -ne 0 ]; then
             echo "Deployment failed with exit code $EXIT_CODE. Check the STDERR above."
-            exit $EXIT_CODE
+            exit ${EXIT_CODE}
           fi
