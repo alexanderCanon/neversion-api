@@ -15,7 +15,7 @@
 services:
   # ── Spring Boot Application ─────────────────────────────────────
   app:
-    build: .
+    image: 163053485479.dkr.ecr.us-east-2.amazonaws.com/mi-app-backend:latest
     container_name: panel-app
     restart: unless-stopped
     environment:
