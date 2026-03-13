@@ -33,7 +33,6 @@ build/
 
 ### Profiles ###
 application-dev.yaml
-application-prod.yaml
 
 ### Enviroment files ###
 .env
