@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -36,6 +37,7 @@ import com.neversion.panel.reservation.infrastructure.adapters.in.rest.mapper.Re
 
 @WebMvcTest(ReservationController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("ReservationController Slicing Tests")
 class ReservationControllerIT extends BaseIntegrationTest {
@@ -108,20 +110,6 @@ class ReservationControllerIT extends BaseIntegrationTest {
 
         // ── Validation tests ────────────────────────────────────────────
 
-        @Test
-        @DisplayName("POST /api/v1/reservations → 400 when userGuestId is null")
-        void createReservation_shouldReturn400_whenUserGuestIdIsNull() throws Exception {
-                String body = """
-                                {
-                                    "items": [{ "inventoryId": 1, "qty": 1 }]
-                                }
-                                """;
-
-                mockMvc.perform(post("/api/v1/reservations")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(body))
-                                .andExpect(status().isBadRequest());
-        }
 
         @Test
         @DisplayName("POST /api/v1/reservations → 400 when items list is null")

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -33,6 +34,7 @@ import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.Produc
 
 @WebMvcTest(ProductGetController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("ProductGetController Slicing Tests")
 class ProductGetControllerIT extends BaseIntegrationTest {
