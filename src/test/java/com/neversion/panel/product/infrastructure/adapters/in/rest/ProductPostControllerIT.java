@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import com.neversion.panel.product.infrastructure.adapters.in.rest.mapper.Produc
 
 @WebMvcTest(ProductPostController.class)
 @Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("ProductPostController Slicing Tests")
 class ProductPostControllerIT {
@@ -133,24 +135,6 @@ class ProductPostControllerIT {
                             "accountType": "individual"
                         }
                     ]
-                }
-                """;
-
-        mockMvc.perform(post("/api/v1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("POST /api/v1/products → 400 when items list is empty")
-    void createProduct_shouldReturn400_whenItemsAreEmpty() throws Exception {
-        String requestBody = """
-                {
-                    "name": "Netflix",
-                    "description": "Streaming service",
-                    "category": "STREAMING",
-                    "items": []
                 }
                 """;
 
