@@ -90,8 +90,8 @@ jobs:
           aws ssm get-parameters-by-path --path "/prod/backend/" --with-decryption --query "Parameters[*]" | jq -r '.[] | (.Name | split("/") | last) + "=" + .Value' > .env
           
           echo "### Starting Docker Compose..."
-          docker compose -f docker-compose.prod.yaml pull app
-          docker compose -f docker-compose.prod.yaml up -d app
+          docker compose -f compose.prod.yaml pull app
+          docker compose -f compose.prod.yaml up -d app
           EOF
 
           jq -n --arg script "$(cat deploy_script.sh)" '{"commands": [$script]}' > ssm_params.json
