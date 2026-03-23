@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.neversion</groupId>
-	<artifactId>panel</artifactId>
+	<artifactId>api</artifactId>
 	<version>0.1.0</version>
-	<name>panel</name>
-	<description>Admin panel</description>
+	<name>api</name>
+	<description>Admin api</description>
 	<url/>
 	<licenses>
 		<license/>

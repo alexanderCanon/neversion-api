@@ -20,10 +20,10 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src src
 
 # Build the fat JAR, skipping tests (tests should run in CI pipeline).
-# The resulting JAR is renamed to panel.jar for a predictable COPY target,
+# The resulting JAR is renamed to api.jar for a predictable COPY target,
 # avoiding wildcard ambiguity if multiple JARs exist in target/.
 RUN ./mvnw package -DskipTests -B \
-    && mv target/panel-*.jar target/panel.jar
+    && mv target/api-*.jar target/api.jar
 
 # ══════════════════════════════════════════════════════════════════
 # Stage 2: RUN — Lightweight runtime image (JRE only, no compiler)
@@ -41,7 +41,7 @@ RUN groupadd --system appgroup && \
 WORKDIR /app
 
 # Copy the fat JAR from the build stage with a predictable name
-COPY --from=build /app/target/panel.jar app.jar
+COPY --from=build /app/target/api.jar app.jar
 
 # ── Ensure the app user owns the working directory ──────────────
 RUN chown -R appuser:appgroup /app

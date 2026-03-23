@@ -1,6 +1,6 @@
 spring:
   application:
-    name: panel
+    name: api
   jpa:
     open-in-view: false
     hibernate:
@@ -24,7 +24,7 @@ logging:
   level:
     root: INFO
     org.springframework.security: DEBUG
-    com.neversion.panel.config: DEBUG
+    com.neversion.api.config: DEBUG
 
 supabase:
   jwt:
