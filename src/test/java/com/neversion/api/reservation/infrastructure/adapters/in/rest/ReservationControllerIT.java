@@ -170,8 +170,8 @@ class ReservationControllerIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("PUT /api/v1/reservations/{id}/receipt → 400 when receipt URL is duplicate (BR-05)")
-        void uploadReceipt_shouldReturn400_whenReceiptUrlIsDuplicate() throws Exception {
+        @DisplayName("PUT /api/v1/reservations/{id}/receipt → 409 when receipt URL is duplicate (BR-05)")
+        void uploadReceipt_shouldReturn409_whenReceiptUrlIsDuplicate() throws Exception {
                 UUID reservationId = UUID.randomUUID();
 
                 when(uploadReceiptUseCase.uploadReceipt(eq(reservationId), anyString()))
@@ -183,7 +183,7 @@ class ReservationControllerIT extends BaseIntegrationTest {
                                 .content("""
                                                 { "receiptUrl": "https://bank.com/receipt/duplicate" }
                                                 """))
-                                .andExpect(status().isBadRequest())
+                                .andExpect(status().isConflict())
                                 .andExpect(jsonPath("$.message").value(
                                                 org.hamcrest.Matchers.containsString("receipt URL")));
         }

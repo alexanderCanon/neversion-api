@@ -38,8 +38,8 @@ application-dev.yaml
 .env
 
 ### Markdown files ###
-SPEC.md
 SECURITY.md
+PROMPT.md
 
 ### Other ###
 **/resources/jsonfiles/*

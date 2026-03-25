@@ -15,7 +15,8 @@ import com.neversion.api.shared.domain.model.enums.AccountType;
 public interface SpringDataAccountAdapter extends JpaRepository<AccountEntity, UUID> {
     List<AccountEntity> findBySeller(String seller);
 
-    List<AccountEntity> findByAccountType(AccountType accountType);
+    @Query("SELECT a FROM AccountEntity a, InventoryEntity i WHERE a.inventoryId = i.id AND i.accountType = :accountType")
+    List<AccountEntity> findByAccountType(@Param("accountType") AccountType accountType);
 
     List<AccountEntity> findByExpirationDateBefore(LocalDate date);
 

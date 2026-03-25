@@ -9,6 +9,7 @@ spring:
       hibernate:
         format_sql: false
 
+
   flyway:
     enabled: true
     execute-in-transaction: false

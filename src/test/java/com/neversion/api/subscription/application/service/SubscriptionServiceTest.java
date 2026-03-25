@@ -23,6 +23,8 @@ import com.neversion.api.exception.AccountOverbookingException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.shared.domain.model.enums.AccountType;
+import com.neversion.api.inventory.domain.model.Inventory;
+import com.neversion.api.inventory.domain.port.out.InventoryRepositoryPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
@@ -37,6 +39,9 @@ class SubscriptionServiceTest {
         @Mock
         private AccountRepositoryPort accountRepositoryPort;
 
+        @Mock
+        private InventoryRepositoryPort inventoryRepositoryPort;
+
         private SubscriptionService subscriptionService;
 
         private static final UUID ACCOUNT_ID = UUID.randomUUID();
@@ -45,7 +50,7 @@ class SubscriptionServiceTest {
 
         @BeforeEach
         void setUp() {
-                subscriptionService = new SubscriptionService(subscriptionRepositoryPort, accountRepositoryPort);
+                subscriptionService = new SubscriptionService(subscriptionRepositoryPort, accountRepositoryPort, inventoryRepositoryPort);
         }
 
         @Nested
@@ -59,7 +64,7 @@ class SubscriptionServiceTest {
                         Account familiarAccount = new Account(
                                         ACCOUNT_ID, "netflix@example.com", "pass123",
                                         1L, "Seller A", new BigDecimal("15.00"),
-                                        AccountType.FAMILIAR, AccountStatus.AVAILABLE,
+                                        AccountStatus.AVAILABLE,
                                         LocalDate.now().plusMonths(6));
 
                         Subscription input = Subscription.builder()
@@ -78,7 +83,10 @@ class SubscriptionServiceTest {
                                         .status(SubStatus.ACTIVE)
                                         .build();
 
+                        Inventory familiarInventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).build();
+
                         when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.of(familiarAccount));
+                        when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(familiarInventory));
                         when(subscriptionRepositoryPort.save(any(Subscription.class))).thenReturn(persisted);
 
                         // When
@@ -101,7 +109,7 @@ class SubscriptionServiceTest {
                         Account individualAccount = new Account(
                                         ACCOUNT_ID, "hbo@example.com", "pass456",
                                         2L, "Seller B", new BigDecimal("10.00"),
-                                        AccountType.INDIVIDUAL, AccountStatus.AVAILABLE,
+                                        AccountStatus.AVAILABLE,
                                         LocalDate.now().plusMonths(3));
 
                         Subscription input = Subscription.builder()
@@ -120,7 +128,10 @@ class SubscriptionServiceTest {
                                         .status(SubStatus.ACTIVE)
                                         .build();
 
+                        Inventory individualInventory = Inventory.builder().id(2L).accountType(AccountType.INDIVIDUAL).build();
+
                         when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.of(individualAccount));
+                        when(inventoryRepositoryPort.findById(2L)).thenReturn(Optional.of(individualInventory));
                         when(subscriptionRepositoryPort.existsActiveByAccountId(ACCOUNT_ID)).thenReturn(false);
                         when(subscriptionRepositoryPort.save(any(Subscription.class))).thenReturn(persisted);
 
@@ -142,7 +153,7 @@ class SubscriptionServiceTest {
                         Account individualAccount = new Account(
                                         ACCOUNT_ID, "disney@example.com", "pass789",
                                         3L, "Seller C", new BigDecimal("12.00"),
-                                        AccountType.INDIVIDUAL, AccountStatus.ASSIGNED,
+                                        AccountStatus.ASSIGNED,
                                         LocalDate.now().plusMonths(3));
 
                         Subscription input = Subscription.builder()
@@ -152,7 +163,10 @@ class SubscriptionServiceTest {
                                         .renewalDate(LocalDate.now().plusDays(30))
                                         .build();
 
+                        Inventory individualInventory = Inventory.builder().id(3L).accountType(AccountType.INDIVIDUAL).build();
+
                         when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.of(individualAccount));
+                        when(inventoryRepositoryPort.findById(3L)).thenReturn(Optional.of(individualInventory));
                         when(subscriptionRepositoryPort.existsActiveByAccountId(ACCOUNT_ID)).thenReturn(true);
 
                         // When & Then

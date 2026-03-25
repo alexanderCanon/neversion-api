@@ -16,7 +16,6 @@ public class AccountPersistenceMapper {
                 .inventoryId(entity.getInventoryId())
                 .seller(entity.getSeller())
                 .priceSeller(entity.getPriceSeller())
-                .accountType(entity.getAccountType())
                 .status(entity.getStatus())
                 .expirationDate(entity.getExpirationDate())
                 .build() : null;
@@ -30,7 +29,6 @@ public class AccountPersistenceMapper {
                 .inventoryId(account.getInventoryId())
                 .seller(account.getSeller())
                 .priceSeller(account.getPriceSeller())
-                .accountType(account.getAccountType())
                 .status(account.getStatus())
                 .expirationDate(account.getExpirationDate())
                 .build() : null;

@@ -49,14 +49,13 @@ class CreateAccountServiceUT {
                 accountRepositoryPort, inventoryRepositoryPort, accountSlotUseCase);
     }
 
-    private Account buildAccount(AccountType type, LocalDate expiration) {
+    private Account buildAccount(LocalDate expiration) {
         return Account.builder()
                 .email("test@gmail.com")
                 .pass("pass123")
                 .inventoryId(1L)
                 .seller("seller1")
                 .priceSeller(BigDecimal.TEN)
-                .accountType(type)
                 .status(AccountStatus.AVAILABLE)
                 .expirationDate(expiration)
                 .build();
@@ -70,12 +69,15 @@ class CreateAccountServiceUT {
         @DisplayName("create - should save individual account and generate 1 slot")
         void create_shouldSaveIndividualAccountAndGenerate1Slot() {
             // Given
-            Account account = buildAccount(AccountType.INDIVIDUAL, LocalDate.now().plusDays(30));
+            Account account = buildAccount(LocalDate.now().plusDays(30));
             UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(AccountType.INDIVIDUAL, LocalDate.now().plusDays(30));
+            Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
+            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.INDIVIDUAL).build();
+
             when(accountRepositoryPort.save(account)).thenReturn(saved);
+            when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
 
             // When
             Account result = createAccountService.create(account);
@@ -90,12 +92,12 @@ class CreateAccountServiceUT {
         @DisplayName("create - should save familiar account and generate slots from inventory maxProfiles")
         void create_shouldSaveFamiliarAccountAndGenerateSlotsFromMaxProfiles() {
             // Given
-            Account account = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account account = buildAccount(LocalDate.now().plusDays(30));
             UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
-            Inventory inventory = Inventory.builder().id(1L).maxProfiles(5).build();
+            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).maxProfiles(5).build();
 
             when(accountRepositoryPort.save(account)).thenReturn(saved);
             when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
@@ -109,24 +111,24 @@ class CreateAccountServiceUT {
         }
 
         @Test
-        @DisplayName("create - should throw BusinessRuleException when expiration is less than 15 days")
-        void create_shouldThrowBusinessRuleException_whenExpirationTooSoon() {
+        @DisplayName("create - should throw BusinessRuleException when expiration is in the past")
+        void create_shouldThrowBusinessRuleException_whenExpirationInPast() {
             // Given
-            Account account = buildAccount(AccountType.INDIVIDUAL, LocalDate.now().plusDays(10));
+            Account account = buildAccount(LocalDate.now().minusDays(1));
 
             // When / Then
             assertThatThrownBy(() -> createAccountService.create(account))
                     .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("at least 15 days");
+                    .hasMessageContaining("cannot be in the past");
         }
 
         @Test
         @DisplayName("create - should throw ResourceNotFoundException when familiar inventory not found")
         void create_shouldThrowResourceNotFound_whenFamiliarInventoryNotFound() {
             // Given
-            Account account = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account account = buildAccount(LocalDate.now().plusDays(30));
             UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
             when(accountRepositoryPort.save(account)).thenReturn(saved);
@@ -142,12 +144,12 @@ class CreateAccountServiceUT {
         @DisplayName("create - should default to 1 slot when familiar inventory has null maxProfiles")
         void create_shouldDefaultTo1Slot_whenMaxProfilesIsNull() {
             // Given
-            Account account = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account account = buildAccount(LocalDate.now().plusDays(30));
             UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(AccountType.FAMILIAR, LocalDate.now().plusDays(30));
+            Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
-            Inventory inventory = Inventory.builder().id(1L).maxProfiles(null).build();
+            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).maxProfiles(null).build();
 
             when(accountRepositoryPort.save(account)).thenReturn(saved);
             when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));

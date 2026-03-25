@@ -21,7 +21,6 @@ import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DeactivateAccountService unit tests")
@@ -54,7 +53,6 @@ class DeactivateAccountServiceUT {
                     .inventoryId(1L)
                     .seller("seller")
                     .priceSeller(BigDecimal.TEN)
-                    .accountType(AccountType.INDIVIDUAL)
                     .status(AccountStatus.AVAILABLE)
                     .expirationDate(LocalDate.now().plusDays(30))
                     .build();

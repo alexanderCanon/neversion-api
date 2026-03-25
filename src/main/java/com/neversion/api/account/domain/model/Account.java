@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -21,12 +20,12 @@ public class Account {
         private Long inventoryId;
         private String seller;
         private BigDecimal priceSeller;
-        private AccountType accountType;
+
         private AccountStatus status;
         private LocalDate expirationDate;
 
         public Account(UUID id, String email, String pass, Long inventoryId, String seller,
-                        BigDecimal priceSeller, AccountType accountType, AccountStatus status,
+                        BigDecimal priceSeller, AccountStatus status,
                         LocalDate expirationDate) {
                 this.id = id;
                 this.email = email;
@@ -34,7 +33,6 @@ public class Account {
                 this.inventoryId = inventoryId;
                 this.seller = seller;
                 this.priceSeller = priceSeller;
-                this.accountType = accountType;
                 this.status = status;
                 this.expirationDate = expirationDate;
         }

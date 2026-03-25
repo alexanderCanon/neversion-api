@@ -4,7 +4,10 @@ import java.util.UUID;
 
 import com.neversion.api.accountslot.domain.model.enums.SlotStatus;
 
+import com.neversion.api.accountslot.infrastructure.adapters.out.converter.SlotStatusConverter;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +39,7 @@ public class AccountSlotEntity {
     private String pin;
 
     @Column(name = "status", columnDefinition = "slot_status")
+    @Convert(converter = SlotStatusConverter.class)
     private SlotStatus status;
 
     public AccountSlotEntity() {

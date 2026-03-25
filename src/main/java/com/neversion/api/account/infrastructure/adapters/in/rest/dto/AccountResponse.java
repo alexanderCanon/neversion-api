@@ -14,7 +14,6 @@ public record AccountResponse(
         Long inventoryId,
         String seller,
         BigDecimal priceSeller,
-        String accountType,
         String status,
         LocalDate expirationDate) {
 

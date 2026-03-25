@@ -18,7 +18,6 @@ public class AccountMapper {
                 .inventoryId(request.inventoryId())
                 .seller(request.seller())
                 .priceSeller(request.priceSeller())
-                .accountType(AccountType.valueOf(request.accountType()))
                 .status(AccountStatus.valueOf(request.status()))
                 .expirationDate(request.expirationDate())
                 .build() : null;
@@ -32,7 +31,6 @@ public class AccountMapper {
                 .inventoryId(account.getInventoryId())
                 .seller(account.getSeller())
                 .priceSeller(account.getPriceSeller())
-                .accountType(account.getAccountType().name())
                 .status(account.getStatus().name())
                 .expirationDate(account.getExpirationDate())
                 .build() : null;

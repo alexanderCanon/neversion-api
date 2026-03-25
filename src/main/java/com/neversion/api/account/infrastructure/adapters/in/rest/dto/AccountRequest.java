@@ -22,8 +22,6 @@ public record AccountRequest(
 
                 @NotNull(message = "Price seller is required") @DecimalMin(value = "0.01", message = "Price seller must be greater than 0") BigDecimal priceSeller,
 
-                @NotNull(message = "Account type is required") String accountType,
-
                 @NotNull(message = "Status is required") String status,
 
                 @NotNull(message = "Expiration date is required") LocalDate expirationDate) {

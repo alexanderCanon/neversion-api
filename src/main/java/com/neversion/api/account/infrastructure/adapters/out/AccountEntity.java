@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.neversion.api.infrastructure.AuditableEntity;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -50,8 +50,7 @@ public class AccountEntity extends AuditableEntity {
     @Column(name = "price_seller")
     private BigDecimal priceSeller;
 
-    @Column(name = "account_type", columnDefinition = "account_type")
-    private AccountType accountType;
+
 
     @Column(name = "status", columnDefinition = "account_status")
     private AccountStatus status;
@@ -63,15 +62,13 @@ public class AccountEntity extends AuditableEntity {
     }
 
     public AccountEntity(UUID id, String email, String pass, Long inventoryId, String seller,
-            BigDecimal priceSeller, AccountType accountType, AccountStatus status,
-            LocalDate expirationDate) {
+            BigDecimal priceSeller, AccountStatus status, LocalDate expirationDate) {
         this.id = id;
         this.email = email;
         this.pass = pass;
         this.inventoryId = inventoryId;
         this.seller = seller;
         this.priceSeller = priceSeller;
-        this.accountType = accountType;
         this.status = status;
         this.expirationDate = expirationDate;
     }

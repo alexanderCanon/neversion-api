@@ -10,6 +10,8 @@ import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.domain.model.enums.AccountType;
 import com.neversion.api.subscription.application.port.in.AssignAccountUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.inventory.domain.model.Inventory;
+import com.neversion.api.inventory.domain.port.out.InventoryRepositoryPort;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 
@@ -18,11 +20,14 @@ public class SubscriptionService implements AssignAccountUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
+    private final InventoryRepositoryPort inventoryRepositoryPort;
 
     public SubscriptionService(SubscriptionRepositoryPort subscriptionRepositoryPort,
-            AccountRepositoryPort accountRepositoryPort) {
+            AccountRepositoryPort accountRepositoryPort,
+            InventoryRepositoryPort inventoryRepositoryPort) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
+        this.inventoryRepositoryPort = inventoryRepositoryPort;
     }
 
     /**
@@ -44,9 +49,13 @@ public class SubscriptionService implements AssignAccountUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Account not found with id: " + subscription.getAccountId()));
 
+        Inventory inventory = inventoryRepositoryPort.findById(account.getInventoryId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Inventory not found: " + account.getInventoryId()));
+
         // 2. Anti-overbooking: individual accounts can only have ONE active
         // subscription
-        if (account.getAccountType() == AccountType.INDIVIDUAL) {
+        if (inventory.getAccountType() == AccountType.INDIVIDUAL) {
             boolean hasActiveSubscription = subscriptionRepositoryPort
                     .existsActiveByAccountId(subscription.getAccountId());
 

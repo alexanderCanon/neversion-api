@@ -33,8 +33,8 @@ public class CreateAccountService implements CreateAccountUseCase {
     @Override
     @Transactional
     public Account create(Account account) {
-        if (account.getExpirationDate().isBefore(LocalDate.now().plusDays(15))) {
-            throw new BusinessRuleException("Expiration date must be at least 15 days from now");
+        if (account.getExpirationDate().isBefore(LocalDate.now())) {
+            throw new BusinessRuleException("Expiration date cannot be in the past");
         }
 
         Account saved = accountRepositoryPort.save(account);
@@ -51,13 +51,13 @@ public class CreateAccountService implements CreateAccountUseCase {
      * Familiar accounts get N slots determined by inventory.max_profiles.
      */
     private int resolveSlotCount(Account account) {
-        if (account.getAccountType() == AccountType.INDIVIDUAL) {
-            return 1;
-        }
-
         Inventory inventory = inventoryRepositoryPort.findById(account.getInventoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Inventory not found: " + account.getInventoryId()));
+
+        if (inventory.getAccountType() == AccountType.INDIVIDUAL) {
+            return 1;
+        }
 
         return inventory.getMaxProfiles() != null ? inventory.getMaxProfiles() : 1;
     }
