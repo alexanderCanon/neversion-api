@@ -127,10 +127,10 @@ class GetInventoryServiceUT {
         void getByAccountType_shouldDelegateToRepository() {
             // Given
             List<Inventory> inventories = List.of(buildInventory(1L));
-            when(inventoryRepositoryPort.findByAccountType(AccountType.FAMILIAR)).thenReturn(inventories);
+            when(inventoryRepositoryPort.findByAccountType(AccountType.FAMILY)).thenReturn(inventories);
 
             // When
-            List<Inventory> result = getInventoryService.getByAccountType(AccountType.FAMILIAR);
+            List<Inventory> result = getInventoryService.getByAccountType(AccountType.FAMILY);
 
             // Then
             assertThat(result).hasSize(1);

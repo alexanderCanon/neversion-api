@@ -50,7 +50,7 @@ public class AccountGetController {
     @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully")
     public ResponseEntity<?> getAccounts(
             @Parameter(description = "Filter by seller name") @RequestParam(required = false) String seller,
-            @Parameter(description = "Filter by account type (FAMILIAR, INDIVIDUAL)") @RequestParam(required = false) AccountType accountType,
+            @Parameter(description = "Filter by account type (FAMILY, INDIVIDUAL)") @RequestParam(required = false) AccountType accountType,
             @Parameter(description = "Filter by expiration date before (YYYY-MM-DD)") @RequestParam(required = false) LocalDate expirationBefore,
             @Parameter(description = "Filter by active status") @RequestParam(required = false) Boolean isActive) {
 

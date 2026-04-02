@@ -97,7 +97,7 @@ class CreateAccountServiceUT {
             Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
-            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).maxProfiles(5).build();
+            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILY).maxProfiles(5).build();
 
             when(accountRepositoryPort.save(account)).thenReturn(saved);
             when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
@@ -149,7 +149,7 @@ class CreateAccountServiceUT {
             Account saved = buildAccount(LocalDate.now().plusDays(30));
             saved.setId(savedId);
 
-            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).maxProfiles(null).build();
+            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILY).maxProfiles(null).build();
 
             when(accountRepositoryPort.save(account)).thenReturn(saved);
             when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));

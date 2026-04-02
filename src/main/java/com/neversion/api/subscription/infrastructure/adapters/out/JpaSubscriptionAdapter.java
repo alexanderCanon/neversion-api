@@ -62,6 +62,13 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
+    public List<Subscription> findAll() {
+        return subscriptionRepo.findAll().stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<SubscriptionDashboardDTO> findDashboard() {
         return subscriptionRepo.findDashboard();
     }

@@ -3,7 +3,7 @@ package com.neversion.api.product.domain.model.enums;
 public enum CategoryType {
     STREAMING,
     SOFTWARE,
-    GIFTCARD,
+    GIFT_CARD,
     RECHARGE,
-    SUSCRIP4U
+    DIGITAL_SERVICE
 }

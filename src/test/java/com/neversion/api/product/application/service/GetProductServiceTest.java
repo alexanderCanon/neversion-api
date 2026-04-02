@@ -87,7 +87,7 @@ class GetProductServiceTest {
                     .name(name)
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIP4U)
+                    .category(CategoryType.DIGITAL_SERVICE)
                     .build();
 
             when(productRepositoryPort.findByName(name)).thenReturn(Optional.of(expected));
@@ -96,7 +96,7 @@ class GetProductServiceTest {
 
             assertThat(result).isNotNull();
             assertThat(result.getName()).isEqualTo(name);
-            assertThat(result.getCategory()).isEqualTo(CategoryType.SUSCRIP4U);
+            assertThat(result.getCategory()).isEqualTo(CategoryType.DIGITAL_SERVICE);
             verify(productRepositoryPort).findByName(name);
         }
 
@@ -132,7 +132,7 @@ class GetProductServiceTest {
                     .name("Spotify")
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIP4U)
+                    .category(CategoryType.DIGITAL_SERVICE)
                     .build();
 
             when(productRepositoryPort.findAll()).thenReturn(List.of(netflix, spotify));

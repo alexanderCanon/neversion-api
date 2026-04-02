@@ -15,6 +15,9 @@ public record AccountResponse(
         String seller,
         BigDecimal priceSeller,
         String status,
-        LocalDate expirationDate) {
+        LocalDate expirationDate,
+        int maxSlots,
+        int occupiedSlots,
+        int availableSlots) {
 
 }

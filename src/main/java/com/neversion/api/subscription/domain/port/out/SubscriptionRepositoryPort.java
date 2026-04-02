@@ -20,6 +20,8 @@ public interface SubscriptionRepositoryPort {
 
     List<Subscription> findByAccountId(UUID accountId);
 
+    List<Subscription> findAll();
+
     /**
      * Anti-overbooking check (BR-06).
      * Returns true if there is already an active subscription for the given

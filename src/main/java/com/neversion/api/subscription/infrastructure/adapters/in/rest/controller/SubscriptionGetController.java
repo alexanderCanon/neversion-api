@@ -39,9 +39,15 @@ public class SubscriptionGetController {
         this.subscriptionMapper = subscriptionMapper;
     }
 
+    /**
+     * @deprecated Scheduled for removal on 2026-04-30.
+     * Replaced by GET /api/v1/dashboard, GET /api/v1/dashboard/products/{productId}/accounts,
+     * and GET /api/v1/dashboard/accounts/{accountId}/slots.
+     */
+    @Deprecated(since = "2026-03-25", forRemoval = true)
     @GetMapping("/dashboard")
-    @Operation(summary = "Get subscription dashboard", description = "Returns the admin master view (CU-A07) with all subscriptions joined with "
-            + "account credentials and product names.")
+    @Operation(summary = "Get subscription dashboard (DEPRECATED)", description = "Returns the admin master view (CU-A07) with all subscriptions joined with "
+            + "account credentials and product names. DEPRECATED: Use /api/v1/dashboard endpoints instead.")
     @ApiResponse(responseCode = "200", description = "Dashboard data retrieved successfully")
     public ResponseEntity<List<SubscriptionDashboardDTO>> getDashboard() {
         List<SubscriptionDashboardDTO> dashboard = getSubscriptionDashboardUseCase.getDashboard();
@@ -71,7 +77,9 @@ public class SubscriptionGetController {
                     .map(subscriptionMapper::toResponse)
                     .toList();
         } else {
-            responses = List.of(); // require at least one filter
+            responses = subscriptionRepositoryPort.findAll().stream()
+                    .map(subscriptionMapper::toResponse)
+                    .toList();
         }
 
         return ResponseEntity.ok(responses);

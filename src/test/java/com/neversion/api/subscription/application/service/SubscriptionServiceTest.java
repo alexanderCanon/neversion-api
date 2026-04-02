@@ -83,7 +83,7 @@ class SubscriptionServiceTest {
                                         .status(SubStatus.ACTIVE)
                                         .build();
 
-                        Inventory familiarInventory = Inventory.builder().id(1L).accountType(AccountType.FAMILIAR).build();
+                        Inventory familiarInventory = Inventory.builder().id(1L).accountType(AccountType.FAMILY).build();
 
                         when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.of(familiarAccount));
                         when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(familiarInventory));

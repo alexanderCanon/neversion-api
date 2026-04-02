@@ -49,7 +49,7 @@ public class ProductGetController {
     @ApiResponse(responseCode = "200", description = "Products retrieved successfully")
     public ResponseEntity<?> getProducts(
             @Parameter(description = "Filter by exact product name") @RequestParam(required = false) String name,
-            @Parameter(description = "Filter by category (STREAMING, SOFTWARE, GIFTCARD, RECHARGE, SUSCRIP4U)") @RequestParam(required = false) String category) {
+            @Parameter(description = "Filter by category (STREAMING, SOFTWARE, GIFT_CARD, RECHARGE, DIGITAL_SERVICE)") @RequestParam(required = false) String category) {
         if (name != null && !name.isBlank()) {
             Product product = getProductUseCase.getByName(name);
             ProductResponse response = productMapper.toResponse(product);

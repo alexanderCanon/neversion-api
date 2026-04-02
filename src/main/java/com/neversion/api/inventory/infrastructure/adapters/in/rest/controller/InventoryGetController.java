@@ -64,11 +64,11 @@ public class InventoryGetController {
      * <ul>
      * <li>No params → returns all variants</li>
      * <li>{@code productId} → filters by product UUID</li>
-     * <li>{@code accountType} → filters by account type (FAMILIAR, INDIVIDUAL)</li>
+     * <li>{@code accountType} → filters by account type (FAMILY, INDIVIDUAL)</li>
      * </ul>
      *
      * @param productId   optional product UUID filter
-     * @param accountType optional account type filter (FAMILIAR, INDIVIDUAL)
+     * @param accountType optional account type filter (FAMILY, INDIVIDUAL)
      * @return list of matching inventory variants
      */
     @GetMapping
@@ -76,7 +76,7 @@ public class InventoryGetController {
     @ApiResponse(responseCode = "200", description = "Inventory variants retrieved successfully")
     public ResponseEntity<List<InventoryResponse>> getInventory(
             @Parameter(description = "Filter by product UUID") @RequestParam(required = false) UUID productId,
-            @Parameter(description = "Filter by account type (FAMILIAR, INDIVIDUAL)") @RequestParam(required = false) String accountType) {
+            @Parameter(description = "Filter by account type (FAMILY, INDIVIDUAL)") @RequestParam(required = false) String accountType) {
 
         List<Inventory> results;
 

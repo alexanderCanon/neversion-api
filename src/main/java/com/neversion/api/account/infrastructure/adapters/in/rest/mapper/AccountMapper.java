@@ -1,15 +1,25 @@
 package com.neversion.api.account.infrastructure.adapters.in.rest.mapper;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountResponse;
+import com.neversion.api.accountslot.domain.model.AccountSlot;
+import com.neversion.api.accountslot.domain.model.enums.SlotStatus;
+import com.neversion.api.accountslot.domain.port.out.AccountSlotRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
 @Component
 public class AccountMapper {
+
+    private final AccountSlotRepositoryPort slotRepository;
+
+    public AccountMapper(AccountSlotRepositoryPort slotRepository) {
+        this.slotRepository = slotRepository;
+    }
 
     public Account toDomain(AccountRequest request) {
         return request != null ? Account.builder()
@@ -24,7 +34,16 @@ public class AccountMapper {
     }
 
     public AccountResponse toResponse(Account account) {
-        return account != null ? AccountResponse.builder()
+        if (account == null) return null;
+
+        List<AccountSlot> slots = slotRepository.findByAccountId(account.getId());
+        int maxSlots = slots.size();
+        int occupiedSlots = (int) slots.stream()
+                .filter(s -> s.getStatus() == SlotStatus.OCCUPIED)
+                .count();
+        int availableSlots = maxSlots - occupiedSlots;
+
+        return AccountResponse.builder()
                 .id(account.getId())
                 .email(account.getEmail())
                 .pass(account.getPass())
@@ -33,6 +52,9 @@ public class AccountMapper {
                 .priceSeller(account.getPriceSeller())
                 .status(account.getStatus().name())
                 .expirationDate(account.getExpirationDate())
-                .build() : null;
+                .maxSlots(maxSlots)
+                .occupiedSlots(occupiedSlots)
+                .availableSlots(availableSlots)
+                .build();
     }
 }

@@ -75,7 +75,7 @@ class CreateProductServiceTest {
                     .name("Spotify")
                     .description("Music streaming")
                     .imageUrl("https://img.example.com/spotify.png")
-                    .category(CategoryType.SUSCRIP4U)
+                    .category(CategoryType.DIGITAL_SERVICE)
                     .build();
 
             when(productRepositoryPort.existsByName("Spotify")).thenReturn(false);
