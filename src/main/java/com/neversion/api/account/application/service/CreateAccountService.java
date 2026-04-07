@@ -1,64 +1,61 @@
 package com.neversion.api.account.application.service;
 
-import java.time.LocalDate;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.account.application.port.in.CreateAccountUseCase;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
-import com.neversion.api.accountslot.application.port.in.AccountSlotUseCase;
+import com.neversion.api.accountslot.application.port.in.ProfileUseCase;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.inventory.domain.model.Inventory;
-import com.neversion.api.inventory.domain.port.out.InventoryRepositoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountType;
+import com.neversion.api.inventory.domain.port.out.ServiceRepositoryPort;
 
+
+/**
+ * CU-A01: Admin creates a master Account for a Service.
+ * Upon creation, N blank Profiles are auto-generated based on service.maxProfiles (BR-01).
+ * Only BY_PROFILE accounts auto-generate profiles; FULL_ACCOUNT skips this.
+ */
 @Service
 public class CreateAccountService implements CreateAccountUseCase {
 
     private final AccountRepositoryPort accountRepositoryPort;
-    private final InventoryRepositoryPort inventoryRepositoryPort;
-    private final AccountSlotUseCase accountSlotUseCase;
+    private final ServiceRepositoryPort serviceRepositoryPort;
+    private final ProfileUseCase profileUseCase;
 
     public CreateAccountService(AccountRepositoryPort accountRepositoryPort,
-            InventoryRepositoryPort inventoryRepositoryPort,
-            AccountSlotUseCase accountSlotUseCase) {
+            ServiceRepositoryPort serviceRepositoryPort,
+            ProfileUseCase profileUseCase) {
         this.accountRepositoryPort = accountRepositoryPort;
-        this.inventoryRepositoryPort = inventoryRepositoryPort;
-        this.accountSlotUseCase = accountSlotUseCase;
+        this.serviceRepositoryPort = serviceRepositoryPort;
+        this.profileUseCase = profileUseCase;
     }
 
     @Override
     @Transactional
     public Account create(Account account) {
-        if (account.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new BusinessRuleException("Expiration date cannot be in the past");
+        if (account.getRenewalDate() == null) {
+            throw new BusinessRuleException("Renewal date is required");
         }
+
+        com.neversion.api.inventory.domain.model.Service service = serviceRepositoryPort.findByInternalId(account.getServiceId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Service not found: " + account.getServiceId()));
 
         Account saved = accountRepositoryPort.save(account);
 
-        // Auto-generate account slots based on account type and inventory max_profiles
-        int slotCount = resolveSlotCount(account);
-        accountSlotUseCase.generateSlotsForAccount(saved.getId(), slotCount);
-
-        return saved;
-    }
-
-    /**
-     * Individual accounts get 1 slot.
-     * Familiar accounts get N slots determined by inventory.max_profiles.
-     */
-    private int resolveSlotCount(Account account) {
-        Inventory inventory = inventoryRepositoryPort.findById(account.getInventoryId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Inventory not found: " + account.getInventoryId()));
-
-        if (inventory.getAccountType() == AccountType.INDIVIDUAL) {
-            return 1;
+        // Auto-generate profiles only for by_profile sale mode (BR-01)
+        if (account.getSaleMode() != null) {
+            switch (account.getSaleMode()) {
+                case BY_PROFILE -> {
+                    int count = service.getMaxProfiles() != null ? service.getMaxProfiles() : 1;
+                    profileUseCase.generateProfilesForAccount(saved.getId(), count);
+                }
+                case FULL_ACCOUNT -> { /* No granular profiles for full-account sales */ }
+            }
         }
 
-        return inventory.getMaxProfiles() != null ? inventory.getMaxProfiles() : 1;
+        return saved;
     }
 }

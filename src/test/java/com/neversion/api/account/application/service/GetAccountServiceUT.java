@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +18,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
+/**
+ * Unit tests for GetAccountService.
+ * Validates: getById (UUID), getByServiceId, getAll.
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GetAccountService unit tests")
 class GetAccountServiceUT {
@@ -33,7 +35,7 @@ class GetAccountServiceUT {
 
     private GetAccountService getAccountService;
 
-    private static final UUID ACCOUNT_ID = UUID.randomUUID();
+    private static final UUID ACCOUNT_UUID = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
@@ -42,14 +44,14 @@ class GetAccountServiceUT {
 
     private Account buildAccount() {
         return Account.builder()
-                .id(ACCOUNT_ID)
+                .id(1L)
+                .uuid(ACCOUNT_UUID)
                 .email("test@gmail.com")
-                .pass("pass123")
-                .inventoryId(1L)
-                .seller("seller1")
-                .priceSeller(BigDecimal.TEN)
-                .status(AccountStatus.AVAILABLE)
-                .expirationDate(LocalDate.now().plusDays(30))
+                .password("pass123")
+                .serviceId(1L)
+                .renewalDate(LocalDate.now().plusDays(30))
+                .plan("Familiar")
+                .saleMode(SaleMode.BY_PROFILE)
                 .build();
     }
 
@@ -58,30 +60,49 @@ class GetAccountServiceUT {
     class GetById {
 
         @Test
-        @DisplayName("getById - should return account when found")
+        @DisplayName("should return account when found by UUID")
         void getById_shouldReturnAccount_whenFound() {
             // Given
             Account account = buildAccount();
-            when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.of(account));
+            when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.of(account));
 
             // When
-            Account result = getAccountService.getById(ACCOUNT_ID);
+            Account result = getAccountService.getById(ACCOUNT_UUID);
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(ACCOUNT_ID);
+            assertThat(result.getUuid()).isEqualTo(ACCOUNT_UUID);
         }
 
         @Test
-        @DisplayName("getById - should throw ResourceNotFoundException when not found")
+        @DisplayName("should throw ResourceNotFoundException when not found")
         void getById_shouldThrowResourceNotFound_whenNotFound() {
             // Given
-            when(accountRepositoryPort.findById(ACCOUNT_ID)).thenReturn(Optional.empty());
+            when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.empty());
 
             // When / Then
-            assertThatThrownBy(() -> getAccountService.getById(ACCOUNT_ID))
+            assertThatThrownBy(() -> getAccountService.getById(ACCOUNT_UUID))
                     .isInstanceOf(ResourceNotFoundException.class)
-                    .hasMessageContaining(ACCOUNT_ID.toString());
+                    .hasMessageContaining(ACCOUNT_UUID.toString());
+        }
+    }
+
+    @Nested
+    @DisplayName("getByServiceId")
+    class GetByServiceId {
+
+        @Test
+        @DisplayName("should delegate to repository")
+        void getByServiceId_shouldDelegateToRepository() {
+            // Given
+            List<Account> accounts = List.of(buildAccount());
+            when(accountRepositoryPort.findByServiceId(1L)).thenReturn(accounts);
+
+            // When
+            List<Account> result = getAccountService.getByServiceId(1L);
+
+            // Then
+            assertThat(result).hasSize(1);
         }
     }
 
@@ -90,7 +111,7 @@ class GetAccountServiceUT {
     class GetAll {
 
         @Test
-        @DisplayName("getAll - should return all accounts")
+        @DisplayName("should return all accounts")
         void getAll_shouldReturnAllAccounts() {
             // Given
             List<Account> accounts = List.of(buildAccount());
@@ -98,44 +119,6 @@ class GetAccountServiceUT {
 
             // When
             List<Account> result = getAccountService.getAll();
-
-            // Then
-            assertThat(result).hasSize(1);
-        }
-    }
-
-    @Nested
-    @DisplayName("getBySeller")
-    class GetBySeller {
-
-        @Test
-        @DisplayName("getBySeller - should delegate to repository")
-        void getBySeller_shouldDelegateToRepository() {
-            // Given
-            List<Account> accounts = List.of(buildAccount());
-            when(accountRepositoryPort.findBySeller("seller1")).thenReturn(accounts);
-
-            // When
-            List<Account> result = getAccountService.getBySeller("seller1");
-
-            // Then
-            assertThat(result).hasSize(1);
-        }
-    }
-
-    @Nested
-    @DisplayName("getByAccountType")
-    class GetByAccountType {
-
-        @Test
-        @DisplayName("getByAccountType - should delegate to repository")
-        void getByAccountType_shouldDelegateToRepository() {
-            // Given
-            List<Account> accounts = List.of(buildAccount());
-            when(accountRepositoryPort.findByAccountType(AccountType.INDIVIDUAL)).thenReturn(accounts);
-
-            // When
-            List<Account> result = getAccountService.getByAccountType(AccountType.INDIVIDUAL);
 
             // Then
             assertThat(result).hasSize(1);

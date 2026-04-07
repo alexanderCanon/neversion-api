@@ -2,44 +2,40 @@ package com.neversion.api.subscription.infrastructure.adapters.out;
 
 import org.springframework.stereotype.Component;
 
-import com.neversion.api.account.infrastructure.adapters.out.AccountEntity;
 import com.neversion.api.subscription.domain.model.Subscription;
 
 @Component
 public class SubscriptionPersistenceMapper {
 
     public Subscription toDomain(SubscriptionEntity entity) {
-        return entity != null ? Subscription.builder()
+        if (entity == null) return null;
+        return Subscription.builder()
                 .id(entity.getId())
-                .userGuestId(entity.getUserGuestId())
-                .accountId(entity.getAccountId())
-                .accountSlotId(entity.getAccountSlotId())
-                .orderId(entity.getOrderId())
+                .uuid(entity.getUuid())
+                .clientId(entity.getClientId())
+                .profileId(entity.getProfileId())
                 .purchaseDate(entity.getPurchaseDate())
-                .renewalDate(entity.getRenewalDate())
+                .paymentDueDate(entity.getPaymentDueDate())
+                .price(entity.getPrice())
                 .status(entity.getStatus())
-                .build() : null;
+                .notes(entity.getNotes())
+                .createdAt(entity.getCreatedAt())
+                .build();
     }
 
-    public SubscriptionEntity toEntity(Subscription subscription) {
-        if (subscription == null) {
-            return null;
-        }
-
-        AccountEntity accountRef = AccountEntity.builder()
-                .id(subscription.getAccountId())
-                .build();
-
+    public SubscriptionEntity toEntity(Subscription domain) {
+        if (domain == null) return null;
         return SubscriptionEntity.builder()
-                .id(subscription.getId())
-                .userGuestId(subscription.getUserGuestId())
-                .accountId(subscription.getAccountId())
-                .account(accountRef)
-                .accountSlotId(subscription.getAccountSlotId())
-                .orderId(subscription.getOrderId())
-                .purchaseDate(subscription.getPurchaseDate())
-                .renewalDate(subscription.getRenewalDate())
-                .status(subscription.getStatus())
+                .id(domain.getId())
+                .uuid(domain.getUuid())
+                .clientId(domain.getClientId())
+                .profileId(domain.getProfileId())
+                .purchaseDate(domain.getPurchaseDate())
+                .paymentDueDate(domain.getPaymentDueDate())
+                .price(domain.getPrice())
+                .status(domain.getStatus())
+                .notes(domain.getNotes())
+                .createdAt(domain.getCreatedAt())
                 .build();
     }
 }

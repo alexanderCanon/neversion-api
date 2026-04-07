@@ -3,72 +3,68 @@ package com.neversion.api.subscription.application.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.accountslot.domain.model.Profile;
+import com.neversion.api.accountslot.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.exception.AccountOverbookingException;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.shared.domain.model.enums.AccountType;
-import com.neversion.api.subscription.application.port.in.AssignAccountUseCase;
+import com.neversion.api.subscription.application.port.in.AssignSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
-import com.neversion.api.inventory.domain.model.Inventory;
-import com.neversion.api.inventory.domain.port.out.InventoryRepositoryPort;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.userguest.domain.model.Client;
+import com.neversion.api.userguest.domain.port.out.ClientRepositoryPort;
 
+/**
+ * CU-A05: Admin manually assigns a Client to a Profile, creating an active Subscription.
+ *
+ * UUID-to-Long resolution:
+ *   The REST layer passes UUID fields (profileUuid, clientUuid).
+ *   This service resolves them to internal Long IDs before persistence.
+ *
+ * Anti-overbooking (BR-04):
+ *   A profile can only hold ONE active subscription at a time.
+ */
 @Service
-public class SubscriptionService implements AssignAccountUseCase {
+public class SubscriptionService implements AssignSubscriptionUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
-    private final AccountRepositoryPort accountRepositoryPort;
-    private final InventoryRepositoryPort inventoryRepositoryPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
+    private final ClientRepositoryPort clientRepositoryPort;
 
     public SubscriptionService(SubscriptionRepositoryPort subscriptionRepositoryPort,
-            AccountRepositoryPort accountRepositoryPort,
-            InventoryRepositoryPort inventoryRepositoryPort) {
+            ProfileRepositoryPort profileRepositoryPort,
+            ClientRepositoryPort clientRepositoryPort) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
-        this.accountRepositoryPort = accountRepositoryPort;
-        this.inventoryRepositoryPort = inventoryRepositoryPort;
+        this.profileRepositoryPort = profileRepositoryPort;
+        this.clientRepositoryPort = clientRepositoryPort;
     }
 
-    /**
-     * Assigns an account to a subscription (manual fulfillment by Admin).
-     *
-     * Anti-Overbooking Logic (BR-06):
-     * Before creating the subscription, the service checks if the account
-     * is of type 'individual'. If so, it verifies there are no currently
-     * 'active' subscriptions for that account. This prevents the same
-     * individual credential from being sold to two customers simultaneously.
-     *
-     * Familiar accounts are shared among profiles, so they skip this check.
-     */
     @Override
     @Transactional
     public Subscription assign(Subscription subscription) {
-        // 1. Load the account to verify it exists and check its type
-        Account account = accountRepositoryPort.findById(subscription.getAccountId())
+        // 1. Resolve Profile UUID → internal Long ID
+        Profile profile = profileRepositoryPort.findById(subscription.getProfileUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Account not found with id: " + subscription.getAccountId()));
+                        "Profile not found: " + subscription.getProfileUuid()));
 
-        Inventory inventory = inventoryRepositoryPort.findById(account.getInventoryId())
+        // 2. Resolve Client UUID → internal Long ID
+        Client client = clientRepositoryPort.findById(subscription.getClientUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Inventory not found: " + account.getInventoryId()));
+                        "Client not found: " + subscription.getClientUuid()));
 
-        // 2. Anti-overbooking: individual accounts can only have ONE active
-        // subscription
-        if (inventory.getAccountType() == AccountType.INDIVIDUAL) {
-            boolean hasActiveSubscription = subscriptionRepositoryPort
-                    .existsActiveByAccountId(subscription.getAccountId());
-
-            if (hasActiveSubscription) {
-                throw new AccountOverbookingException(
-                        "Individual account " + subscription.getAccountId()
-                                + " already has an active subscription. "
-                                + "Cannot assign the same individual account to multiple customers.");
-            }
+        // 3. Anti-overbooking: profile cannot have two active subscriptions (BR-04)
+        if (subscriptionRepositoryPort.existsActiveByProfileId(profile.getId())) {
+            throw new AccountOverbookingException(
+                    "Profile " + subscription.getProfileUuid()
+                            + " already has an active subscription. "
+                            + "Cancel or suspend the existing one before reassigning.");
         }
 
-        // 3. Set default status and persist
+        // 4. Set resolved IDs, default status and persist
+        subscription.setProfileId(profile.getId());
+        subscription.setClientId(client.getId());
         subscription.setStatus(SubStatus.ACTIVE);
+
         return subscriptionRepositoryPort.save(subscription);
     }
 }

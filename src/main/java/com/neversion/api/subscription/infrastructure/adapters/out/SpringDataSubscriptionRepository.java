@@ -1,46 +1,33 @@
 package com.neversion.api.subscription.infrastructure.adapters.out;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
-import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDashboardDTO;
 
-public interface SpringDataSubscriptionRepository extends JpaRepository<SubscriptionEntity, UUID> {
+public interface SpringDataSubscriptionRepository extends JpaRepository<SubscriptionEntity, Long> {
 
-    /**
-     * Derived query for anti-overbooking check (BR-06).
-     */
-    boolean existsByAccountIdAndStatus(UUID accountId, SubStatus status);
+    Optional<SubscriptionEntity> findByUuid(UUID uuid);
+
+    List<SubscriptionEntity> findByClientId(Long clientId);
+
+    List<SubscriptionEntity> findByProfileId(Long profileId);
 
     List<SubscriptionEntity> findByStatus(SubStatus status);
 
-    List<SubscriptionEntity> findByUserGuestId(UUID userGuestId);
-
-    List<SubscriptionEntity> findByAccountId(UUID accountId);
+    /** Overbooking guard (BR-04): a profile can only have one active subscription. */
+    boolean existsByProfileIdAndStatus(Long profileId, SubStatus status);
 
     /**
-     * Dashboard master view (CU-A07).
+     * Returns all subscriptions whose payment_due_date is on or before the given date.
+     * Used by n8n to detect and process overdue payments (BR-10).
      */
-    @Query(value = """
-            SELECT
-                a.email         AS email,
-                a.pass          AS password,
-                sl.profile_name AS profileName,
-                sl.pin          AS pin,
-                p.name          AS serviceName,
-                s.purchase_date AS purchaseDate,
-                s.renewal_date  AS renewalDate,
-                s.status::text  AS status
-            FROM subscriptions s
-            JOIN accounts a ON s.account_id = a.id
-            JOIN inventory i ON a.inventory_id = i.id
-            JOIN products p ON i.product_id = p.id
-            LEFT JOIN account_slots sl ON s.account_slot_id = sl.id
-            ORDER BY s.purchase_date DESC
-            """, nativeQuery = true)
-    List<SubscriptionDashboardDTO> findDashboard();
+    @Query("SELECT s FROM SubscriptionEntity s WHERE s.paymentDueDate <= :asOf AND s.status = 'ACTIVE'")
+    List<SubscriptionEntity> findOverdue(@Param("asOf") LocalDate asOf);
 }

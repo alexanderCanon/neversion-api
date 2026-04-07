@@ -3,7 +3,6 @@ package com.neversion.api.accountslot.infrastructure.adapters.out;
 import java.util.UUID;
 
 import com.neversion.api.accountslot.domain.model.enums.SlotStatus;
-
 import com.neversion.api.accountslot.infrastructure.adapters.out.converter.SlotStatusConverter;
 
 import jakarta.persistence.Column;
@@ -13,8 +12,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -22,6 +23,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountSlotEntity {
 
     @Id
@@ -41,15 +44,4 @@ public class AccountSlotEntity {
     @Column(name = "status", columnDefinition = "slot_status")
     @Convert(converter = SlotStatusConverter.class)
     private SlotStatus status;
-
-    public AccountSlotEntity() {
-    }
-
-    public AccountSlotEntity(UUID id, UUID accountId, String profileName, String pin, SlotStatus status) {
-        this.id = id;
-        this.accountId = accountId;
-        this.profileName = profileName;
-        this.pin = pin;
-        this.status = status;
-    }
 }

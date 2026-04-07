@@ -1,6 +1,5 @@
 package com.neversion.api.account.application.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,10 +9,10 @@ import com.neversion.api.account.application.port.in.GetAccountUseCase;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
 @Service
 public class GetAccountService implements GetAccountUseCase {
+
     private final AccountRepositoryPort accountRepositoryPort;
 
     public GetAccountService(AccountRepositoryPort accountRepositoryPort) {
@@ -21,29 +20,14 @@ public class GetAccountService implements GetAccountUseCase {
     }
 
     @Override
-    public Account getById(UUID id) {
-        return accountRepositoryPort.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account with id " + id + " not found"));
+    public Account getById(UUID uuid) {
+        return accountRepositoryPort.findById(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + uuid));
     }
 
     @Override
-    public List<Account> getBySeller(String seller) {
-        return accountRepositoryPort.findBySeller(seller);
-    }
-
-    @Override
-    public List<Account> getByAccountType(AccountType accountType) {
-        return accountRepositoryPort.findByAccountType(accountType);
-    }
-
-    @Override
-    public List<Account> getByExpirationDateBefore(LocalDate date) {
-        return accountRepositoryPort.findByExpirationDateBefore(date);
-    }
-
-    @Override
-    public List<Account> getByIsActive(Boolean isActive) {
-        return accountRepositoryPort.findByIsActive(isActive);
+    public List<Account> getByServiceId(Long serviceId) {
+        return accountRepositoryPort.findByServiceId(serviceId);
     }
 
     @Override

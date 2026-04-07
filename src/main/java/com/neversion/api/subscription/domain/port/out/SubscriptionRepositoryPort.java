@@ -1,37 +1,40 @@
 package com.neversion.api.subscription.domain.port.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
-import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDashboardDTO;
 
 public interface SubscriptionRepositoryPort {
 
     Subscription save(Subscription subscription);
 
-    Optional<Subscription> findById(UUID id);
+    Optional<Subscription> findById(UUID uuid);
+
+    Optional<Subscription> findByInternalId(Long id);
+
+    List<Subscription> findByClientId(Long clientId);
+
+    List<Subscription> findByProfileId(Long profileId);
 
     List<Subscription> findByStatus(SubStatus status);
-
-    List<Subscription> findByUserGuestId(UUID userGuestId);
-
-    List<Subscription> findByAccountId(UUID accountId);
 
     List<Subscription> findAll();
 
     /**
-     * Anti-overbooking check (BR-06).
-     * Returns true if there is already an active subscription for the given
-     * account.
+     * Overbooking guard: a profile can only have one active subscription at a time (BR-04).
+     * Returns true if an active subscription already exists for the given profile.
      */
-    boolean existsActiveByAccountId(UUID accountId);
+    boolean existsActiveByProfileId(Long profileId);
 
     /**
-     * Dashboard master view (CU-A07).
-     * Returns a flat projection joining subscriptions, accounts, and products.
+     * Returns subscriptions whose payment_due_date is on or before the given date.
+     * Used by background automations to detect overdue payments (BR-10).
      */
-    List<SubscriptionDashboardDTO> findDashboard();
+    List<Subscription> findOverdue(LocalDate asOf);
+
+    void deleteById(UUID uuid);
 }

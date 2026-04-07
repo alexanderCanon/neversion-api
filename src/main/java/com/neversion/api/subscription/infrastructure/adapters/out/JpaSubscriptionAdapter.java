@@ -1,5 +1,6 @@
 package com.neversion.api.subscription.infrastructure.adapters.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
-import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDashboardDTO;
 
 @Repository
 public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
@@ -31,8 +31,27 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
-    public Optional<Subscription> findById(UUID id) {
+    public Optional<Subscription> findById(UUID uuid) {
+        return subscriptionRepo.findByUuid(uuid).map(subscriptionMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Subscription> findByInternalId(Long id) {
         return subscriptionRepo.findById(id).map(subscriptionMapper::toDomain);
+    }
+
+    @Override
+    public List<Subscription> findByClientId(Long clientId) {
+        return subscriptionRepo.findByClientId(clientId).stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Subscription> findByProfileId(Long profileId) {
+        return subscriptionRepo.findByProfileId(profileId).stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -43,25 +62,6 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
-    public List<Subscription> findByUserGuestId(UUID userGuestId) {
-        return subscriptionRepo.findByUserGuestId(userGuestId).stream()
-                .map(subscriptionMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public List<Subscription> findByAccountId(UUID accountId) {
-        return subscriptionRepo.findByAccountId(accountId).stream()
-                .map(subscriptionMapper::toDomain)
-                .toList();
-    }
-
-    @Override
-    public boolean existsActiveByAccountId(UUID accountId) {
-        return subscriptionRepo.existsByAccountIdAndStatus(accountId, SubStatus.ACTIVE);
-    }
-
-    @Override
     public List<Subscription> findAll() {
         return subscriptionRepo.findAll().stream()
                 .map(subscriptionMapper::toDomain)
@@ -69,7 +69,19 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
-    public List<SubscriptionDashboardDTO> findDashboard() {
-        return subscriptionRepo.findDashboard();
+    public boolean existsActiveByProfileId(Long profileId) {
+        return subscriptionRepo.existsByProfileIdAndStatus(profileId, SubStatus.ACTIVE);
+    }
+
+    @Override
+    public List<Subscription> findOverdue(LocalDate asOf) {
+        return subscriptionRepo.findOverdue(asOf).stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteById(UUID uuid) {
+        subscriptionRepo.findByUuid(uuid).ifPresent(e -> subscriptionRepo.deleteById(e.getId()));
     }
 }

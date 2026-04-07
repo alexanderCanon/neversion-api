@@ -39,7 +39,3 @@ application-dev.yaml
 
 ### Markdown files ###
 SECURITY.md
-PROMPT.md
-
-### Other ###
-**/resources/jsonfiles/*

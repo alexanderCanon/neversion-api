@@ -1,27 +1,22 @@
 package com.neversion.api.account.domain.port.out;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.shared.domain.model.enums.AccountType;
 
 public interface AccountRepositoryPort {
+
     Account save(Account account);
 
-    Optional<Account> findById(UUID id);
+    Optional<Account> findById(UUID uuid);
 
-    List<Account> findBySeller(String seller);
+    Optional<Account> findByInternalId(Long id);
 
-    List<Account> findByAccountType(AccountType accountType);
-
-    List<Account> findByExpirationDateBefore(LocalDate date);
-
-    List<Account> findByIsActive(Boolean isActive);
+    List<Account> findByServiceId(Long serviceId);
 
     List<Account> findAll();
 
-    void deactivate(UUID id);
+    void deleteById(UUID uuid);
 }

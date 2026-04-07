@@ -16,7 +16,7 @@ import org.springframework.context.ApplicationContext;
  * Verifies in a single test that:
  * <ul>
  *   <li>All {@code @Configuration} classes load without errors</li>
- *   <li>All 13 Flyway migrations run cleanly</li>
+ *   <li>The unified Flyway baseline migration runs cleanly (V1__init_unified_schema.sql)</li>
  *   <li>Every bean (repositories, services, controllers, security) wires correctly</li>
  *   <li>{@code @EnableScheduling} initialises without errors</li>
  * </ul>

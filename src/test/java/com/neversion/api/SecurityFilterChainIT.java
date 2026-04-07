@@ -67,16 +67,14 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
     class ProtectedEndpointsNoToken {
 
         @Test
-        @DisplayName("POST /api/v1/products - should return 401 without token")
-        void createProduct_shouldReturn401_withoutToken() throws Exception {
-            mockMvc.perform(post("/api/v1/products")
+        @DisplayName("POST /api/v1/services - should return 401 without token")
+        void createService_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(post("/api/v1/services")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
                                         "name": "Netflix",
-                                        "description": "Streaming",
-                                        "category": "STREAMING",
-                                        "items": [{ "priceAmount": 9.99, "durationDays": 30, "accountType": "individual" }]
+                                        "maxProfiles": 5
                                     }
                                     """))
                     .andExpect(status().isUnauthorized());
@@ -90,9 +88,16 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("GET /api/v1/reservations - should return 401 without token (admin-only list)")
-        void listReservations_shouldReturn401_withoutToken() throws Exception {
-            mockMvc.perform(get("/api/v1/reservations"))
+        @DisplayName("GET /api/v1/subscriptions - should return 401 without token (admin-only)")
+        void listSubscriptions_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(get("/api/v1/subscriptions"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("GET /api/v1/dashboard/products - should return 401 without token (admin-only)")
+        void dashboard_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(get("/api/v1/dashboard/products"))
                     .andExpect(status().isUnauthorized());
         }
     }
@@ -104,39 +109,43 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
     class ProtectedEndpointsInvalidJwt {
 
         @Test
-        @DisplayName("POST /api/v1/products - should return 401 with malformed JWT")
-        void createProduct_shouldReturn401_withMalformedJwt() throws Exception {
-            mockMvc.perform(post("/api/v1/products")
+        @DisplayName("POST /api/v1/accounts - should return 401 with malformed JWT")
+        void createAccount_shouldReturn401_withMalformedJwt() throws Exception {
+            mockMvc.perform(post("/api/v1/accounts")
                             .header("Authorization", "Bearer this.is.not.a.valid.jwt")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                        "name": "Netflix",
-                                        "description": "Streaming",
-                                        "category": "STREAMING",
-                                        "items": [{ "priceAmount": 9.99, "durationDays": 30, "accountType": "individual" }]
+                                        "email": "test@example.com",
+                                        "password": "pass123",
+                                        "serviceId": "00000000-0000-0000-0000-000000000001",
+                                        "plan": "Premium",
+                                        "saleMode": "BY_PROFILE",
+                                        "renewalDate": "2026-04-30"
                                     }
                                     """))
                     .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("POST /api/v1/products - should return 401 with expired/invalid signature JWT")
-        void createProduct_shouldReturn401_withInvalidSignatureJwt() throws Exception {
+        @DisplayName("POST /api/v1/accounts - should return 401 with expired/invalid signature JWT")
+        void createAccount_shouldReturn401_withInvalidSignatureJwt() throws Exception {
             // This is a structurally valid JWT but signed with a different secret
             String invalidJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
                     + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ"
                     + ".SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
-            mockMvc.perform(post("/api/v1/products")
+            mockMvc.perform(post("/api/v1/accounts")
                             .header("Authorization", "Bearer " + invalidJwt)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                        "name": "Netflix",
-                                        "description": "Streaming",
-                                        "category": "STREAMING",
-                                        "items": [{ "priceAmount": 9.99, "durationDays": 30, "accountType": "individual" }]
+                                        "email": "test@example.com",
+                                        "password": "pass123",
+                                        "serviceId": "00000000-0000-0000-0000-000000000001",
+                                        "plan": "Premium",
+                                        "saleMode": "BY_PROFILE",
+                                        "renewalDate": "2026-04-30"
                                     }
                                     """))
                     .andExpect(status().isUnauthorized());

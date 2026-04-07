@@ -1,8 +1,10 @@
 package com.neversion.api.account.infrastructure.adapters.in.rest.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.neversion.api.account.domain.model.enums.SaleMode;
 
 import lombok.Builder;
 
@@ -11,13 +13,9 @@ public record AccountResponse(
         UUID id,
         String email,
         String pass,
-        Long inventoryId,
-        String seller,
-        BigDecimal priceSeller,
-        String status,
-        LocalDate expirationDate,
-        int maxSlots,
-        int occupiedSlots,
-        int availableSlots) {
-
+        Long serviceId,
+        SaleMode saleMode,
+        LocalDate renewalDate,
+        String notes,
+        LocalDateTime createdAt) {
 }

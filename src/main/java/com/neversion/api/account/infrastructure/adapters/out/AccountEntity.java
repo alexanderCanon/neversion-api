@@ -1,75 +1,88 @@
 package com.neversion.api.account.infrastructure.adapters.out;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.neversion.api.infrastructure.AuditableEntity;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * JPA Entity for the 'accounts' table.
+ * Represents a master credential purchased from a wholesale provider
+ * to operate a specific Service (e.g., a Netflix family account).
+ *
+ * 'id' (Long) is the internal PK used for DB relations.
+ * 'uuid' (UUID) is the external identifier exposed to the frontend.
+ */
 @Entity
 @Table(name = "accounts")
-@SQLDelete(sql = "UPDATE accounts SET is_active = false WHERE id = ?")
-@SQLRestriction("is_active = true")
 @Getter
 @Setter
 @Builder
-public class AccountEntity extends AuditableEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class AccountEntity {
 
+    /** Internal auto-increment PK — never exposed to the frontend. */
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
-    @Column(name = "email")
+    /** External UUID — used in all REST responses and frontend routes. */
+    @Column(name = "uuid", updatable = false, nullable = false,
+            columnDefinition = "uuid DEFAULT gen_random_uuid()")
+    private UUID uuid;
+
+    /** FK to services.id — the platform this account belongs to. */
+    @Column(name = "service_id", nullable = false)
+    private Long serviceId;
+
+    /** Provider master email credential. */
+    @Column(name = "email", nullable = false, length = 255)
     private String email;
 
-    @Column(name = "pass")
-    private String pass;
+    /** Provider master password credential. */
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
-    @Column(name = "inventory_id")
-    private Long inventoryId;
+    /**
+     * The date Neversion must pay the wholesaler to keep this account alive.
+     * Polled by background automations (n8n).
+     */
+    @Column(name = "renewal_date", nullable = false)
+    private LocalDate renewalDate;
 
-    @Column(name = "seller")
-    private String seller;
+    /** Quality tier, e.g. "4K Ultra HD", "Familiar". */
+    @Column(name = "plan", length = 100)
+    private String plan;
 
-    @Column(name = "price_seller")
-    private BigDecimal priceSeller;
+    /**
+     * Determines sales strategy: by individual profiles or as a full account.
+     * Values: BY_PROFILE | FULL_ACCOUNT (stored as VARCHAR in DB).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sale_mode", nullable = false, length = 20)
+    private SaleMode saleMode;
 
+    /** Private admin notes about this account. */
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
-
-    @Column(name = "status", columnDefinition = "account_status")
-    private AccountStatus status;
-
-    @Column(name = "expiration_date")
-    private LocalDate expirationDate;
-
-    public AccountEntity() {
-    }
-
-    public AccountEntity(UUID id, String email, String pass, Long inventoryId, String seller,
-            BigDecimal priceSeller, AccountStatus status, LocalDate expirationDate) {
-        this.id = id;
-        this.email = email;
-        this.pass = pass;
-        this.inventoryId = inventoryId;
-        this.seller = seller;
-        this.priceSeller = priceSeller;
-        this.status = status;
-        this.expirationDate = expirationDate;
-    }
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 }

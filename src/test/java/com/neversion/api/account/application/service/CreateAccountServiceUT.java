@@ -2,13 +2,13 @@ package com.neversion.api.account.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,15 +19,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
-import com.neversion.api.accountslot.application.port.in.AccountSlotUseCase;
+import com.neversion.api.accountslot.application.port.in.ProfileUseCase;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.inventory.domain.model.Inventory;
-import com.neversion.api.inventory.domain.port.out.InventoryRepositoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
-import com.neversion.api.shared.domain.model.enums.AccountType;
+import com.neversion.api.inventory.domain.model.Service;
+import com.neversion.api.inventory.domain.port.out.ServiceRepositoryPort;
 
+/**
+ * Unit tests for CreateAccountService (CU-A01).
+ * Validates: renewal date guard, service lookup, profile auto-generation (BR-01),
+ * and FULL_ACCOUNT vs BY_PROFILE branching.
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CreateAccountService unit tests")
 class CreateAccountServiceUT {
@@ -36,28 +40,37 @@ class CreateAccountServiceUT {
     private AccountRepositoryPort accountRepositoryPort;
 
     @Mock
-    private InventoryRepositoryPort inventoryRepositoryPort;
+    private ServiceRepositoryPort serviceRepositoryPort;
 
     @Mock
-    private AccountSlotUseCase accountSlotUseCase;
+    private ProfileUseCase profileUseCase;
 
     private CreateAccountService createAccountService;
+
+    private static final Long SERVICE_ID = 1L;
 
     @BeforeEach
     void setUp() {
         createAccountService = new CreateAccountService(
-                accountRepositoryPort, inventoryRepositoryPort, accountSlotUseCase);
+                accountRepositoryPort, serviceRepositoryPort, profileUseCase);
     }
 
-    private Account buildAccount(LocalDate expiration) {
+    private Account buildAccount(SaleMode saleMode) {
         return Account.builder()
-                .email("test@gmail.com")
-                .pass("pass123")
-                .inventoryId(1L)
-                .seller("seller1")
-                .priceSeller(BigDecimal.TEN)
-                .status(AccountStatus.AVAILABLE)
-                .expirationDate(expiration)
+                .email("netflix@example.com")
+                .password("pass123")
+                .serviceId(SERVICE_ID)
+                .renewalDate(LocalDate.now().plusDays(30))
+                .plan("Premium")
+                .saleMode(saleMode)
+                .build();
+    }
+
+    private Service buildService(Integer maxProfiles) {
+        return Service.builder()
+                .id(SERVICE_ID)
+                .name("Netflix")
+                .maxProfiles(maxProfiles)
                 .build();
     }
 
@@ -66,99 +79,97 @@ class CreateAccountServiceUT {
     class Create {
 
         @Test
-        @DisplayName("create - should save individual account and generate 1 slot")
-        void create_shouldSaveIndividualAccountAndGenerate1Slot() {
+        @DisplayName("should save BY_PROFILE account and generate profiles from service.maxProfiles")
+        void create_shouldSaveByProfileAccountAndGenerateProfiles() {
             // Given
-            Account account = buildAccount(LocalDate.now().plusDays(30));
-            UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(LocalDate.now().plusDays(30));
-            saved.setId(savedId);
+            Account account = buildAccount(SaleMode.BY_PROFILE);
+            Account saved = buildAccount(SaleMode.BY_PROFILE);
+            saved.setId(10L);
 
-            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.INDIVIDUAL).build();
+            Service service = buildService(5);
 
+            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(account)).thenReturn(saved);
-            when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
 
             // When
             Account result = createAccountService.create(account);
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(savedId);
-            verify(accountSlotUseCase).generateSlotsForAccount(savedId, 1);
+            assertThat(result.getId()).isEqualTo(10L);
+            verify(profileUseCase).generateProfilesForAccount(10L, 5);
         }
 
         @Test
-        @DisplayName("create - should save familiar account and generate slots from inventory maxProfiles")
-        void create_shouldSaveFamiliarAccountAndGenerateSlotsFromMaxProfiles() {
+        @DisplayName("should save FULL_ACCOUNT without generating profiles")
+        void create_shouldSaveFullAccountWithoutProfiles() {
             // Given
-            Account account = buildAccount(LocalDate.now().plusDays(30));
-            UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(LocalDate.now().plusDays(30));
-            saved.setId(savedId);
+            Account account = buildAccount(SaleMode.FULL_ACCOUNT);
+            Account saved = buildAccount(SaleMode.FULL_ACCOUNT);
+            saved.setId(11L);
 
-            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILY).maxProfiles(5).build();
+            Service service = buildService(5);
 
+            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(account)).thenReturn(saved);
-            when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
 
             // When
             Account result = createAccountService.create(account);
 
             // Then
             assertThat(result).isNotNull();
-            verify(accountSlotUseCase).generateSlotsForAccount(savedId, 5);
+            verify(profileUseCase, never()).generateProfilesForAccount(any(), any());
         }
 
         @Test
-        @DisplayName("create - should throw BusinessRuleException when expiration is in the past")
-        void create_shouldThrowBusinessRuleException_whenExpirationInPast() {
+        @DisplayName("should throw BusinessRuleException when renewal date is null")
+        void create_shouldThrowBusinessRuleException_whenRenewalDateIsNull() {
             // Given
-            Account account = buildAccount(LocalDate.now().minusDays(1));
+            Account account = Account.builder()
+                    .email("test@example.com")
+                    .password("pass123")
+                    .serviceId(SERVICE_ID)
+                    .saleMode(SaleMode.BY_PROFILE)
+                    .build(); // renewalDate is null
 
             // When / Then
             assertThatThrownBy(() -> createAccountService.create(account))
                     .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("cannot be in the past");
+                    .hasMessageContaining("Renewal date is required");
         }
 
         @Test
-        @DisplayName("create - should throw ResourceNotFoundException when familiar inventory not found")
-        void create_shouldThrowResourceNotFound_whenFamiliarInventoryNotFound() {
+        @DisplayName("should throw ResourceNotFoundException when service not found")
+        void create_shouldThrowResourceNotFound_whenServiceNotFound() {
             // Given
-            Account account = buildAccount(LocalDate.now().plusDays(30));
-            UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(LocalDate.now().plusDays(30));
-            saved.setId(savedId);
+            Account account = buildAccount(SaleMode.BY_PROFILE);
 
-            when(accountRepositoryPort.save(account)).thenReturn(saved);
-            when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.empty());
+            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.empty());
 
             // When / Then
             assertThatThrownBy(() -> createAccountService.create(account))
                     .isInstanceOf(ResourceNotFoundException.class)
-                    .hasMessageContaining("Inventory not found");
+                    .hasMessageContaining("Service not found");
         }
 
         @Test
-        @DisplayName("create - should default to 1 slot when familiar inventory has null maxProfiles")
-        void create_shouldDefaultTo1Slot_whenMaxProfilesIsNull() {
+        @DisplayName("should default to 1 profile when service.maxProfiles is null (BR-01)")
+        void create_shouldDefaultTo1Profile_whenMaxProfilesIsNull() {
             // Given
-            Account account = buildAccount(LocalDate.now().plusDays(30));
-            UUID savedId = UUID.randomUUID();
-            Account saved = buildAccount(LocalDate.now().plusDays(30));
-            saved.setId(savedId);
+            Account account = buildAccount(SaleMode.BY_PROFILE);
+            Account saved = buildAccount(SaleMode.BY_PROFILE);
+            saved.setId(12L);
 
-            Inventory inventory = Inventory.builder().id(1L).accountType(AccountType.FAMILY).maxProfiles(null).build();
+            Service service = buildService(null);
 
+            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(account)).thenReturn(saved);
-            when(inventoryRepositoryPort.findById(1L)).thenReturn(Optional.of(inventory));
 
             // When
             createAccountService.create(account);
 
             // Then
-            verify(accountSlotUseCase).generateSlotsForAccount(savedId, 1);
+            verify(profileUseCase).generateProfilesForAccount(12L, 1);
         }
     }
 }

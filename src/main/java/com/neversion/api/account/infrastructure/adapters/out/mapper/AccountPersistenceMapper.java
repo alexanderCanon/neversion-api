@@ -9,28 +9,34 @@ import com.neversion.api.account.infrastructure.adapters.out.AccountEntity;
 public class AccountPersistenceMapper {
 
     public Account toDomain(AccountEntity entity) {
-        return entity != null ? Account.builder()
+        if (entity == null) return null;
+        return Account.builder()
                 .id(entity.getId())
+                .uuid(entity.getUuid())
+                .serviceId(entity.getServiceId())
                 .email(entity.getEmail())
-                .pass(entity.getPass())
-                .inventoryId(entity.getInventoryId())
-                .seller(entity.getSeller())
-                .priceSeller(entity.getPriceSeller())
-                .status(entity.getStatus())
-                .expirationDate(entity.getExpirationDate())
-                .build() : null;
+                .password(entity.getPassword())
+                .renewalDate(entity.getRenewalDate())
+                .plan(entity.getPlan())
+                .saleMode(entity.getSaleMode())
+                .notes(entity.getNotes())
+                .createdAt(entity.getCreatedAt())
+                .build();
     }
 
-    public AccountEntity toEntity(Account account) {
-        return account != null ? AccountEntity.builder()
-                .id(account.getId())
-                .email(account.getEmail())
-                .pass(account.getPass())
-                .inventoryId(account.getInventoryId())
-                .seller(account.getSeller())
-                .priceSeller(account.getPriceSeller())
-                .status(account.getStatus())
-                .expirationDate(account.getExpirationDate())
-                .build() : null;
+    public AccountEntity toEntity(Account domain) {
+        if (domain == null) return null;
+        return AccountEntity.builder()
+                .id(domain.getId())
+                .uuid(domain.getUuid())
+                .serviceId(domain.getServiceId())
+                .email(domain.getEmail())
+                .password(domain.getPassword())
+                .renewalDate(domain.getRenewalDate())
+                .plan(domain.getPlan())
+                .saleMode(domain.getSaleMode())
+                .notes(domain.getNotes())
+                .createdAt(domain.getCreatedAt())
+                .build();
     }
 }
