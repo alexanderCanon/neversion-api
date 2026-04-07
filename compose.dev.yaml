@@ -9,10 +9,10 @@ services:
   # ── Local PostgreSQL (dev only) ─────────────────────────────────
   db:
     image: postgres:17
-    container_name: panel-db
+    container_name: neversion-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: paneldb
+      POSTGRES_DB: neversiondb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
     ports:
@@ -20,7 +20,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d paneldb" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d neversiondb" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -28,7 +28,7 @@ services:
   # ── Spring Boot Application ─────────────────────────────────────
   app:
     build: .
-    container_name: panel-app
+    container_name: neversion-app
     restart: unless-stopped
     depends_on:
       db:
@@ -41,7 +41,7 @@ services:
       # Activate dev profile (local DB, SQL logging, Swagger enabled)
       SPRING_PROFILES_ACTIVE: dev
       # Connect to the local PostgreSQL container using its service name
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/paneldb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/neversiondb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: mysecretpassword
       # Supabase JWT secret for local testing
