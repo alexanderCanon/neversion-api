@@ -3,16 +3,16 @@ package com.neversion.api.subscription.application.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.neversion.api.accountslot.domain.model.Profile;
-import com.neversion.api.accountslot.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.exception.AccountOverbookingException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.subscription.application.port.in.AssignSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
-import com.neversion.api.userguest.domain.model.Client;
-import com.neversion.api.userguest.domain.port.out.ClientRepositoryPort;
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 
 /**
  * CU-A05: Admin manually assigns a Client to a Profile, creating an active Subscription.

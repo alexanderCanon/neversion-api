@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_accounts_renewal    ON accounts (renewal_date);
 
 -- ---------------------------------------------------------------
 -- 3. profiles
---    Physical sub-divisions of an Account (formerly "slots").
+--    Physical sub-divisions of an Account (formerly "profiles").
 --    is_owner = true → admin profile inside the streaming platform.
 -- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS profiles (

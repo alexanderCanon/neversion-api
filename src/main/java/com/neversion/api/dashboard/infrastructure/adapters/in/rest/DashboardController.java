@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.dashboard.application.port.in.GetAccountsByProductUseCase;
 import com.neversion.api.dashboard.application.port.in.GetProductsSummaryUseCase;
-import com.neversion.api.dashboard.application.port.in.GetSlotsByAccountUseCase;
+import com.neversion.api.dashboard.application.port.in.GetProfilesByAccountUseCase;
 import com.neversion.api.dashboard.application.result.AccountGroupResult;
-import com.neversion.api.dashboard.application.result.AccountSlotResult;
+import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
 import com.neversion.api.product.domain.model.enums.CategoryType;
 
@@ -30,14 +30,14 @@ public class DashboardController {
 
     private final GetProductsSummaryUseCase getProductsSummaryUseCase;
     private final GetAccountsByProductUseCase getAccountsByProductUseCase;
-    private final GetSlotsByAccountUseCase getSlotsByAccountUseCase;
+    private final GetProfilesByAccountUseCase getProfilesByAccountUseCase;
 
     public DashboardController(GetProductsSummaryUseCase getProductsSummaryUseCase,
             GetAccountsByProductUseCase getAccountsByProductUseCase,
-            GetSlotsByAccountUseCase getSlotsByAccountUseCase) {
+            GetProfilesByAccountUseCase getProfilesByAccountUseCase) {
         this.getProductsSummaryUseCase = getProductsSummaryUseCase;
         this.getAccountsByProductUseCase = getAccountsByProductUseCase;
-        this.getSlotsByAccountUseCase = getSlotsByAccountUseCase;
+        this.getProfilesByAccountUseCase = getProfilesByAccountUseCase;
     }
 
     @GetMapping
@@ -53,7 +53,7 @@ public class DashboardController {
 
     @GetMapping("/products/{productId}/accounts")
     @Operation(summary = "Get accounts for a product",
-            description = "Returns all accounts for a product with slot availability")
+            description = "Returns all accounts for a product with profile availability")
     @ApiResponse(responseCode = "200", description = "Account groups retrieved")
     public ResponseEntity<List<AccountGroupResult>> getAccountsByProduct(
             @Parameter(description = "Product UUID") @PathVariable UUID productId) {
@@ -61,13 +61,13 @@ public class DashboardController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/accounts/{accountId}/slots")
-    @Operation(summary = "Get slots for an account",
-            description = "Returns slots with subscription and customer data for an account")
-    @ApiResponse(responseCode = "200", description = "Account slots retrieved")
-    public ResponseEntity<List<AccountSlotResult>> getSlotsByAccount(
+    @GetMapping("/accounts/{accountId}/profiles")
+    @Operation(summary = "Get profiles for an account",
+            description = "Returns profiles with subscription and customer data for an account")
+    @ApiResponse(responseCode = "200", description = "Account profiles retrieved")
+    public ResponseEntity<List<ProfileResult>> getProfilesByAccount(
             @Parameter(description = "Account UUID") @PathVariable UUID accountId) {
-        List<AccountSlotResult> result = getSlotsByAccountUseCase.getByAccountId(accountId);
+        List<ProfileResult> result = getProfilesByAccountUseCase.getByAccountId(accountId);
         return ResponseEntity.ok(result);
     }
 }

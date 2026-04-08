@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Read-only projection for endpoint 2: account with slot availability.
+ * Read-only projection for endpoint 2: account with profile availability.
  */
 public record AccountGroupResult(
         UUID accountId,
@@ -13,8 +13,8 @@ public record AccountGroupResult(
         LocalDate cutOffDate,
         String accountType,
         String accountStatus,
-        int maxSlots,
-        int occupiedSlots,
-        int availableSlots,
+        int maxProfiles,
+        int occupiedProfiles,
+        int availableProfiles,
         String availability) {
 }

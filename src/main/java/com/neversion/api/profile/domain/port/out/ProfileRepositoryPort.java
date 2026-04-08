@@ -1,21 +1,25 @@
-// package com.neversion.api.profile.domain.port.out;
+package com.neversion.api.profile.domain.port.out;
 
-// import java.util.List;
-// import java.util.Optional;
-// import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-// import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.model.Profile;
 
-// public interface ProfileRepositoryPort {
-// Optional<Profile> findById(UUID id);
+public interface ProfileRepositoryPort {
 
-// Optional<Profile> findByEmail(String email);
+    Profile save(Profile profile);
 
-// List<Profile> findByName(String name);
+    Optional<Profile> findById(UUID uuid);
 
-// List<Profile> findByIsActive(Boolean isActive);
+    Optional<Profile> findByInternalId(Long id);
 
-// List<Profile> findAll();
+    List<Profile> findByAccountId(Long accountId);
 
-// void deactivate(UUID id);
-// }
+    /** Returns profiles not yet linked to any active subscription (BR-04). */
+    List<Profile> findAvailableByAccountId(Long accountId);
+
+    void saveAll(List<Profile> profiles);
+
+    void deleteById(UUID uuid);
+}

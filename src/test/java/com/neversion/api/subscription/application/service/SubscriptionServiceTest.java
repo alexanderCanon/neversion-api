@@ -20,15 +20,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.neversion.api.accountslot.domain.model.Profile;
-import com.neversion.api.accountslot.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.exception.AccountOverbookingException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
-import com.neversion.api.userguest.domain.model.Client;
-import com.neversion.api.userguest.domain.port.out.ClientRepositoryPort;
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 
 /**
  * Unit tests for SubscriptionService (CU-A05).

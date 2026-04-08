@@ -40,16 +40,16 @@ public class GetAccountsByProductService implements GetAccountsByProductUseCase 
                 : null;
         String accountType = ((String) row.get("accountType")).toUpperCase();
         String accountStatus = ((String) row.get("accountStatus")).toUpperCase();
-        int maxSlots = ((Number) row.get("maxSlots")).intValue();
-        int occupiedSlots = ((Number) row.get("occupiedSlots")).intValue();
-        int availableSlots = maxSlots - occupiedSlots;
+        int maxProfiles = ((Number) row.get("maxProfiles")).intValue();
+        int occupiedProfiles = ((Number) row.get("occupiedProfiles")).intValue();
+        int availableProfiles = maxProfiles - occupiedProfiles;
 
-        String availability = calculateAvailability(accountType, maxSlots, occupiedSlots, availableSlots);
+        String availability = calculateAvailability(accountType, maxProfiles, occupiedProfiles, availableProfiles);
 
         return new AccountGroupResult(
                 accountId, email, password, cutOffDate,
-                accountType, accountStatus, maxSlots,
-                occupiedSlots, availableSlots, availability);
+                accountType, accountStatus, maxProfiles,
+                occupiedProfiles, availableProfiles, availability);
     }
 
     /**
@@ -57,22 +57,22 @@ public class GetAccountsByProductService implements GetAccountsByProductUseCase 
      * <ul>
      *   <li>If accountType = INDIVIDUAL → INDIVIDUAL</li>
      *   <li>If accountType = FAMILY and 1 subscription occupies entire account → COMPLETE</li>
-     *   <li>If accountType = FAMILY and availableSlots = 0 → NO_AVAILABILITY</li>
-     *   <li>If accountType = FAMILY and availableSlots > 0 and occupiedSlots > 0 → PARTIAL</li>
+     *   <li>If accountType = FAMILY and availableProfiles = 0 → NO_AVAILABILITY</li>
+     *   <li>If accountType = FAMILY and availableProfiles > 0 and occupiedProfiles > 0 → PARTIAL</li>
      *   <li>Otherwise (all free) → PARTIAL</li>
      * </ul>
      */
-    private String calculateAvailability(String accountType, int maxSlots, int occupiedSlots, int availableSlots) {
+    private String calculateAvailability(String accountType, int maxProfiles, int occupiedProfiles, int availableProfiles) {
         if ("INDIVIDUAL".equals(accountType)) {
             return AccountAvailability.INDIVIDUAL.name();
         }
-        if (availableSlots == 0) {
+        if (availableProfiles == 0) {
             return AccountAvailability.NO_AVAILABILITY.name();
         }
-        if (occupiedSlots > 0) {
+        if (occupiedProfiles > 0) {
             return AccountAvailability.PARTIAL.name();
         }
-        // All slots free — still PARTIAL (has free slots)
+        // All profiles free — still PARTIAL (has free profiles)
         return AccountAvailability.PARTIAL.name();
     }
 }

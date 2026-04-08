@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.neversion.api.accountslot.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.subscription.application.port.in.AssignSubscriptionUseCase;
 import com.neversion.api.subscription.application.port.in.UpdateSubscriptionUseCase;
@@ -24,7 +24,7 @@ import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.mapper.SubscriptionMapper;
-import com.neversion.api.userguest.domain.port.out.ClientRepositoryPort;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

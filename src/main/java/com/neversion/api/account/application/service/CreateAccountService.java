@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.account.application.port.in.CreateAccountUseCase;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
-import com.neversion.api.accountslot.application.port.in.ProfileUseCase;
+import com.neversion.api.profile.application.port.in.ProfileUseCase;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.inventory.domain.port.out.ServiceRepositoryPort;

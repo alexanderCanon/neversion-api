@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
-import com.neversion.api.accountslot.application.port.in.ProfileUseCase;
+import com.neversion.api.profile.application.port.in.ProfileUseCase;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.inventory.domain.model.Service;

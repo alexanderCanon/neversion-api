@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.neversion.api.dashboard.application.result.AccountSlotResult;
+import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
 
 /**
@@ -21,12 +21,12 @@ public interface DashboardQueryPort {
     /**
      * Endpoint 2: raw account data for a product.
      * Returns a list of maps with keys: accountId, email, password, cutOffDate,
-     * accountType, accountStatus, maxSlots, occupiedSlots.
+     * accountType, accountStatus, maxProfiles, occupiedProfiles.
      */
     List<Map<String, Object>> findAccountsByProductId(UUID productId);
 
     /**
-     * Endpoint 3: slots for an account with subscription and customer data.
+     * Endpoint 3: profiles for an account with subscription and customer data.
      */
-    List<AccountSlotResult> findSlotsByAccountId(UUID accountId);
+    List<ProfileResult> findProfilesByAccountId(UUID accountId);
 }

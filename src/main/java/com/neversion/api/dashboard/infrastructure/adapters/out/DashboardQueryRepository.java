@@ -11,10 +11,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.neversion.api.dashboard.application.port.out.DashboardQueryPort;
-import com.neversion.api.dashboard.application.result.AccountSlotResult;
+import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
-import com.neversion.api.dashboard.application.result.SlotCustomerResult;
-import com.neversion.api.dashboard.application.result.SlotSubscriptionResult;
+import com.neversion.api.dashboard.application.result.ProfileCustomerResult;
+import com.neversion.api.dashboard.application.result.ProfileSubscriptionResult;
 
 /**
  * JdbcTemplate-based implementation of {@link DashboardQueryPort}.
@@ -60,13 +60,13 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                        a.expiration_date   AS cut_off_date,
                        i.account_type::text AS account_type,
                        a.status::text      AS account_status,
-                       COALESCE(i.max_profiles, 1) AS max_slots,
+                       COALESCE(i.max_profiles, 1) AS max_profiles,
                        COUNT(s.id) FILTER (WHERE s.status::text IN ('active', 'expired')
-                           AND s.renewal_date >= CURRENT_DATE) AS occupied_slots
+                           AND s.renewal_date >= CURRENT_DATE) AS occupied_profiles
                 FROM accounts a
                 JOIN inventory i ON a.inventory_id = i.id
-                LEFT JOIN account_slots sl ON sl.account_id = a.id
-                LEFT JOIN subscriptions s ON s.account_slot_id = sl.id
+                LEFT JOIN profiles sl ON sl.account_id = a.id
+                LEFT JOIN subscriptions s ON s.profile_id = sl.id
                      AND s.status::text IN ('active')
                 WHERE i.product_id = ?
                   AND a.is_active = true
@@ -83,19 +83,19 @@ public class DashboardQueryRepository implements DashboardQueryPort {
             row.put("cutOffDate", rs.getObject("cut_off_date", LocalDate.class));
             row.put("accountType", rs.getString("account_type"));
             row.put("accountStatus", rs.getString("account_status"));
-            row.put("maxSlots", rs.getInt("max_slots"));
-            row.put("occupiedSlots", rs.getInt("occupied_slots"));
+            row.put("maxProfiles", rs.getInt("max_profiles"));
+            row.put("occupiedProfiles", rs.getInt("occupied_profiles"));
             return row;
         }, productId);
     }
 
     @Override
-    public List<AccountSlotResult> findSlotsByAccountId(UUID accountId) {
+    public List<ProfileResult> findProfilesByAccountId(UUID accountId) {
         String sql = """
-                SELECT sl.id             AS slot_id,
+                SELECT sl.id             AS profile_id,
                        sl.profile_name   AS profile_name,
                        sl.pin            AS pin,
-                       sl.status::text   AS slot_status,
+                       sl.status::text   AS profile_status,
                        s.id              AS sub_id,
                        s.purchase_date   AS start_date,
                        s.renewal_date    AS end_date,
@@ -103,8 +103,8 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                        ug.id             AS customer_id,
                        ug.name           AS customer_name,
                        ug.phone          AS customer_phone
-                FROM account_slots sl
-                LEFT JOIN subscriptions s ON s.account_slot_id = sl.id
+                FROM profiles sl
+                LEFT JOIN subscriptions s ON s.profile_id = sl.id
                      AND s.status::text IN ('active', 'expired', 'cancelled', 'suspended')
                 LEFT JOIN users_guests ug ON s.user_guest_id = ug.id
                 WHERE sl.account_id = ?
@@ -112,7 +112,7 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                 """;
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             UUID subId = rs.getObject("sub_id", UUID.class);
-            SlotSubscriptionResult subscription = null;
+            ProfileSubscriptionResult subscription = null;
 
             if (subId != null) {
                 LocalDate endDate = rs.getObject("end_date", LocalDate.class);
@@ -128,15 +128,15 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                 }
 
                 UUID customerId = rs.getObject("customer_id", UUID.class);
-                SlotCustomerResult customer = customerId != null
-                        ? new SlotCustomerResult(
+                ProfileCustomerResult customer = customerId != null
+                        ? new ProfileCustomerResult(
                                 customerId,
                                 rs.getString("customer_name"),
                                 rs.getString("customer_phone"),
                                 "USER_GUEST")
                         : null;
 
-                subscription = new SlotSubscriptionResult(
+                subscription = new ProfileSubscriptionResult(
                         subId,
                         rs.getObject("start_date", LocalDate.class),
                         endDate,
@@ -144,11 +144,11 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                         customer);
             }
 
-            return new AccountSlotResult(
-                    rs.getObject("slot_id", UUID.class),
+            return new ProfileResult(
+                    rs.getObject("profile_id", UUID.class),
                     rs.getString("profile_name"),
                     rs.getString("pin"),
-                    rs.getString("slot_status").toUpperCase(),
+                    rs.getString("profile_status").toUpperCase(),
                     subscription);
         }, accountId);
     }
