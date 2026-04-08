@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
@@ -37,13 +39,14 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
-@Tag(name = "Reservations", description = "Reservation management for guest purchases")
+@Tag(name = "Reservations", description = "Reservation management for client purchases")
 public class ReservationController {
 
     private final CreateReservationUseCase createReservationUseCase;
     private final UploadReceiptUseCase uploadReceiptUseCase;
     private final ValidateReservationUseCase validateReservationUseCase;
     private final ReservationRepositoryPort reservationRepositoryPort;
+    private final ClientRepositoryPort clientRepositoryPort;
     private final ReservationRestMapper reservationRestMapper;
 
     public ReservationController(
@@ -51,25 +54,27 @@ public class ReservationController {
             UploadReceiptUseCase uploadReceiptUseCase,
             ValidateReservationUseCase validateReservationUseCase,
             ReservationRepositoryPort reservationRepositoryPort,
+            ClientRepositoryPort clientRepositoryPort,
             ReservationRestMapper reservationRestMapper) {
         this.createReservationUseCase = createReservationUseCase;
         this.uploadReceiptUseCase = uploadReceiptUseCase;
         this.validateReservationUseCase = validateReservationUseCase;
         this.reservationRepositoryPort = reservationRepositoryPort;
+        this.clientRepositoryPort = clientRepositoryPort;
         this.reservationRestMapper = reservationRestMapper;
     }
 
     // ── UC1: Create Reservation (Checkout) ──────────────────────────────
 
     @PostMapping
-    @Operation(summary = "Create a reservation", description = "UC1: Create a new reservation with items. userGuestId is optional and can be attached later.")
+    @Operation(summary = "Create a reservation", description = "UC1: Create a new reservation with items. clientId is optional and can be attached later.")
     @ApiResponse(responseCode = "201", description = "Reservation created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request or insufficient stock")
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody ReservationRequest request) {
 
         List<ReservationItemCommand> items = reservationRestMapper.toItemCommands(request.items());
-        Reservation reservation = createReservationUseCase.create(request.userGuestId(), items);
+        Reservation reservation = createReservationUseCase.create(request.clientId(), items);
         ReservationResponse response = reservationRestMapper.toResponse(reservation);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -167,21 +172,27 @@ public class ReservationController {
         return ResponseEntity.ok(reservationRestMapper.toResponse(updated));
     }
 
-    // ── Attach Guest User ───────────────────────────────────────────────
+    // ── Attach Client ───────────────────────────────────────────────
 
-    @PutMapping("/{id}/guest")
-    @Operation(summary = "Attach guest user to reservation", description = "Link an existing guest user to a reservation that was created without one.")
-    @ApiResponse(responseCode = "200", description = "Guest user attached")
+    @PutMapping("/{id}/client")
+    @Operation(summary = "Attach client to reservation", description = "Link an existing client to a reservation that was created without one.")
+    @ApiResponse(responseCode = "200", description = "Client attached")
     @ApiResponse(responseCode = "404", description = "Reservation not found")
-    public ResponseEntity<ReservationResponse> attachGuestUser(
+    public ResponseEntity<ReservationResponse> attachClient(
             @Parameter(description = "Reservation UUID") @PathVariable UUID id,
-            @RequestParam UUID userGuestId) {
+            @RequestParam UUID clientId) {
 
         Reservation reservation = reservationRepositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + id));
 
-        reservation.setUserGuestId(userGuestId);
+        // Resolve internal Client ID
+        Long internalClientId = clientRepositoryPort.findById(clientId)
+                .map(Client::getId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + clientId));
+
+        reservation.setClientId(internalClientId);
+        reservation.setClientUuid(clientId);
         Reservation updated = reservationRepositoryPort.update(reservation);
         return ResponseEntity.ok(reservationRestMapper.toResponse(updated));
     }

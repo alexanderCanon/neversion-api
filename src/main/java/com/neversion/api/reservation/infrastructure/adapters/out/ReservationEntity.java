@@ -28,8 +28,8 @@ public class ReservationEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_guest_id")
-    private UUID userGuestId;
+    @Column(name = "client_id")
+    private Long clientId;
 
     @Column(name = "discount")
     private BigDecimal discount;
@@ -52,11 +52,11 @@ public class ReservationEntity {
     public ReservationEntity() {
     }
 
-    public ReservationEntity(UUID id, UUID userGuestId, BigDecimal discount, BigDecimal total,
+    public ReservationEntity(UUID id, Long clientId, BigDecimal discount, BigDecimal total,
             ReservationStatus status, String receiptUrl,
             OffsetDateTime expirationDate, OffsetDateTime createdAt) {
         this.id = id;
-        this.userGuestId = userGuestId;
+        this.clientId = clientId;
         this.discount = discount;
         this.total = total;
         this.status = status;

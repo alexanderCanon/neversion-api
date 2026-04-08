@@ -116,8 +116,14 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     payment_due_date DATE NOT NULL,
     months_paid      INT NOT NULL DEFAULT 1,
     status           VARCHAR(20) NOT NULL DEFAULT 'active',
+                     -- 'active'    = acceso vigente
+                     -- 'pending'   = esperando pago para renovar
+                     -- 'suspended' = acceso bloqueado por falta de pago
+                     -- 'cancelled' = acceso bloqueado por decisión del cliente
     notes            TEXT,
-    created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT unique_active_profile UNIQUE (profile_id, status)
+    DEFERRABLE INITIALLY DEFERRED
 );
 
 ALTER TABLE subscriptions

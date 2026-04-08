@@ -13,9 +13,10 @@ import com.neversion.api.reservation.infrastructure.adapters.out.ReservationEnti
 public class ReservationPersistenceMapper {
 
     public Reservation toDomain(ReservationEntity entity) {
+        if (entity == null) return null;
         return Reservation.builder()
                 .id(entity.getId())
-                .userGuestId(entity.getUserGuestId())
+                .clientId(entity.getClientId())
                 .discount(entity.getDiscount())
                 .total(entity.getTotal())
                 .receiptUrl(entity.getReceiptUrl())
@@ -26,9 +27,10 @@ public class ReservationPersistenceMapper {
     }
 
     public ReservationEntity toEntity(Reservation domain) {
+        if (domain == null) return null;
         return ReservationEntity.builder()
                 .id(domain.getId())
-                .userGuestId(domain.getUserGuestId())
+                .clientId(domain.getClientId())
                 .discount(domain.getDiscount())
                 .total(domain.getTotal())
                 .receiptUrl(domain.getReceiptUrl())

@@ -9,7 +9,7 @@ import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 
 public record ReservationResponse(
                 UUID id,
-                UUID userGuestId,
+                UUID clientId,
                 ReservationStatus status,
                 BigDecimal discount,
                 BigDecimal total,

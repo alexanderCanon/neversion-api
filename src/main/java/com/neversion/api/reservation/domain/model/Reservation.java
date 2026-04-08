@@ -17,7 +17,13 @@ import lombok.Setter;
 public class Reservation {
 
     private UUID id;
-    private UUID userGuestId;
+    
+    /** Internal DB PK of the Client — resolved from clientUuid before persistence. */
+    private Long clientId;
+
+    /** External identifier of the Client — received from the REST layer. */
+    private UUID clientUuid;
+
     private BigDecimal discount;
     private BigDecimal total;
     private String receiptUrl;
@@ -29,11 +35,12 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(UUID id, UUID userGuestId, BigDecimal discount, BigDecimal total,
+    public Reservation(UUID id, Long clientId, UUID clientUuid, BigDecimal discount, BigDecimal total,
             String receiptUrl, ReservationStatus status, Instant expirationDate,
             Instant createdAt, List<ReservationDetail> details) {
         this.id = id;
-        this.userGuestId = userGuestId;
+        this.clientId = clientId;
+        this.clientUuid = clientUuid;
         this.discount = discount;
         this.total = total;
         this.receiptUrl = receiptUrl;

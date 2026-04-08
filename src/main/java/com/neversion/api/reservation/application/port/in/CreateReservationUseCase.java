@@ -7,5 +7,5 @@ import com.neversion.api.reservation.domain.model.Reservation;
 
 public interface CreateReservationUseCase {
 
-    Reservation create(UUID userGuestId, List<ReservationItemCommand> items);
+    Reservation create(UUID clientId, List<ReservationItemCommand> items);
 }

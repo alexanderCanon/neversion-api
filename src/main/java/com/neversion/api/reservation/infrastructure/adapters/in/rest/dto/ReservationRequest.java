@@ -9,6 +9,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReservationRequest(
 
-        UUID userGuestId,
+        UUID clientId,
         @NotNull @NotEmpty List<@Valid ReservationItemRequest> items) {
 }

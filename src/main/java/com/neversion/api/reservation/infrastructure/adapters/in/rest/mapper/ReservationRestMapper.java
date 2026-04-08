@@ -34,7 +34,7 @@ public class ReservationRestMapper {
 
         return new ReservationResponse(
                 reservation.getId(),
-                reservation.getUserGuestId(),
+                reservation.getClientUuid(),
                 reservation.getStatus(),
                 reservation.getDiscount(),
                 reservation.getTotal(),

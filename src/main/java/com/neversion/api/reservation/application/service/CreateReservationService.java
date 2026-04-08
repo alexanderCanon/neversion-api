@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.inventory.application.port.in.GetInventoryUseCase;
 import com.neversion.api.inventory.domain.model.Inventory;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
@@ -22,8 +24,8 @@ import com.neversion.api.reservation.domain.service.ReservationPricingService;
 /**
  * UC1: Create Reservation (Checkout).
  * <p>
- * The guest user ID is optional at creation — can be attached later via
- * PUT /reservations/{id}/guest. Persists the reservation header with
+ * The client ID is optional at creation — can be attached later via
+ * PUT /reservations/{id}/client. Persists the reservation header with
  * status = PENDING, saves each item capturing the current price (BR-02),
  * and computes the total applying combo discount (BR-03).
  * </p>
@@ -36,19 +38,22 @@ public class CreateReservationService implements CreateReservationUseCase {
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final GetInventoryUseCase getInventoryUseCase;
     private final ReservationPricingService reservationPricingService;
+    private final ClientRepositoryPort clientRepositoryPort;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
             GetInventoryUseCase getInventoryUseCase,
-            ReservationPricingService reservationPricingService) {
+            ReservationPricingService reservationPricingService,
+            ClientRepositoryPort clientRepositoryPort) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.getInventoryUseCase = getInventoryUseCase;
         this.reservationPricingService = reservationPricingService;
+        this.clientRepositoryPort = clientRepositoryPort;
     }
 
     @Override
     @Transactional
-    public Reservation create(UUID userGuestId, List<ReservationItemCommand> items) {
+    public Reservation create(UUID clientId, List<ReservationItemCommand> items) {
 
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expirationDate = now.plusMinutes(EXPIRATION_MINUTES);
@@ -71,8 +76,17 @@ public class CreateReservationService implements CreateReservationUseCase {
         BigDecimal discount = reservationPricingService.calculateComboDiscount(grossTotal, items.size());
         BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
 
+        // Resolve internal Client ID if UUID is provided
+        Long internalClientId = null;
+        if (clientId != null) {
+            internalClientId = clientRepositoryPort.findById(clientId)
+                    .map(Client::getId)
+                    .orElse(null); // Or throw exception if strict requirement
+        }
+
         Reservation reservation = Reservation.builder()
-                .userGuestId(userGuestId) // nullable — can be attached later
+                .clientId(internalClientId)
+                .clientUuid(clientId) // nullable — can be attached later
                 .status(ReservationStatus.PENDING)
                 .discount(discount)
                 .total(finalTotal)
