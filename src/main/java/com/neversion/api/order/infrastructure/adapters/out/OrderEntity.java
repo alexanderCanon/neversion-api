@@ -7,6 +7,8 @@ import com.neversion.api.order.domain.model.enums.OrderStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +32,8 @@ public class OrderEntity {
     @Column(name = "reservation_id", nullable = false, unique = true)
     private UUID reservationId;
 
-    @Column(name = "status", nullable = false, columnDefinition = "order_status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private OrderStatus status;
 
     @Column(name = "notes")

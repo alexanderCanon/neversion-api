@@ -21,7 +21,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Neversion Panel API")
                         .description(
-                                "Admin panel API for product management, inventory, accounts, reservations, orders, and subscriptions. "
+                                "Admin panel API for service catalog, accounts, profiles, clients, reservations, orders, and subscriptions. "
                                         + "All mutating endpoints require a valid Supabase JWT with the 'admin' role.")
                         .version("1.0.0")
                         .contact(new Contact()

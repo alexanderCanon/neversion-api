@@ -9,7 +9,7 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.profile.application.port.in.ProfileUseCase;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
-import com.neversion.api.inventory.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 
 
 /**
@@ -39,7 +39,7 @@ public class CreateAccountService implements CreateAccountUseCase {
             throw new BusinessRuleException("Renewal date is required");
         }
 
-        com.neversion.api.inventory.domain.model.Service service = serviceRepositoryPort.findByInternalId(account.getServiceId())
+        com.neversion.api.service.domain.model.Service service = serviceRepositoryPort.findByInternalId(account.getServiceId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Service not found: " + account.getServiceId()));
 

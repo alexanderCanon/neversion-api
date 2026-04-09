@@ -1,6 +1,5 @@
 package com.neversion.api.subscription.infrastructure.adapters.in.rest.dto;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,9 +15,9 @@ public record SubscriptionResponse(
         UUID clientId,
         UUID accountId,
         SubStatus status,
-        LocalDate purchaseDate,
+        LocalDate startDate,
         LocalDate paymentDueDate,
-        BigDecimal price,
+        Long monthsPaid,
         String notes,
         LocalDateTime createdAt) {
 }

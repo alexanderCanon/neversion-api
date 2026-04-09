@@ -16,7 +16,7 @@ import com.neversion.api.dashboard.application.port.in.GetProfilesByAccountUseCa
 import com.neversion.api.dashboard.application.result.AccountGroupResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
-import com.neversion.api.product.domain.model.enums.CategoryType;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

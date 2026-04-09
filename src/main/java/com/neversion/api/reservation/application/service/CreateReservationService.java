@@ -11,8 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.inventory.application.port.in.GetInventoryUseCase;
-import com.neversion.api.inventory.domain.model.Inventory;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.domain.model.Reservation;
@@ -29,6 +27,8 @@ import com.neversion.api.reservation.domain.service.ReservationPricingService;
  * status = PENDING, saves each item capturing the current price (BR-02),
  * and computes the total applying combo discount (BR-03).
  * </p>
+ * NOTE: Unit price per item is set to ZERO pending re-integration with
+ * the Service pricing model (inventory module was removed).
  */
 @Service
 public class CreateReservationService implements CreateReservationUseCase {
@@ -36,17 +36,14 @@ public class CreateReservationService implements CreateReservationUseCase {
     private static final int EXPIRATION_MINUTES = 60;
 
     private final ReservationRepositoryPort reservationRepositoryPort;
-    private final GetInventoryUseCase getInventoryUseCase;
     private final ReservationPricingService reservationPricingService;
     private final ClientRepositoryPort clientRepositoryPort;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
-            GetInventoryUseCase getInventoryUseCase,
             ReservationPricingService reservationPricingService,
             ClientRepositoryPort clientRepositoryPort) {
         this.reservationRepositoryPort = reservationRepositoryPort;
-        this.getInventoryUseCase = getInventoryUseCase;
         this.reservationPricingService = reservationPricingService;
         this.clientRepositoryPort = clientRepositoryPort;
     }
@@ -58,16 +55,15 @@ public class CreateReservationService implements CreateReservationUseCase {
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expirationDate = now.plusMinutes(EXPIRATION_MINUTES);
 
-        // Build reservation details with frozen prices (BR-02)
+        // Build reservation details — unit price is ZERO until service pricing is integrated
         List<ReservationDetail> detailsToSave = new ArrayList<>();
         for (ReservationItemCommand item : items) {
-            Inventory inventory = getInventoryUseCase.getById(item.inventoryId());
             detailsToSave.add(new ReservationDetail(
                     null,
                     null, // reservationId set after save
                     item.inventoryId(),
                     item.qty(),
-                    inventory.getPrice(),
+                    BigDecimal.ZERO,
                     null)); // subtotal is DB-computed
         }
 
@@ -81,7 +77,7 @@ public class CreateReservationService implements CreateReservationUseCase {
         if (clientId != null) {
             internalClientId = clientRepositoryPort.findById(clientId)
                     .map(Client::getId)
-                    .orElse(null); // Or throw exception if strict requirement
+                    .orElse(null);
         }
 
         Reservation reservation = Reservation.builder()

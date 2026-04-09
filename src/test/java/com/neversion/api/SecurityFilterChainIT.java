@@ -39,9 +39,9 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
     class PublicEndpoints {
 
         @Test
-        @DisplayName("GET /api/v1/products - should return 200 without token (public catalog)")
-        void products_shouldBePublic() throws Exception {
-            mockMvc.perform(get("/api/v1/products"))
+        @DisplayName("GET /api/v1/services - should return 200 without token (public catalog)")
+        void services_shouldBePublic() throws Exception {
+            mockMvc.perform(get("/api/v1/services"))
                     .andExpect(status().isOk());
         }
 

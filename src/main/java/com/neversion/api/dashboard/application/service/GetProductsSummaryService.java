@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.neversion.api.dashboard.application.port.in.GetProductsSummaryUseCase;
 import com.neversion.api.dashboard.application.port.out.DashboardQueryPort;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
-import com.neversion.api.product.domain.model.enums.CategoryType;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 @Service
 public class GetProductsSummaryService implements GetProductsSummaryUseCase {

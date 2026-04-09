@@ -1,6 +1,5 @@
 package com.neversion.api.subscription.domain.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -56,7 +55,7 @@ public class Subscription {
     // ── Business fields ──────────────────────────────────────────────────────
 
     /** Date the client's access lifecycle began. Defaults to today. */
-    private LocalDate purchaseDate;
+    private LocalDate startDate;
 
     /**
      * The date by which the client must pay to retain access.
@@ -64,8 +63,8 @@ public class Subscription {
      */
     private LocalDate paymentDueDate;
 
-    /** Sale price charged to the client for this subscription cycle. */
-    private BigDecimal price;
+    /** Number of months the client has paid. Incremented on each renewal. */
+    private Long monthsPaid;
 
     /**
      * Current access status.
@@ -85,8 +84,8 @@ public class Subscription {
 
     public Subscription(Long id, UUID uuid, Long clientId, Long profileId,
             UUID profileUuid, UUID clientUuid, UUID accountUuid,
-            LocalDate purchaseDate, LocalDate paymentDueDate,
-            BigDecimal price, SubStatus status, String notes, LocalDateTime createdAt) {
+            LocalDate startDate, LocalDate paymentDueDate,
+            Long monthsPaid, SubStatus status, String notes, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
@@ -94,9 +93,9 @@ public class Subscription {
         this.profileUuid = profileUuid;
         this.clientUuid = clientUuid;
         this.accountUuid = accountUuid;
-        this.purchaseDate = purchaseDate;
+        this.startDate = startDate;
         this.paymentDueDate = paymentDueDate;
-        this.price = price;
+        this.monthsPaid = monthsPaid;
         this.status = status;
         this.notes = notes;
         this.createdAt = createdAt;

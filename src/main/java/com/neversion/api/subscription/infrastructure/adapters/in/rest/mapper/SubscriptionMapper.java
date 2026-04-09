@@ -18,9 +18,8 @@ public class SubscriptionMapper {
                 .profileUuid(request.profileId())
                 .clientUuid(request.clientId())
                 .accountUuid(request.accountId())
-                .purchaseDate(request.purchaseDate())
+                .startDate(request.startDate())
                 .paymentDueDate(request.paymentDueDate())
-                .price(request.price())
                 .notes(request.notes())
                 .build();
     }
@@ -32,9 +31,9 @@ public class SubscriptionMapper {
                 .clientId(subscription.getClientUuid())
                 .accountId(subscription.getAccountUuid())
                 .status(subscription.getStatus())
-                .purchaseDate(subscription.getPurchaseDate())
+                .startDate(subscription.getStartDate())
                 .paymentDueDate(subscription.getPaymentDueDate())
-                .price(subscription.getPrice())
+                .monthsPaid(subscription.getMonthsPaid())
                 .notes(subscription.getNotes())
                 .createdAt(subscription.getCreatedAt())
                 .build() : null;

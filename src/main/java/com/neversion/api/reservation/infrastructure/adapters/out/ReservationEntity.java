@@ -8,6 +8,8 @@ import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,7 +39,8 @@ public class ReservationEntity {
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 
-    @Column(name = "status", nullable = false, columnDefinition = "reserv_status")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private ReservationStatus status;
 
     @Column(name = "receipt_url", unique = true)

@@ -1,6 +1,5 @@
 package com.neversion.api.subscription.infrastructure.adapters.out;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -59,8 +58,8 @@ public class SubscriptionEntity {
     private Long profileId;
 
     /** Date the client's access lifecycle began. */
-    @Column(name = "purchase_date", nullable = false)
-    private LocalDate purchaseDate;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
     /**
      * The date by which the client must pay to keep access.
@@ -69,9 +68,9 @@ public class SubscriptionEntity {
     @Column(name = "payment_due_date", nullable = false)
     private LocalDate paymentDueDate;
 
-    /** Sale price charged to the client for this subscription cycle. */
-    @Column(name = "price", precision = 10, scale = 2)
-    private BigDecimal price;
+    /** Number of months the client has paid so far. */
+    @Column(name = "months_paid", nullable = false)
+    private Long monthsPaid;
 
     /**
      * Current access status.
@@ -92,6 +91,7 @@ public class SubscriptionEntity {
     protected void prePersist() {
         if (uuid == null) uuid = UUID.randomUUID();
         if (createdAt == null) createdAt = LocalDateTime.now();
-        if (purchaseDate == null) purchaseDate = LocalDate.now();
+        if (startDate == null) startDate = LocalDate.now();
+        if (monthsPaid == null) monthsPaid = 1L;
     }
 }
