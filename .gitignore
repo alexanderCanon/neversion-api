@@ -31,15 +31,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### Profiles ###
-application-dev.yaml
-
 ### Enviroment files ###
 .env
-
-### Markdown files ###
-SPEC.md
-SECURITY.md
-
-### Other ###
-**/resources/jsonfiles/*
+.env.local

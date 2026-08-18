@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.neversion</groupId>
-	<artifactId>panel</artifactId>
+	<artifactId>api</artifactId>
 	<version>0.1.0</version>
-	<name>panel</name>
-	<description>Admin panel</description>
+	<name>api</name>
+	<description>Admin api</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -82,9 +82,14 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -110,6 +115,7 @@
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -126,14 +132,40 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<parallel>classes</parallel>
+					<threadCount>4</threadCount>
 					<includes>
 						<include>**/*Test.java</include>
 						<include>**/*Tests.java</include>
 						<include>**/*UT.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*IT*.java</exclude>
+						<exclude>**/Base*.java</exclude>
+					</excludes>
+
+
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
 						<include>**/*IT.java</include>
 					</includes>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -146,7 +178,18 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>${env.SPRING_DATASOURCE_URL}</url>
+					<user>${env.SPRING_DATASOURCE_USERNAME}</user>
+					<password>${env.SPRING_DATASOURCE_PASSWORD}</password>
+					<locations>
+						<location>filesystem:src/main/resources/db/migration</location>
+					</locations>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

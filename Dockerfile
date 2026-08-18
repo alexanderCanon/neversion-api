@@ -20,28 +20,28 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src src
 
 # Build the fat JAR, skipping tests (tests should run in CI pipeline).
-# The resulting JAR is renamed to panel.jar for a predictable COPY target,
+# The resulting JAR is renamed to api.jar for a predictable COPY target,
 # avoiding wildcard ambiguity if multiple JARs exist in target/.
 RUN ./mvnw package -DskipTests -B \
-    && mv target/panel-*.jar target/panel.jar
+    && mv target/api-*.jar target/api.jar
 
 # ══════════════════════════════════════════════════════════════════
 # Stage 2: RUN — Lightweight runtime image (JRE only, no compiler)
-# This dramatically reduces the final image size (~300MB vs ~600MB)
+# Using Alpine Linux reduces the image size significantly (~200MB)
 # ══════════════════════════════════════════════════════════════════
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre-alpine
+
+# Install curl for health check using apk (Alpine package manager)
+RUN apk add --no-cache curl
 
 # ── Security: run as non-root user ──────────────────────────────
-# By default Docker runs as root, which is a security risk.
-# If the app is compromised, the attacker gets root inside the container.
-# We create a dedicated user 'appuser' with UID 1001 (no login shell).
-RUN groupadd --system appgroup && \
-    useradd --system --gid appgroup --uid 1001 --shell /usr/sbin/nologin appuser
+# We create a dedicated user 'appuser' with UID 1001.
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -u 1001
 
 WORKDIR /app
 
 # Copy the fat JAR from the build stage with a predictable name
-COPY --from=build /app/target/panel.jar app.jar
+COPY --from=build /app/target/api.jar app.jar
 
 # ── Ensure the app user owns the working directory ──────────────
 RUN chown -R appuser:appgroup /app
@@ -78,11 +78,19 @@ EXPOSE 8080
 #   If the JVM runs out of memory, EXIT immediately instead of hanging.
 #   This lets Docker/ECS/K8s detect the crash and restart the container.
 #
+# Default Spring profile — ensures application-prod.yaml always loads.
+# Dokploy can still override this via its env var UI.
+ENV SPRING_PROFILES_ACTIVE=prod
+
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
-    -XX:MaxRAMPercentage=75.0 \
-    -XX:InitialRAMPercentage=50.0 \
+    -XX:MaxRAMPercentage=65.0 \
+    -XX:InitialRAMPercentage=40.0 \
+    -XX:MaxMetaspaceSize=160m \
     -XX:+UseG1GC \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:G1HeapRegionSize=4m \
+    -Xss256k \
+    -XX:+ExitOnOutOfMemoryError \
+    -Dserver.tomcat.threads.max=50"
 
 # ── Health check ────────────────────────────────────────────────
 # Docker will periodically hit the Actuator health endpoint to verify
