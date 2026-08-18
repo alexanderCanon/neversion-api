@@ -53,5 +53,3 @@ neversion:
   cron:
     subscription-expiry:
       enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
-    renewal-reminders:
-      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}

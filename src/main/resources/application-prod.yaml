@@ -68,8 +68,6 @@ neversion:
     subscription-expiry:
       enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
       schedule: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_SCHEDULE:0 0 8 * * *}
-    renewal-reminders:
-      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}
 
 
 springdoc:

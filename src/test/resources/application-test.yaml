@@ -24,8 +24,6 @@ neversion:
   cron:
     subscription-expiry:
       enabled: false
-    renewal-reminders:
-      enabled: false
     reservation-expiry:
       enabled: false
     inventory-reconciliation:
