@@ -24,7 +24,7 @@ jobs:
     name: Build & Push to ECR
     runs-on: ubuntu-latest
     outputs:
-      image_uri: ${{ steps.build-image.outputs.image }}
+      image_uri: ${{ steps.export-image.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,6 +60,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Export Image URI
+        id: export-image
         run: |
           echo "image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
@@ -84,13 +85,14 @@ jobs:
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
         run: |
           COMPOSE_B64=$(base64 -w 0 compose.prod.yml)
+          REGISTRY=$(echo "$IMAGE_URI" | cut -d/ -f1)
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ env.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --parameters commands="[
               \"set -e\",
-              \"aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $(echo $IMAGE_URI | cut -d/ -f1)\",
+              \"aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REGISTRY\",
               \"mkdir -p /opt/neversion/api\",
               \"echo '$COMPOSE_B64' | base64 -d > /opt/neversion/api/compose.prod.yml\",
               \"aws ssm get-parameters-by-path --path /app/prod/ --with-decryption --query 'Parameters[*].[Name,Value]' --output text | awk '{split(\\\$1,a,\\\"/\\\"); print a[length(a)]\\\"=\\\"\\\$2}' > /opt/neversion/api/.env\",
