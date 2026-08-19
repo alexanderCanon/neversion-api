@@ -2,7 +2,7 @@
 # Stage 1: BUILD — Compiles the application and produces a fat JAR
 # Uses the full JDK image because Maven needs the compiler toolchain
 # ══════════════════════════════════════════════════════════════════
-FROM eclipse-temurin:17-jdk AS build
+FROM amazoncorretto:21-alpine AS build
 WORKDIR /app
 
 # Copy Maven wrapper files FIRST so Docker can cache the dependency
@@ -29,7 +29,7 @@ RUN ./mvnw package -DskipTests -B \
 # Stage 2: RUN — Lightweight runtime image (JRE only, no compiler)
 # Using Alpine Linux reduces the image size significantly (~200MB)
 # ══════════════════════════════════════════════════════════════════
-FROM eclipse-temurin:17-jre-alpine
+FROM amazoncorretto:21-alpine
 
 # Install curl for health check using apk (Alpine package manager)
 RUN apk add --no-cache curl
