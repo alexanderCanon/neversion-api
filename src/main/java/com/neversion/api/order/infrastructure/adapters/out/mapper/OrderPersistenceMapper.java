@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.infrastructure.adapters.out.OrderEntity;
-import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 /**
  * Explicit mapper — US-008: PK is now Long, uuid is separate column.

@@ -7,7 +7,6 @@ import com.neversion.api.config.HttpSecurityCustomizer;
 
 /**
  * Accounts: vendor manages their own accounts, super_admin has full access.
- * US-015 / ADR-08: RBAC aligned with platform roles.
  */
 @Configuration
 public class AccountSecurityConfig implements HttpSecurityCustomizer {

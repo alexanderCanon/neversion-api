@@ -18,12 +18,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -31,20 +26,12 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.neversion.api.BaseIntegrationTest;
-import com.neversion.api.order.application.port.in.ChangeOrderStatusUseCase;
-import com.neversion.api.order.application.port.in.GetOrderUseCase;
-import com.neversion.api.order.application.port.in.ListOrdersUseCase;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.model.OrderStatusChange;
 import com.neversion.api.order.domain.model.enums.OrderStatus;
-import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.reservation.domain.model.Reservation;
-import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.user.domain.model.User;
-import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
-import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 import com.neversion.api.BaseWebIntegrationTest;
 
@@ -239,25 +226,24 @@ class OrderControllerIT extends BaseWebIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /api/v1/orders/vendor/{vendorUuid}")
-    class ListByVendorTests {
+    @DisplayName("GET /api/v1/orders")
+    class ListOrdersTests {
 
         @Test
-        @DisplayName("should list orders for vendor successfully")
-        void listByVendor_success() throws Exception {
-            UUID vendorUuid = UUID.randomUUID();
+        @DisplayName("should list orders for authenticated vendor successfully")
+        void listOrders_success() throws Exception {
             String callerSubject = "auth|vendor-user";
-            
+
             Order order = Order.builder()
                     .id(10L)
                     .uuid(UUID.randomUUID())
                     .status(OrderStatus.PENDING)
                     .build();
 
-            when(listOrdersUseCase.listByVendor(eq(vendorUuid), any(), any(), eq(callerSubject)))
+            when(listOrdersUseCase.listOrders(any(), any(), eq(callerSubject)))
                     .thenReturn(List.of(order));
 
-            mockMvc.perform(get("/api/v1/orders/vendor/" + vendorUuid)
+            mockMvc.perform(get("/api/v1/orders")
                             .header("Authorization", "Bearer " + buildJwt("vendor", callerSubject)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].status").value("PENDING"));

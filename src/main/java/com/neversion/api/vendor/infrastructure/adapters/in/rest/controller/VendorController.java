@@ -4,15 +4,19 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.vendor.application.port.in.GetCurrentVendorUseCase;
 import com.neversion.api.vendor.application.port.in.UpdateDiscountConfigUseCase;
 import com.neversion.api.vendor.application.port.in.UpdateRewardsConfigUseCase;
+import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateDiscountConfigRequest;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateRewardsConfigRequest;
+import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.VendorProfileResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,13 +34,46 @@ import jakarta.validation.Valid;
 @Tag(name = "Vendors", description = "Vendor management and configuration")
 public class VendorController {
 
+    private final GetCurrentVendorUseCase getCurrentVendorUseCase;
     private final UpdateDiscountConfigUseCase updateDiscountConfigUseCase;
     private final UpdateRewardsConfigUseCase updateRewardsConfigUseCase;
 
-    public VendorController(UpdateDiscountConfigUseCase updateDiscountConfigUseCase,
+    public VendorController(
+            GetCurrentVendorUseCase getCurrentVendorUseCase,
+            UpdateDiscountConfigUseCase updateDiscountConfigUseCase,
             UpdateRewardsConfigUseCase updateRewardsConfigUseCase) {
+        this.getCurrentVendorUseCase = getCurrentVendorUseCase;
         this.updateDiscountConfigUseCase = updateDiscountConfigUseCase;
         this.updateRewardsConfigUseCase = updateRewardsConfigUseCase;
+    }
+
+    /**
+     * Retrieves the profile, branding, and configuration of the authenticated vendor.
+     *
+     * @param jwt authenticated caller's JWT
+     * @return vendor profile details
+     */
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Get authenticated vendor profile",
+            description = "Returns profile details, branding and configurations for the authenticated vendor."
+    )
+    @ApiResponse(responseCode = "200", description = "Vendor profile found")
+    @ApiResponse(responseCode = "401", description = "No valid JWT provided")
+    @ApiResponse(responseCode = "403", description = "Not a vendor or super admin")
+    @ApiResponse(responseCode = "404", description = "Vendor record not found")
+    public ResponseEntity<VendorProfileResponse> me(@AuthenticationPrincipal Jwt jwt) {
+        Vendor vendor = getCurrentVendorUseCase.getByCallerExternalId(jwt.getSubject());
+        return ResponseEntity.ok(new VendorProfileResponse(
+                vendor.getUuid(),
+                vendor.getStoreName(),
+                vendor.getLogoUrl(),
+                vendor.getBankDetails(),
+                vendor.getDiscountCfg(),
+                vendor.getRewardsCfg(),
+                vendor.getCreatedAt()
+        ));
     }
 
     /**

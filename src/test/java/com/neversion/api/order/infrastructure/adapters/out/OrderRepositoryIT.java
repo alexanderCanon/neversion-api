@@ -208,7 +208,7 @@ class OrderRepositoryIT extends BaseIntegrationTest {
                 .storeName("Another Vendor Store")
                 .build());
 
-        Order order3 = orderRepositoryPort.save(Order.builder()
+        orderRepositoryPort.save(Order.builder()
                 .clientId(parentClient.getId())
                 .vendorId(anotherVendor.getId())
                 .status(OrderStatus.PENDING)

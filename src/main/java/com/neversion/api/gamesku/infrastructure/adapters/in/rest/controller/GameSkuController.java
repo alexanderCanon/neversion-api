@@ -1,7 +1,6 @@
 package com.neversion.api.gamesku.infrastructure.adapters.in.rest.controller;
 
 import com.neversion.api.gamesku.application.port.in.GameSkuUseCase;
-import com.neversion.api.gamesku.domain.model.GameSku;
 import com.neversion.api.gamesku.infrastructure.adapters.in.rest.dto.GameSkuRequest;
 import com.neversion.api.gamesku.infrastructure.adapters.in.rest.dto.GameSkuResponse;
 import com.neversion.api.gamesku.infrastructure.adapters.in.rest.mapper.GameSkuMapper;
@@ -83,20 +82,6 @@ public class GameSkuController {
             @RequestParam(required = false) Boolean isActive,
             @AuthenticationPrincipal Jwt jwt) {
         var list = gameSkuUseCase.listByVendor(gameUuid, isActive, jwt.getSubject());
-        return ResponseEntity.ok(list.stream().map(gameSkuMapper::toResponse).toList());
-    }
-
-    @GetMapping("/vendor/{vendorUuid}")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "List vendor game SKUs by vendor UUID - panel view (Legacy)", description = "Returns all SKUs for the given vendor, optionally filtered by game. Owner only.")
-    @ApiResponse(responseCode = "200", description = "Game SKU list")
-    @ApiResponse(responseCode = "403", description = "Access denied")
-    public ResponseEntity<List<GameSkuResponse>> listByVendor(
-            @PathVariable UUID vendorUuid,
-            @RequestParam(required = false) UUID gameUuid,
-            @RequestParam(required = false) Boolean isActive,
-            @AuthenticationPrincipal Jwt jwt) {
-        var list = gameSkuUseCase.listByVendor(vendorUuid, gameUuid, isActive, jwt.getSubject());
         return ResponseEntity.ok(list.stream().map(gameSkuMapper::toResponse).toList());
     }
 

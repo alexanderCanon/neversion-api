@@ -11,13 +11,13 @@ public class GameSecurityConfig implements HttpSecurityCustomizer {
     @Override
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                // Vendor panel list — vendor or super_admin
+                .requestMatchers(HttpMethod.GET, "/api/v1/games/vendor", "/api/v1/games/vendor/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // Public store catalog (active games only)
                 .requestMatchers(HttpMethod.GET, "/api/v1/games/store/**").permitAll()
                 // Public single-game lookup
                 .requestMatchers(HttpMethod.GET, "/api/v1/games/{id}").permitAll()
-                // Vendor panel list — vendor or super_admin
-                .requestMatchers(HttpMethod.GET, "/api/v1/games/vendor/**")
-                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // Create — vendor or super_admin
                 .requestMatchers(HttpMethod.POST, "/api/v1/games/**")
                 .hasAnyRole("VENDOR", "SUPER_ADMIN")

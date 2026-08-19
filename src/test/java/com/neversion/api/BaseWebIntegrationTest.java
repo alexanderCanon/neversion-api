@@ -33,6 +33,9 @@ import com.neversion.api.user.application.port.in.GetCurrentUserContextUseCase;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.application.port.in.GetCurrentVendorUseCase;
+import com.neversion.api.vendor.application.port.in.UpdateDiscountConfigUseCase;
+import com.neversion.api.vendor.application.port.in.UpdateRewardsConfigUseCase;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -102,6 +105,11 @@ public abstract class BaseWebIntegrationTest extends BaseIntegrationTest {
     @MockitoBean protected DetectExpiredSubscriptionsUseCase detectExpiredSubscriptionsUseCase;
     @MockitoBean protected SubscriptionRepositoryPort subscriptionRepositoryPort;
 
+    // ─── Vendor Mocks ────────────────────────────────────────────────────────
+    @MockitoBean protected GetCurrentVendorUseCase getCurrentVendorUseCase;
+    @MockitoBean protected UpdateDiscountConfigUseCase updateDiscountConfigUseCase;
+    @MockitoBean protected UpdateRewardsConfigUseCase updateRewardsConfigUseCase;
+
     // ─── Core Repositories Mocks (used by controllers for authorization/context) ─
     @MockitoBean protected UserRepositoryPort userRepositoryPort;
     @MockitoBean protected VendorRepositoryPort vendorRepositoryPort;
@@ -111,6 +119,7 @@ public abstract class BaseWebIntegrationTest extends BaseIntegrationTest {
     void resetWebMocks() {
         Mockito.reset(
                 registerVendorUseCase, registerClientUseCase, getCurrentUserContextUseCase,
+                getCurrentVendorUseCase, updateDiscountConfigUseCase, updateRewardsConfigUseCase,
                 clientUseCase, serviceUseCase, gameUseCase, gameSkuUseCase,
                 changeOrderStatusUseCase, getOrderUseCase, listOrdersUseCase, orderStatusHistoryPort,
                 createReservationUseCase, cancelReservationUseCase, createRenewalReservationUseCase,

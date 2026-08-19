@@ -138,8 +138,6 @@ class ProfileServiceFullUT {
         @Test
         @DisplayName("generate_differentVendor_shouldThrow403")
         void generate_differentVendor_shouldThrow403() {
-            Account account = account(SaleMode.BY_PROFILE);
-            // Override account to belong to a different vendor
             Account foreignAccount = Account.builder()
                     .id(ACCOUNT_ID).uuid(ACCOUNT_UUID)
                     .vendorId(OTHER_VENDOR).serviceId(SERVICE_ID)

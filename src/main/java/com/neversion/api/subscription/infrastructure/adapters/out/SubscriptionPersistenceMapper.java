@@ -2,7 +2,6 @@ package com.neversion.api.subscription.infrastructure.adapters.out;
 
 import org.springframework.stereotype.Component;
 
-import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import com.neversion.api.subscription.domain.model.Subscription;
 
 @Component

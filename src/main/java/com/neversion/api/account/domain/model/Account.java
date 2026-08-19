@@ -15,9 +15,8 @@ import lombok.Setter;
 
 /**
  * Domain model for a master streaming account credential.
- * Purchased by Neversion from a wholesaler and associated to a specific Service.
  *
- * 'id' (Long)  – internal identifier, used only for DB relations. Never exposed externally.
+ * 'id' (Long)  – internal identifier, used only for DB relations.
  * 'uuid' (UUID) – external identifier exposed in all REST responses and frontend routes.
  */
 @Getter
@@ -49,11 +48,11 @@ public class Account {
     private String password;
 
     /**
-     * The date Neversion must renew payment to the wholesaler.
+     * The date that an account must be renewed with the wholesaler.
      */
     private LocalDate renewalDate;
 
-    /** Quality tier of this account (e.g. "Familiar", "4K Ultra HD"). */
+    /** Quality tier of this account (e.g. "Premium", "Basic"). */
     private String plan;
 
     /**
@@ -68,16 +67,16 @@ public class Account {
     /** Private admin-only notes for this account. */
     private String notes;
 
-    /** Acquisition cost paid to the wholesaler (US-006). */
+    /** Acquisition cost paid to the wholesaler. */
     private java.math.BigDecimal cost;
 
-    /** Where this account was purchased from (US-006). */
+    /** Where this account was purchased from, credit card, wholesaler. */
     private String source;
 
-    /** Date the account was purchased from the wholesaler (US-006). */
+    /** Date the account was purchased from the source. */
     private LocalDate purchasedAt;
 
-    /** Operational status: available | partial | full | expired (US-006). */
+    /** Operational status: available | partial | full | expired. */
     @Builder.Default
     private AccountStatus status = AccountStatus.AVAILABLE;
 
@@ -85,7 +84,7 @@ public class Account {
     @Builder.Default
     private Integer maxProfiles = 1;
 
-    /** FK to vendors.id — multi-tenancy (ADR-02, US-006). */
+    /** FK to vendors.id — multi-tenancy. */
     private Long vendorId;
 
     private LocalDateTime createdAt;

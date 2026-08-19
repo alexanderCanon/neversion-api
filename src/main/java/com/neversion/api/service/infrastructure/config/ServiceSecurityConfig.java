@@ -18,13 +18,13 @@ public class ServiceSecurityConfig implements HttpSecurityCustomizer {
     @Override
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                // US-020: Vendor panel list — vendor or super_admin
+                .requestMatchers(HttpMethod.GET, "/api/v1/services/vendor", "/api/v1/services/vendor/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // US-021: Public store catalog
                 .requestMatchers(HttpMethod.GET, "/api/v1/services/store/**").permitAll()
                 // Public single-service lookup
                 .requestMatchers(HttpMethod.GET, "/api/v1/services/{id}").permitAll()
-                // US-020: Vendor panel list — vendor or super_admin
-                .requestMatchers(HttpMethod.GET, "/api/v1/services/vendor/**")
-                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // US-017: Create — vendor or super_admin
                 .requestMatchers(HttpMethod.POST, "/api/v1/services/**")
                 .hasAnyRole("VENDOR", "SUPER_ADMIN")

@@ -20,29 +20,21 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.neversion.api.BaseIntegrationTest;
-import com.neversion.api.client.application.port.in.ClientUseCase;
+import com.neversion.api.BaseWebIntegrationTest;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderServiceDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.domain.model.Client;
-import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 
 /**
  * Integration tests for ClientController — EPIC-04 (US-029..032).
@@ -51,7 +43,6 @@ import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort
  * to isolate the HTTP + Security layer from DB.
  * JWT built with Nimbus (on classpath via oauth2-resource-server).
  */
-import com.neversion.api.BaseWebIntegrationTest;
 
 @DisplayName("ClientController IT — EPIC-04")
 class ClientControllerIT extends BaseWebIntegrationTest {
@@ -61,7 +52,6 @@ class ClientControllerIT extends BaseWebIntegrationTest {
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";
 
-    private static final UUID VENDOR_UUID = UUID.randomUUID();
     private static final UUID CLIENT_UUID = UUID.randomUUID();
 
     /** Builds a signed HS256 JWT matching SupabaseJwtAuthConverter claim extraction. */
@@ -94,33 +84,32 @@ class ClientControllerIT extends BaseWebIntegrationTest {
     // ── US-029: GET /clients/vendor/{vendorUuid} ──────────────────────────
 
     @Nested
-    @DisplayName("US-029 — GET /api/v1/clients/vendor/{vendorUuid}")
-    class ListByVendor {
+    @DisplayName("US-029 — GET /api/v1/clients")
+    class ListClients {
 
         @Test
         @DisplayName("should return 401 when no JWT provided")
-        void listByVendor_noToken_shouldReturn401() throws Exception {
-            mockMvc.perform(get("/api/v1/clients/vendor/{uuid}", VENDOR_UUID))
+        void listClients_noToken_shouldReturn401() throws Exception {
+            mockMvc.perform(get("/api/v1/clients"))
                     .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("should return 403 when caller has CLIENT role")
-        void listByVendor_clientRole_shouldReturn403() throws Exception {
-            mockMvc.perform(get("/api/v1/clients/vendor/{uuid}", VENDOR_UUID)
+        void listClients_clientRole_shouldReturn403() throws Exception {
+            mockMvc.perform(get("/api/v1/clients")
                             .header("Authorization", "Bearer " + buildJwt("client")))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         @DisplayName("should return 200 with client list when VENDOR role")
-        void listByVendor_vendorRole_shouldReturn200() throws Exception {
-            when(clientUseCase.listByVendor(eq(VENDOR_UUID), isNull(), isNull(), isNull(),
-                    anyString()))
+        void listClients_vendorRole_shouldReturn200() throws Exception {
+            when(clientUseCase.listClients(isNull(), isNull(), isNull(), anyString()))
                     .thenReturn(List.of(buildClient()));
             when(subscriptionRepositoryPort.findByClientId(any())).thenReturn(List.of());
 
-            mockMvc.perform(get("/api/v1/clients/vendor/{uuid}", VENDOR_UUID)
+            mockMvc.perform(get("/api/v1/clients")
                             .header("Authorization", "Bearer " + buildJwt("vendor")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").isNotEmpty())
@@ -130,13 +119,12 @@ class ClientControllerIT extends BaseWebIntegrationTest {
 
         @Test
         @DisplayName("should pass name filter to use case")
-        void listByVendor_withNameFilter_shouldPassToUseCase() throws Exception {
-            when(clientUseCase.listByVendor(eq(VENDOR_UUID), eq("Juan"), isNull(), isNull(),
-                    anyString()))
+        void listClients_withNameFilter_shouldPassToUseCase() throws Exception {
+            when(clientUseCase.listClients(eq("Juan"), isNull(), isNull(), anyString()))
                     .thenReturn(List.of(buildClient()));
             when(subscriptionRepositoryPort.findByClientId(any())).thenReturn(List.of());
 
-            mockMvc.perform(get("/api/v1/clients/vendor/{uuid}", VENDOR_UUID)
+            mockMvc.perform(get("/api/v1/clients")
                             .param("name", "Juan")
                             .header("Authorization", "Bearer " + buildJwt("vendor")))
                     .andExpect(status().isOk())
