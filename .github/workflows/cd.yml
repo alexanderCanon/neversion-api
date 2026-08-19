@@ -95,7 +95,7 @@ jobs:
               \"aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REGISTRY\",
               \"mkdir -p /opt/neversion/api\",
               \"echo '$COMPOSE_B64' | base64 -d > /opt/neversion/api/compose.prod.yml\",
-              \"aws ssm get-parameters-by-path --path /app/prod/ --with-decryption --query 'Parameters[*].[Name,Value]' --output text | awk '{split(\\\$1,a,\\\"/\\\"); print a[length(a)]\\\"=\\\"\\\$2}' > /opt/neversion/api/.env\",
+              \"aws ssm get-parameters-by-path --path /app/prod/ --with-decryption --query 'Parameters[*].[Name,Value]' --output text | sed 's|^/app/prod/||; s|\\\t|=|' > /opt/neversion/api/.env\",
               \"chmod 600 /opt/neversion/api/.env\",
               \"cd /opt/neversion/api\",
               \"IMAGE_URI=$IMAGE_URI docker compose -f compose.prod.yml pull\",
