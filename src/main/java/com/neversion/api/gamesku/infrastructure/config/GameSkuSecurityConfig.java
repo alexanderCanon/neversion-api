@@ -11,13 +11,13 @@ public class GameSkuSecurityConfig implements HttpSecurityCustomizer {
     @Override
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
+                // Vendor panel list — vendor or super_admin
+                .requestMatchers(HttpMethod.GET, "/api/v1/game-skus/vendor", "/api/v1/game-skus/vendor/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // Public store catalog (active SKUs by game slug)
                 .requestMatchers(HttpMethod.GET, "/api/v1/game-skus/store/**").permitAll()
                 // Public single-SKU lookup
                 .requestMatchers(HttpMethod.GET, "/api/v1/game-skus/{id}").permitAll()
-                // Vendor panel list — vendor or super_admin
-                .requestMatchers(HttpMethod.GET, "/api/v1/game-skus/vendor/**")
-                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 // Create — vendor or super_admin
                 .requestMatchers(HttpMethod.POST, "/api/v1/game-skus/**")
                 .hasAnyRole("VENDOR", "SUPER_ADMIN")

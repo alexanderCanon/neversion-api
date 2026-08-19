@@ -54,8 +54,6 @@ class RegisterClientServiceUT {
     private AuthServicePort authServicePort;
 
     private RegisterClientService sut;
-
-    private static final UUID USER_UUID   = UUID.randomUUID();
     private static final UUID CLIENT_UUID = UUID.randomUUID();
     private static final UUID VENDOR_UUID = UUID.randomUUID();
     private static final Long USER_ID     = 42L;

@@ -28,7 +28,7 @@ import java.util.UUID;
  *   <li>POST   /api/v1/services          — Create service (US-017, VENDOR)</li>
  *   <li>PUT    /api/v1/services/{id}     — Update service (US-018, VENDOR owner)</li>
  *   <li>PATCH  /api/v1/services/{id}/status — Toggle active (US-019, VENDOR owner)</li>
- *   <li>GET    /api/v1/services/vendor/{vendorUuid} — Vendor panel list (US-020, VENDOR)</li>
+ *   <li>GET    /api/v1/services/vendor   — Vendor panel list (US-020, VENDOR)</li>
  *   <li>GET    /api/v1/services/store/{vendorUuid}  — Public store catalog (US-021, public)</li>
  *   <li>GET    /api/v1/services/{id}     — Single service lookup (public)</li>
  *   <li>GET    /api/v1/services          — All services (SUPER_ADMIN)</li>
@@ -114,23 +114,6 @@ public class ServiceController {
             @AuthenticationPrincipal Jwt jwt) {
 
         var services = serviceUseCase.listByVendor(category, isActive, jwt.getSubject());
-        return ResponseEntity.ok(services.stream().map(serviceMapper::toResponse).toList());
-    }
-
-    @GetMapping("/vendor/{vendorUuid}")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "List vendor services by vendor UUID — panel view (US-020, Legacy)",
-            description = "Returns all services (active and inactive) for the given vendor. " +
-                    "Supports optional filters: category and isActive.")
-    @ApiResponse(responseCode = "200", description = "Service list")
-    @ApiResponse(responseCode = "404", description = "Vendor not found")
-    public ResponseEntity<List<ServiceResponse>> listByVendor(
-            @PathVariable UUID vendorUuid,
-            @RequestParam(required = false) CategoryType category,
-            @RequestParam(required = false) Boolean isActive,
-            @AuthenticationPrincipal Jwt jwt) {
-
-        var services = serviceUseCase.listByVendor(vendorUuid, category, isActive, jwt.getSubject());
         return ResponseEntity.ok(services.stream().map(serviceMapper::toResponse).toList());
     }
 

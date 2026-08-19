@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
-import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountResponse;
 import com.neversion.api.profile.domain.model.Profile;

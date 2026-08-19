@@ -58,12 +58,12 @@ public class AuthController {
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(
-            summary = "Get authenticated platform context",
-            description = "Resolves the Supabase JWT subject to the internal platform user and vendor context."
+            summary = "Get authenticated user platform context",
+            description = "Resolves the Supabase JWT subject to the internal platform user context (externalId and role)."
     )
     @ApiResponse(responseCode = "200", description = "Authenticated context resolved")
     @ApiResponse(responseCode = "401", description = "No valid JWT provided")
-    @ApiResponse(responseCode = "404", description = "Internal user or vendor context not found")
+    @ApiResponse(responseCode = "404", description = "Internal user not found")
     public ResponseEntity<CurrentUserResponse> me(@AuthenticationPrincipal Jwt jwt) {
         CurrentUserContextResult result = getCurrentUserContextUseCase.get(jwt.getSubject());
         return ResponseEntity.ok(CurrentUserResponseMapper.toResponse(result));

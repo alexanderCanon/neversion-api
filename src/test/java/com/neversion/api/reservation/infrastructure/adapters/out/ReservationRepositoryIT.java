@@ -66,13 +66,8 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
 
         @AfterEach
         void tearDown() {
-                // Clean up reservations that were not rolled back (e.g.,
-                // expirePendingReservations test)
-                List<Reservation> all = reservationRepositoryPort.findAll();
-                for (Reservation r : all) {
-                        // Details are cleaned up by cascade or we just leave them —
-                        // Testcontainers container is shared but DB is cleaned between test classes
-                }
+                // Clean up reservations that were not rolled back (e.g., expirePendingReservations test)
+                // Testcontainers container is shared but DB is cleaned between test classes
         }
 
         private Reservation buildReservation(ReservationStatus status, Instant expirationDate) {

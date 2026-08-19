@@ -1,10 +1,5 @@
 package com.neversion.api.auth.infrastructure.adapters.in.rest.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.neversion.api.BaseIntegrationTest;
-import com.neversion.api.user.application.port.in.GetCurrentUserContextUseCase;
-import com.neversion.api.user.application.port.in.RegisterClientUseCase;
-import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
 import com.neversion.api.user.domain.model.RegisterVendorResult;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -15,12 +10,7 @@ import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
 import java.util.Map;

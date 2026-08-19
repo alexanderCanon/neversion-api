@@ -128,26 +128,6 @@ public class SubscriptionController {
         return ResponseEntity.ok(views.stream().map(subscriptionMapper::toListResponse).toList());
     }
 
-    @GetMapping("/vendor/{vendorUuid}")
-    @Operation(summary = "List vendor subscriptions by vendor UUID (US-043, Legacy)",
-            description = "Returns subscriptions owned by the authenticated vendor. "
-                    + "Optional filters: serviceId (UUID) and status. "
-                    + "Default sort: paymentDueDate ascending.")
-    @ApiResponse(responseCode = "200", description = "Subscription list")
-    @ApiResponse(responseCode = "403", description = "Caller does not own this vendor")
-    @ApiResponse(responseCode = "404", description = "Vendor or service not found")
-    public ResponseEntity<List<SubscriptionResponse>> listByVendor(
-            @PathVariable UUID vendorUuid,
-            @RequestParam(required = false) UUID serviceId,
-            @RequestParam(required = false) SubStatus status,
-            JwtAuthenticationToken token) {
-
-        List<SubscriptionListView> views = listSubscriptionsUseCase.listViewsByVendor(
-                vendorUuid, serviceId, status, extractExternalId(token));
-
-        return ResponseEntity.ok(views.stream().map(subscriptionMapper::toListResponse).toList());
-    }
-
 
     @GetMapping("/{id}")
     @Operation(summary = "Get subscription detail (US-044)",

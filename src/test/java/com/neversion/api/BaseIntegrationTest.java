@@ -12,7 +12,6 @@ import org.testcontainers.utility.DockerImageName;
  * Uses a singleton PostgreSQL container started once per JVM, shared across
  * all subclasses. This prevents the container from being stopped and restarted
  * between test classes, which would invalidate the cached Spring application context.
- * Cleanup is handled by Testcontainers Ryuk on JVM exit.
  */
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {

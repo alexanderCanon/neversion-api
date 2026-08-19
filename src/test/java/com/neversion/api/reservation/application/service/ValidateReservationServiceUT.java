@@ -34,7 +34,6 @@ import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.application.port.in.RenewSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;

@@ -22,13 +22,8 @@ public interface AccountRepositoryPort {
 
     List<Account> findByRenewalDate(LocalDate renewalDate);
 
-    /** US-024: All accounts for a vendor. */
     List<Account> findByVendorId(Long vendorId);
 
-    /**
-     * US-024: Accounts for a vendor with optional filters.
-     * Pass null to skip a filter.
-     */
     List<Account> findByVendorIdFiltered(Long vendorId, Long serviceId, AccountStatus status);
 
     List<Account> findAll();

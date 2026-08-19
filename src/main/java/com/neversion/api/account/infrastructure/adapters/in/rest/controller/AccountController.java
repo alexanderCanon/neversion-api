@@ -161,26 +161,6 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/vendor/{vendorUuid}")
-    @Operation(summary = "List vendor accounts by vendor UUID (US-024, Legacy)",
-            description = "Returns all accounts for the given vendor with optional filters.")
-    @ApiResponse(responseCode = "200", description = "Account list")
-    @ApiResponse(responseCode = "404", description = "Vendor not found")
-    public ResponseEntity<List<AccountResponse>> listByVendor(
-            @PathVariable UUID vendorUuid,
-            @RequestParam(required = false) UUID serviceUuid,
-            @RequestParam(required = false) AccountStatus status,
-            JwtAuthenticationToken token) {
-        List<Account> accounts = listAccountsUseCase.listByVendor(
-                vendorUuid, serviceUuid, status, extractExternalId(token));
-        List<AccountResponse> response = accounts.stream()
-                .map(account -> accountMapper.toResponse(
-                        account,
-                        profileUseCase.findByAccountId(account.getId())))
-                .toList();
-        return ResponseEntity.ok(response);
-    }
-
 
     // ─── US-025: Generate profiles ────────────────────────────────────────────
 

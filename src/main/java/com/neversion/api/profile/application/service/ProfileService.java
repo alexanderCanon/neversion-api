@@ -38,7 +38,6 @@ public class ProfileService implements ProfileUseCase {
 
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
-    private final ServiceRepositoryPort serviceRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
 
@@ -49,7 +48,6 @@ public class ProfileService implements ProfileUseCase {
             VendorRepositoryPort vendorRepositoryPort) {
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
-        this.serviceRepositoryPort = serviceRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
     }

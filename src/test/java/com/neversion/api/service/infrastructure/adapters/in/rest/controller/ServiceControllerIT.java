@@ -1,8 +1,5 @@
 package com.neversion.api.service.infrastructure.adapters.in.rest.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.neversion.api.BaseIntegrationTest;
-import com.neversion.api.service.application.port.in.ServiceUseCase;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -14,12 +11,7 @@ import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -174,23 +166,23 @@ class ServiceControllerIT extends BaseWebIntegrationTest {
     // ─── US-020: Vendor panel list ───────────────────────────────────────────
 
     @Nested
-    @DisplayName("US-020 — GET /api/v1/services/vendor/{vendorUuid}")
+    @DisplayName("US-020 — GET /api/v1/services/vendor")
     class VendorListTests {
 
         @Test
         @DisplayName("should return 401 without JWT")
         void list_shouldReturn401_withoutToken() throws Exception {
-            mockMvc.perform(get("/api/v1/services/vendor/{uuid}", VENDOR_UUID))
+            mockMvc.perform(get("/api/v1/services/vendor"))
                     .andExpect(status().isUnauthorized());
         }
 
         @Test
         @DisplayName("should return 200 with all vendor services when authenticated as VENDOR")
         void list_shouldReturn200_whenVendor() throws Exception {
-            when(serviceUseCase.listByVendor(any(), any(), any(), anyString()))
+            when(serviceUseCase.listByVendor(any(), any(), anyString()))
                     .thenReturn(List.of(mockService(), mockService()));
 
-            mockMvc.perform(get("/api/v1/services/vendor/{uuid}", VENDOR_UUID)
+            mockMvc.perform(get("/api/v1/services/vendor")
                             .header("Authorization", "Bearer " + buildJwt("vendor")))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2));
@@ -199,10 +191,10 @@ class ServiceControllerIT extends BaseWebIntegrationTest {
         @Test
         @DisplayName("should accept optional category and isActive filters")
         void list_shouldAcceptFilters() throws Exception {
-            when(serviceUseCase.listByVendor(any(), any(), any(), anyString()))
+            when(serviceUseCase.listByVendor(any(), any(), anyString()))
                     .thenReturn(List.of(mockService()));
 
-            mockMvc.perform(get("/api/v1/services/vendor/{uuid}", VENDOR_UUID)
+            mockMvc.perform(get("/api/v1/services/vendor")
                             .param("category", "STREAMING")
                             .param("isActive", "true")
                             .header("Authorization", "Bearer " + buildJwt("vendor")))

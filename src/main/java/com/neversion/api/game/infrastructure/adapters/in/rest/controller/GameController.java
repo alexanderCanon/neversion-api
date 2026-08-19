@@ -84,19 +84,6 @@ public class GameController {
         return ResponseEntity.ok(list.stream().map(gameMapper::toResponse).toList());
     }
 
-    @GetMapping("/vendor/{vendorUuid}")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "List vendor games by vendor UUID - panel view (Legacy)", description = "Returns all games for the given vendor. Owner only.")
-    @ApiResponse(responseCode = "200", description = "Game list")
-    @ApiResponse(responseCode = "403", description = "Access denied")
-    public ResponseEntity<List<GameResponse>> listByVendor(
-            @PathVariable UUID vendorUuid,
-            @RequestParam(required = false) Boolean isActive,
-            @AuthenticationPrincipal Jwt jwt) {
-        var list = gameUseCase.listByVendor(vendorUuid, isActive, jwt.getSubject());
-        return ResponseEntity.ok(list.stream().map(gameMapper::toResponse).toList());
-    }
-
 
     @GetMapping("/store/{vendorUuid}")
     @Operation(summary = "List active games - store view", description = "Returns active game parents for the given vendor. No auth.")

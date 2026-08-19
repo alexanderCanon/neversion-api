@@ -20,7 +20,6 @@ import com.neversion.api.order.domain.model.OrderStatusChange;
 import com.neversion.api.order.domain.model.enums.OrderStatus;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CreateOrderService unit tests — US-035")

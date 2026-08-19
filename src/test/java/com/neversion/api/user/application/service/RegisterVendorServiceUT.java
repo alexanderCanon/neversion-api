@@ -46,8 +46,6 @@ class RegisterVendorServiceUT {
     private AuthServicePort authServicePort;
 
     private RegisterVendorService sut;
-
-    private static final UUID USER_UUID   = UUID.randomUUID();
     private static final UUID VENDOR_UUID = UUID.randomUUID();
     private static final Long USER_ID     = 42L;
 
