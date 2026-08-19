@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.model.enums.UserRole;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,10 +26,9 @@ public class RestAuthAdapter implements AuthServicePort {
     private final String adminKey;
 
     public RestAuthAdapter(
-            RestTemplateBuilder restTemplateBuilder,
             @Value("${auth.api-url}") String authApiUrl,
             @Value("${auth.admin-key}") String adminKey) {
-        this.restTemplate = restTemplateBuilder.build();
+        this.restTemplate = new RestTemplate();
         this.authApiUrl = authApiUrl;
         this.adminKey = adminKey;
     }
