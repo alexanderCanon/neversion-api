@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   build-and-publish:
+    name: Build & Publish Client
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,33 +32,41 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@alexandercanon'
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Generate OpenAPI Specification
         run: ./mvnw test -Dtest=OpenApiExportTest
 
-      - name: Install OpenAPI Generator CLI
-        run: npm install -g @openapitools/openapi-generator-cli
-
       - name: Generate TypeScript Angular API Client
         run: |
-          openapi-generator-cli generate \
+          pnpm dlx @openapitools/openapi-generator-cli generate \
             -i target/openapi.json \
             -g typescript-angular \
             -o client \
             --additional-properties=providedInRoot=true,serviceSuffix=ApiService,apiModulePrefix=Neversion,npmName=@alexandercanon/api-client
 
-      - name: Configure and Publish to GitHub Packages
+      - name: Install dependencies and build Angular library with pnpm
         working-directory: client
+        run: |
+          pnpm add tslib
+          pnpm install
+          pnpm run build
+
+      - name: Publish to GitHub Packages
+        working-directory: client/dist
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
-            npm version ${{ github.event.inputs.version }} --no-git-tag-version --allow-same-version
+            pnpm version ${{ github.event.inputs.version }} --no-git-tag-version --allow-same-version
           fi
-          npm publish --access restricted
+          pnpm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN"
+          pnpm config set @alexandercanon:registry https://npm.pkg.github.com
+          pnpm publish --no-git-checks
