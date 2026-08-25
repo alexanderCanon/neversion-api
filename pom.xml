@@ -10,21 +10,27 @@
 	</parent>
 	<groupId>com.neversion</groupId>
 	<artifactId>api</artifactId>
-	<version>0.1.0</version>
-	<name>api</name>
-	<description>Admin api</description>
-	<url/>
+	<version>1.0.0</version>
+	<name>neversion-api</name>
+	<description>Neversion Backend REST API for managing subscriptions, accounts, profiles, orders, and reservations</description>
+	<url>https://github.com/alexanderCanon/neversion-api</url>
 	<licenses>
-		<license/>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<id>alexanderCanon</id>
+			<name>Alexander Canon</name>
+			<url>https://github.com/alexanderCanon</url>
+		</developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:git://github.com/alexanderCanon/neversion-api.git</connection>
+		<developerConnection>scm:git:ssh://github.com:alexanderCanon/neversion-api.git</developerConnection>
+		<url>https://github.com/alexanderCanon/neversion-api</url>
 	</scm>
 	<properties>
 		<java.version>21</java.version>
