@@ -33,7 +33,7 @@ jobs:
     name: Build & Push to ECR
     runs-on: ubuntu-latest
     outputs:
-      image_uri: ${{ steps.export-image.outputs.image }}
+      image_tag: ${{ steps.export-tag.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -68,10 +68,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Export Image URI
-        id: export-image
+      - name: Export Image Tag
+        id: export-tag
         run: |
-          echo "image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
   deploy-via-ssm:
     name: Deploy to EC2 via AWS SSM
@@ -88,9 +88,13 @@ jobs:
           role-to-assume: ${{ env.ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Execute Deployment Commands via SSM
         env:
-          IMAGE_URI: ${{ needs.build-and-push.outputs.image_uri }}
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.image_tag }}
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
         run: |
           COMPOSE_B64=$(base64 -w 0 compose.prod.yml)
