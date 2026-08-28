@@ -30,19 +30,10 @@ public class ClientSecurityConfig implements HttpSecurityCustomizer {
                 // US-030 — Client detail with subscriptions + orders
                 .requestMatchers(HttpMethod.GET, "/api/v1/clients/*/detail")
                         .hasAnyRole("VENDOR", "SUPER_ADMIN")
-                // EPIC-09 / US-061 — Client panel access list used to start renewals
-                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/accesses")
+                // EPIC-09 / US-061..062 — Authenticated client self-service endpoints (me, accesses, orders, reservations, points)
+                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me", "/api/v1/clients/me/**")
                         .hasRole("CLIENT")
-                // EPIC-09 / US-059 — Authenticated client order history
-                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/orders")
-                        .hasRole("CLIENT")
-                // EPIC-09 / US-060 — Authenticated client reservation/receipt statuses
-                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/reservations")
-                        .hasRole("CLIENT")
-                // EPIC-09 / US-062 — Authenticated client profile self-service
-                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me")
-                        .hasRole("CLIENT")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/clients/me")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/clients/me", "/api/v1/clients/me/**")
                         .hasRole("CLIENT")
                 // Generic get by UUID
                 .requestMatchers(HttpMethod.GET, "/api/v1/clients/**")

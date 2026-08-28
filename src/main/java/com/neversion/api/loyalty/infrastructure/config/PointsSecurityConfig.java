@@ -19,7 +19,7 @@ public class PointsSecurityConfig implements HttpSecurityCustomizer {
     @Override
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/points/**")
+                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/points", "/api/v1/clients/me/points/**")
                         .hasRole("CLIENT")
                 .requestMatchers(HttpMethod.GET, "/api/v1/vendor/clients/*/points/**")
                         .hasAnyRole("VENDOR", "SUPER_ADMIN")
