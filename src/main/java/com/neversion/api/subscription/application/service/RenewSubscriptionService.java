@@ -121,6 +121,9 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
     }
 
     private void recordRenewalNotification(Subscription subscription, Client client) {
+        if (client.getEmail() == null || client.getEmail().isBlank()) {
+            return;
+        }
         String payload = String.format(
                 "{\"subscriptionId\":\"%s\",\"clientId\":\"%s\",\"paymentDueDate\":\"%s\"}",
                 subscription.getUuid(), client.getUuid(), subscription.getPaymentDueDate());

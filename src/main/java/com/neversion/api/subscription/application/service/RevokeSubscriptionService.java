@@ -169,6 +169,10 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
     }
 
     private void recordRevocationNotification(Subscription subscription, Client client) {
+        if (client.getEmail() == null || client.getEmail().isBlank()) {
+            log.debug("Skipping revocation email notification for subscription {}: client has no email", subscription.getUuid());
+            return;
+        }
         String payload = String.format(
                 "{\"subscriptionId\":\"%s\",\"clientId\":\"%s\"}",
                 subscription.getUuid(), client.getUuid());
