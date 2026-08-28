@@ -227,5 +227,34 @@ class RevokeSubscriptionServiceUT {
                     contains(SUBSCRIPTION_UUID.toString()),
                     eq("subscription"), eq(1L), eq("revoked"));
         }
+
+        @Test
+        @DisplayName("should cancel subscription without recording notification when client has no email")
+        void revoke_clientWithoutEmail_shouldCancelWithoutRecordingNotification() {
+            Subscription subscription = buildSubscription(SubStatus.ACTIVE, VENDOR_ID);
+            Profile profile = buildProfile();
+            Account account = Account.builder()
+                    .id(ACCOUNT_ID).saleMode(SaleMode.BY_PROFILE).status(AccountStatus.PARTIAL).build();
+            Client client = Client.builder()
+                    .id(CLIENT_ID)
+                    .uuid(UUID.randomUUID())
+                    .email(null)
+                    .name("Client Without Email")
+                    .build();
+
+            when(subscriptionRepositoryPort.findById(SUBSCRIPTION_UUID)).thenReturn(Optional.of(subscription));
+            mockOwnershipResolution(VENDOR_ID);
+            when(profileRepositoryPort.findByInternalId(PROFILE_ID)).thenReturn(Optional.of(profile));
+            when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+            when(clientRepositoryPort.findByInternalId(CLIENT_ID)).thenReturn(Optional.of(client));
+            when(subscriptionRepositoryPort.save(any(Subscription.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Subscription result = revokeSubscriptionService.revoke(SUBSCRIPTION_UUID, EXTERNAL_ID);
+
+            assertThat(result.getStatus()).isEqualTo(SubStatus.CANCELLED);
+            assertThat(profile.getStatus()).isEqualTo(ProfileStatus.AVAILABLE);
+            verify(profileRepositoryPort).saveAll(List.of(profile));
+            org.mockito.Mockito.verifyNoInteractions(notificationLogPort);
+        }
     }
 }

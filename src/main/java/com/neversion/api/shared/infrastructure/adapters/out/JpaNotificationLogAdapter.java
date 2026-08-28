@@ -27,6 +27,9 @@ public class JpaNotificationLogAdapter implements NotificationLogPort {
 
     @Override
     public void record(String type, String recipientEmail, String payload) {
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            return;
+        }
         NotificationLogEntity entity = NotificationLogEntity.builder()
                 .type(type)
                 .recipientEmail(recipientEmail)
@@ -38,6 +41,9 @@ public class JpaNotificationLogAdapter implements NotificationLogPort {
     @Override
     public void record(String type, String recipientEmail, String payload,
                        String entityType, Long entityId, String stage) {
+        if (recipientEmail == null || recipientEmail.isBlank()) {
+            return;
+        }
         NotificationLogEntity entity = NotificationLogEntity.builder()
                 .type(type)
                 .recipientEmail(recipientEmail)
