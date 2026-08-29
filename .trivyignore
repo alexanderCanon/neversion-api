@@ -1,0 +1,29 @@
+# Trivy ignore file — CVEs with no fix available yet
+# Reviewed: 2026-08-28
+# Re-evaluate on next Spring Boot / Jackson / Tomcat release
+
+# Apache Tomcat (embedded via Spring Boot)
+CVE-2026-40983  # Request smuggling via HTTP/1.1 trailer field
+CVE-2026-40984  # Tomcat: additional request smuggling vector
+CVE-2026-41284  # DoS — uncontrolled resource allocation
+CVE-2026-41293  # Tomcat: additional DoS vector
+CVE-2026-42498  # Info disclosure — HTTP Auth header exposure during redirect
+CVE-2026-43512  # Auth bypass in RemoteIpFilter
+CVE-2026-43513  # Case sensitivity issue in LockOutRealm
+CVE-2026-43515  # DoS via WebSocket connections
+
+# Spring Data Commons
+CVE-2026-41695  # DoS via crafted property traversal
+CVE-2026-41716  # DoS due to cache poisoning
+
+# Spring WebMVC
+CVE-2026-41842  # DoS when resolving static resources
+CVE-2026-41845  # XSS via incorrect JavaScript escaping
+
+# Spring Expression (SpEL)
+CVE-2026-41850  # DoS via specially crafted SpEL expressions
+
+# Jackson Core / Databind (tools.jackson.core 3.x)
+GHSA-r7wm-3cxj-wff9  # Async parser maxNumberLength bypass
+CVE-2026-54512       # Arbitrary code execution via PolymorphicTypeValidator bypass
+CVE-2026-54513       # Security bypass allows arbitrary code execution
