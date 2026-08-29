@@ -1,8 +1,11 @@
 # ══════════════════════════════════════════════════════════════════
 # Stage 1: BUILD — Compiles the application and produces a fat JAR
-# Uses the full JDK image because Maven needs the compiler toolchain
+# Uses the full JDK image because Maven needs the compiler toolchain.
+# --platform=$BUILDPLATFORM runs this stage NATIVELY on the CI runner
+# (x86_64) instead of under QEMU emulation. Java bytecode is
+# architecture-independent, so the JAR works on any platform.
 # ══════════════════════════════════════════════════════════════════
-FROM amazoncorretto:21-alpine AS build
+FROM --platform=$BUILDPLATFORM amazoncorretto:21-alpine AS build
 WORKDIR /app
 
 # Copy Maven wrapper files FIRST so Docker can cache the dependency
