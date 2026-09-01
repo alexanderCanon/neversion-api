@@ -4,10 +4,10 @@
 For further reference, please consider the following sections:
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.10/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.5.10/maven-plugin/build-image.html)
-* [Spring Web](https://docs.spring.io/spring-boot/3.5.10/reference/web/servlet.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.5.10/reference/data/sql.html#data.sql.jpa-and-spring-data)
+* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/maven-plugin/index.html)
+* [Create an OCI image](https://docs.spring.io/spring-boot/maven-plugin/build-image.html)
+* [Spring Web](https://docs.spring.io/spring-boot/reference/web/servlet.html)
+* [Spring Data JPA](https://docs.spring.io/spring-boot/reference/data/sql.html#data.sql.jpa-and-spring-data)
 
 ### Guides
 The following guides illustrate how to use some features concretely:

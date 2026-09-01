@@ -11,7 +11,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 parameters:
   spring_version:
     type: string
-    default: "3.2"
+    default: "3.4"
     description: Spring Boot version
   module:
     type: string
@@ -25,7 +25,7 @@ Build production-ready Spring Boot applications with modern best practices.
 
 ## Overview
 
-This skill covers Spring Boot development including REST APIs, security configuration, data access, actuator monitoring, and cloud integration. Follows Spring Boot 3.x patterns with emphasis on production readiness.
+This skill covers Spring Boot development including REST APIs, security configuration, data access, actuator monitoring, and cloud integration. Follows modern Spring Boot patterns with emphasis on production readiness.
 
 ## When to Use This Skill
 

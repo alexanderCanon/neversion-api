@@ -17,15 +17,15 @@ global:
 
 scrape_configs:
   # ── Spring Boot Application ─────────────────────────────────────
-  - job_name: "panel-api"
+  - job_name: "neversion-api"
     # The /actuator/prometheus endpoint returns metrics in Prometheus
     # text format (counters, gauges, histograms, summaries).
     metrics_path: /actuator/prometheus
 
     # Target is the Docker service name + internal port.
-    # Docker networking resolves 'app' to the panel-app container.
+    # Docker networking resolves 'api' to the neversion-api container.
     static_configs:
-      - targets: ["app:8080"]
+      - targets: ["api:8080"]
         labels:
-          application: "neversion-panel"
+          application: "neversion-api"
           environment: "production"
