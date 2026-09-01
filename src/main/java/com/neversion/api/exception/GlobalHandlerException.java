@@ -162,8 +162,8 @@ public class GlobalHandlerException {
                 return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
         }
 
-        // ── 404: Unmapped Routes (Spring MVC 6+ / Spring Boot 3.2+) ─────────
-        // NoResourceFoundException replaced NoHandlerFoundException in Spring 6.x.
+        // ── 404: Unmapped Routes (Spring MVC 6+ / Spring Boot 3+ / 4+) ─────────
+        // NoResourceFoundException replaced NoHandlerFoundException in Spring 6.x+.
         // Without this handler it falls through to the catch-all and returns 500.
 
         @ExceptionHandler(NoResourceFoundException.class)
