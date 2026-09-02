@@ -44,7 +44,8 @@ public class Vendor {
      * Bank / payment details as JSON (e.g., account number, bank name).
      * Stored opaque — parsed only at the application layer when needed.
      */
-    private final String bankDetails;
+    @Setter
+    private String bankDetails;
 
     /**
      * Discount tier configuration as JSON (BR-13).

@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.vendor.application.port.in.GetCurrentVendorUseCase;
+import com.neversion.api.vendor.application.port.in.UpdateBankDetailsUseCase;
 import com.neversion.api.vendor.application.port.in.UpdateDiscountConfigUseCase;
 import com.neversion.api.vendor.application.port.in.UpdateRewardsConfigUseCase;
 import com.neversion.api.vendor.domain.model.Vendor;
+import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateBankDetailsRequest;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateDiscountConfigRequest;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateRewardsConfigRequest;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.VendorProfileResponse;
@@ -37,14 +39,17 @@ public class VendorController {
     private final GetCurrentVendorUseCase getCurrentVendorUseCase;
     private final UpdateDiscountConfigUseCase updateDiscountConfigUseCase;
     private final UpdateRewardsConfigUseCase updateRewardsConfigUseCase;
+    private final UpdateBankDetailsUseCase updateBankDetailsUseCase;
 
     public VendorController(
             GetCurrentVendorUseCase getCurrentVendorUseCase,
             UpdateDiscountConfigUseCase updateDiscountConfigUseCase,
-            UpdateRewardsConfigUseCase updateRewardsConfigUseCase) {
+            UpdateRewardsConfigUseCase updateRewardsConfigUseCase,
+            UpdateBankDetailsUseCase updateBankDetailsUseCase) {
         this.getCurrentVendorUseCase = getCurrentVendorUseCase;
         this.updateDiscountConfigUseCase = updateDiscountConfigUseCase;
         this.updateRewardsConfigUseCase = updateRewardsConfigUseCase;
+        this.updateBankDetailsUseCase = updateBankDetailsUseCase;
     }
 
     /**
@@ -130,6 +135,34 @@ public class VendorController {
 
         String updated = updateRewardsConfigUseCase.updateRewardsConfig(
                 jwt.getSubject(), request.rewardsCfg());
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * Updates the authenticated vendor's bank accounts and payment methods configuration.
+     * <p>
+     * The caller is identified from the JWT subject. The request body must contain
+     * a valid JSON array of bank accounts with bank, accountNumber, accountType, and holder.
+     *
+     * @param request contains the bank_details JSON array
+     * @param jwt     authenticated caller's JWT
+     * @return the persisted bank_details JSON
+     */
+    @PutMapping("/bank-details")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Update vendor bank and payment methods configuration",
+            description = "Updates the bank_details JSON array for the authenticated vendor."
+    )
+    @ApiResponse(responseCode = "200", description = "Bank details updated")
+    @ApiResponse(responseCode = "400", description = "Invalid JSON structure or validation error")
+    @ApiResponse(responseCode = "403", description = "Not a vendor or super admin")
+    public ResponseEntity<String> updateBankDetails(
+            @Valid @RequestBody UpdateBankDetailsRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String updated = updateBankDetailsUseCase.updateBankDetails(
+                jwt.getSubject(), request.bankDetails());
         return ResponseEntity.ok(updated);
     }
 }
