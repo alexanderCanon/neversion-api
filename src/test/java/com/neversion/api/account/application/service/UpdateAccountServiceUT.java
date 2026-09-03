@@ -23,6 +23,7 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
@@ -105,6 +106,43 @@ class UpdateAccountServiceUT {
                 .hasMessageContaining("suscripciones activas");
 
         verify(accountRepositoryPort, never()).save(existing);
+    }
+
+    @Test
+    @DisplayName("should reject maxProfiles above the service maximum (BR-02 ceiling)")
+    void update_shouldRejectMaxProfiles_whenAboveServiceMaximum() {
+        Account existing = existingAccount(SaleMode.BY_PROFILE);
+        existing.setMaxProfiles(5);
+        Account updates = updatePayload(SaleMode.BY_PROFILE);
+        updates.setMaxProfiles(8);
+
+        stubOwnership(existing);
+        Service service = Service.builder()
+                .id(1L).uuid(UUID.randomUUID()).name("Netflix").maxProfiles(5).build();
+        when(serviceRepositoryPort.findByInternalId(1L)).thenReturn(Optional.of(service));
+
+        assertThatThrownBy(() -> updateAccountService.update(ACCOUNT_UUID, updates, EXTERNAL_ID))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("exceeds the service maximum");
+
+        verify(accountRepositoryPort, never()).save(existing);
+    }
+
+    @Test
+    @DisplayName("should allow editing other fields on legacy over-ceiling accounts")
+    void update_shouldAllowUnchangedMaxProfiles_whenLegacyOverCeiling() {
+        Account existing = existingAccount(SaleMode.BY_PROFILE);
+        existing.setMaxProfiles(8);
+        Account updates = updatePayload(SaleMode.BY_PROFILE);
+        updates.setMaxProfiles(8);
+
+        stubOwnership(existing);
+        when(accountRepositoryPort.save(existing)).thenReturn(existing);
+
+        Account result = updateAccountService.update(ACCOUNT_UUID, updates, EXTERNAL_ID);
+
+        assertThat(result.getEmail()).isEqualTo("updated@example.com");
+        verify(accountRepositoryPort).save(existing);
     }
 
     private void stubOwnership(Account existing) {

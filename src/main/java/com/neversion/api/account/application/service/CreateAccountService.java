@@ -58,6 +58,15 @@ public class CreateAccountService implements CreateAccountUseCase {
                         .orElseThrow(() -> new ResourceNotFoundException(
                                 "Service not found: " + account.getServiceUuid()));
 
+        // BR-02 ceiling: an account cannot offer more profiles than its service allows.
+        if (account.getMaxProfiles() != null && account.getMaxProfiles() > 0
+                && service.getMaxProfiles() != null
+                && account.getMaxProfiles() > service.getMaxProfiles()) {
+            throw new BusinessRuleException(
+                    "maxProfiles (" + account.getMaxProfiles()
+                            + ") exceeds the service maximum (" + service.getMaxProfiles() + ").");
+        }
+
         // Resolve maxProfiles: use request value if provided, else inherit from service template
         int resolvedMaxProfiles = account.getMaxProfiles() != null && account.getMaxProfiles() > 0
                 ? account.getMaxProfiles()
