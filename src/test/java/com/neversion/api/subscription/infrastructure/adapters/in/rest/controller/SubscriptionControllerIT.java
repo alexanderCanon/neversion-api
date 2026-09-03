@@ -2,6 +2,7 @@ package com.neversion.api.subscription.infrastructure.adapters.in.rest.controlle
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -198,13 +199,37 @@ class SubscriptionControllerIT extends BaseWebIntegrationTest {
                     .status(SubStatus.ACTIVE)
                     .build();
 
-            when(renewSubscriptionUseCase.renew(eq(subscriptionUuid), eq(callerSubject)))
+            when(renewSubscriptionUseCase.renew(eq(subscriptionUuid), isNull(), eq(callerSubject)))
                     .thenReturn(renewed);
 
             mockMvc.perform(put("/api/v1/subscriptions/" + subscriptionUuid + "/renew")
                             .header("Authorization", "Bearer " + buildJwt("vendor", callerSubject)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("ACTIVE"));
+        }
+
+        @Test
+        @DisplayName("should renew subscription with explicit due date")
+        void renew_explicitDueDate_success() throws Exception {
+            UUID subscriptionUuid = UUID.randomUUID();
+            String callerSubject = "auth|vendor-user";
+
+            Subscription renewed = Subscription.builder()
+                    .uuid(subscriptionUuid)
+                    .status(SubStatus.ACTIVE)
+                    .paymentDueDate(LocalDate.of(2026, 9, 16))
+                    .build();
+
+            when(renewSubscriptionUseCase.renew(
+                    eq(subscriptionUuid), eq(LocalDate.of(2026, 9, 16)), eq(callerSubject)))
+                    .thenReturn(renewed);
+
+            mockMvc.perform(put("/api/v1/subscriptions/" + subscriptionUuid + "/renew")
+                            .param("newDueDate", "2026-09-16")
+                            .header("Authorization", "Bearer " + buildJwt("vendor", callerSubject)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.status").value("ACTIVE"))
+                    .andExpect(jsonPath("$.paymentDueDate").value("2026-09-16"));
         }
     }
 
