@@ -171,6 +171,12 @@ public class ProfileService implements ProfileUseCase {
 
         assertProfileOwnership(profile, callerExternalId);
 
+        // Sold profiles are immutable: identity follows the active subscription (BR-02 refactor).
+        if (profile.getStatus() == ProfileStatus.ACTIVE) {
+            throw new BusinessRuleException(
+                    "Cannot edit a profile with an active subscription.");
+        }
+
         // Apply only non-null values (BR-US026-01)
         if (name != null) profile.setName(name);
         if (pin != null) profile.setPin(pin);
