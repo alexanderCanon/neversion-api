@@ -1,9 +1,11 @@
 package com.neversion.api.subscription.infrastructure.adapters.in.rest.controller;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -153,16 +155,18 @@ public class SubscriptionController {
 
     @PutMapping("/{id}/renew")
     @Operation(summary = "Renew subscription (US-045)",
-            description = "Renews an ACTIVE or SUSPENDED subscription using BR-07.")
+            description = "Renews an ACTIVE or SUSPENDED subscription using BR-07. "
+                    + "Optional newDueDate overrides the computation for late renewals past grace.")
     @ApiResponse(responseCode = "200", description = "Subscription renewed")
     @ApiResponse(responseCode = "400", description = "Subscription cannot be renewed from its current status")
     @ApiResponse(responseCode = "403", description = "Caller does not own this subscription")
     @ApiResponse(responseCode = "404", description = "Subscription not found")
     public ResponseEntity<SubscriptionResponse> renew(
             @PathVariable UUID id,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate newDueDate,
             JwtAuthenticationToken token) {
         return ResponseEntity.ok(subscriptionMapper.toResponse(
-                renewSubscriptionUseCase.renew(id, extractExternalId(token))));
+                renewSubscriptionUseCase.renew(id, newDueDate, extractExternalId(token))));
     }
 
     @PutMapping("/{id}/cancel")

@@ -227,5 +227,49 @@ class RenewSubscriptionServiceUT {
 
             assertThat(result.getPaymentDueDate()).isEqualTo(LocalDate.of(2026, 5, 29));
         }
+
+        @Test
+        @DisplayName("should use explicit due date instead of BR-07 computation")
+        void renew_explicitDate_shouldUseProvidedDate() {
+            Subscription subscription = buildSubscription(SubStatus.SUSPENDED, VENDOR_ID);
+            subscription.setPaymentDueDate(LocalDate.of(2026, 4, 26));
+            Profile profile = buildProfile();
+            Account account = Account.builder()
+                    .id(ACCOUNT_ID).saleMode(SaleMode.BY_PROFILE).status(AccountStatus.PARTIAL).build();
+
+            when(subscriptionRepositoryPort.findById(SUBSCRIPTION_UUID)).thenReturn(Optional.of(subscription));
+            mockOwnershipResolution(VENDOR_ID);
+            when(profileRepositoryPort.findByInternalId(PROFILE_ID)).thenReturn(Optional.of(profile));
+            when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+            when(clientRepositoryPort.findByInternalId(CLIENT_ID)).thenReturn(Optional.of(buildClient()));
+            when(subscriptionRepositoryPort.save(any(Subscription.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Subscription result = renewSubscriptionService.renew(
+                    SUBSCRIPTION_UUID, LocalDate.of(2026, 9, 16), EXTERNAL_ID);
+
+            assertThat(result.getPaymentDueDate()).isEqualTo(LocalDate.of(2026, 9, 16));
+            assertThat(result.getEndDate()).isEqualTo(LocalDate.of(2026, 9, 16));
+            assertThat(result.getMonthsPaid()).isEqualTo(2L);
+        }
+
+        @Test
+        @DisplayName("should reject explicit due date in the past")
+        void renew_explicitPastDate_shouldThrow400() {
+            Subscription subscription = buildSubscription(SubStatus.ACTIVE, VENDOR_ID);
+            Profile profile = buildProfile();
+            Account account = Account.builder()
+                    .id(ACCOUNT_ID).saleMode(SaleMode.BY_PROFILE).status(AccountStatus.PARTIAL).build();
+
+            when(subscriptionRepositoryPort.findById(SUBSCRIPTION_UUID)).thenReturn(Optional.of(subscription));
+            mockOwnershipResolution(VENDOR_ID);
+            when(profileRepositoryPort.findByInternalId(PROFILE_ID)).thenReturn(Optional.of(profile));
+            when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+            when(clientRepositoryPort.findByInternalId(CLIENT_ID)).thenReturn(Optional.of(buildClient()));
+
+            assertThatThrownBy(() -> renewSubscriptionService.renew(
+                    SUBSCRIPTION_UUID, LocalDate.of(2026, 4, 1), EXTERNAL_ID))
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("cannot be in the past");
+        }
     }
 }

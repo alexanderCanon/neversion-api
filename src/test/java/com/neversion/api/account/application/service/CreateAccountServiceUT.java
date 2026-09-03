@@ -172,7 +172,7 @@ class CreateAccountServiceUT {
                     .hasMessageContaining("Service not found");
         }
 
-        @Test
+                @Test
         @DisplayName("should default to 1 profile when service.maxProfiles is null (BR-01)")
         void create_shouldDefaultTo1Profile_whenMaxProfilesIsNull() {
             // Given
@@ -192,6 +192,24 @@ class CreateAccountServiceUT {
 
             // Then
             verify(profileUseCase).generateProfilesForAccount(12L, 1, VENDOR_ID);
+        }
+
+        @Test
+        @DisplayName("should throw BusinessRuleException when maxProfiles exceeds service maximum (BR-02 ceiling)")
+        void create_shouldThrowBusinessRuleException_whenMaxProfilesExceedsServiceMax() {
+            // Given
+            stubJwtChain();
+            Account account = buildAccount(SaleMode.BY_PROFILE);
+            account.setMaxProfiles(8);
+
+            Service service = buildService(5);
+
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
+
+            // When / Then — ceiling guard fires before persistence
+            assertThatThrownBy(() -> createAccountService.create(account, EXTERNAL_ID))
+                    .isInstanceOf(BusinessRuleException.class)
+                    .hasMessageContaining("exceeds the service maximum");
         }
     }
 }

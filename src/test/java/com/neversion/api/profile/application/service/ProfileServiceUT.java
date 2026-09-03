@@ -2,6 +2,7 @@ package com.neversion.api.profile.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
@@ -24,6 +25,7 @@ import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.user.domain.model.User;
@@ -106,6 +108,29 @@ class ProfileServiceUT {
         when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.of(account));
         when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
         when(vendorRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(vendor));
+    }
+
+    @Test
+    @DisplayName("should reject identity update on ACTIVE profiles")
+    void update_shouldRejectActiveProfile() {
+        UUID profileUuid = UUID.randomUUID();
+        Profile active = Profile.builder()
+                .id(1L).uuid(profileUuid).accountId(ACCOUNT_ID)
+                .vendorId(VENDOR_ID).status(ProfileStatus.ACTIVE).build();
+
+        when(profileRepositoryPort.findById(profileUuid)).thenReturn(Optional.of(active));
+        User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
+        Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
+        when(accountRepositoryPort.findByInternalId(ACCOUNT_ID))
+                .thenReturn(Optional.of(account(SaleMode.BY_PROFILE)));
+        when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+        when(vendorRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(vendor));
+
+        assertThatThrownBy(() -> profileService.update(profileUuid, "Nuevo", "1234", null, null, EXTERNAL_ID))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("active subscription");
+
+        verify(profileRepositoryPort, never()).save(any(Profile.class));
     }
 
     private Account account(SaleMode saleMode) {

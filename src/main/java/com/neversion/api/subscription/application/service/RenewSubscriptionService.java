@@ -67,6 +67,12 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
     @Override
     @Transactional
     public Subscription renew(UUID subscriptionUuid, String callerExternalId) {
+        return renew(subscriptionUuid, null, callerExternalId);
+    }
+
+    @Override
+    @Transactional
+    public Subscription renew(UUID subscriptionUuid, LocalDate explicitDueDate, String callerExternalId) {
         Subscription subscription = subscriptionRepositoryPort.findById(subscriptionUuid)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Subscription not found with id: " + subscriptionUuid));
@@ -91,8 +97,16 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
                         "Client not found for subscription: " + subscriptionUuid));
 
         LocalDate paymentDate = LocalDate.now(clock);
-        LocalDate newDueDate = renewalDomainService.calculateNewDueDate(
-                subscription.getPaymentDueDate(), paymentDate, gracePeriodDays);
+        LocalDate newDueDate;
+        if (explicitDueDate != null) {
+            if (explicitDueDate.isBefore(paymentDate)) {
+                throw new BusinessRuleException("Explicit due date cannot be in the past.");
+            }
+            newDueDate = explicitDueDate;
+        } else {
+            newDueDate = renewalDomainService.calculateNewDueDate(
+                    subscription.getPaymentDueDate(), paymentDate, gracePeriodDays);
+        }
 
         subscription.setPaymentDueDate(newDueDate);
         subscription.setEndDate(newDueDate);

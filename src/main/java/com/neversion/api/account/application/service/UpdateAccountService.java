@@ -88,6 +88,21 @@ public class UpdateAccountService implements UpdateAccountUseCase {
                             "Service not found: " + updates.getServiceUuid()));
             resolvedServiceId = service.getId();
         }
+        // BR-02 ceiling: an account cannot raise maxProfiles above its service maximum.
+        // Unchanged values skip validation so legacy over-ceiling accounts stay editable.
+        if (updates.getMaxProfiles() != null && updates.getMaxProfiles() > 0
+                && !updates.getMaxProfiles().equals(existing.getMaxProfiles())) {
+            var effectiveService = serviceRepositoryPort.findByInternalId(resolvedServiceId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Service not found for account: " + uuid));
+            if (effectiveService.getMaxProfiles() != null
+                    && updates.getMaxProfiles() > effectiveService.getMaxProfiles()) {
+                throw new BusinessRuleException(
+                        "maxProfiles (" + updates.getMaxProfiles()
+                                + ") exceeds the service maximum ("
+                                + effectiveService.getMaxProfiles() + ").");
+            }
+        }
         // Apply all editable fields — id, uuid, vendorId are immutable
         existing.setEmail(updates.getEmail());
         existing.setPassword(updates.getPassword());
