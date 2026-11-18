@@ -7,7 +7,7 @@ Backend REST API for the Neversion management platform — handling subscription
 ## 🚀 Tech Stack
 
 * **Java 21** (Eclipse Temurin / Amazon Corretto)
-* **Spring Boot 4** (Spring MVC, Spring Data JPA, Spring Security OAuth2/JWT, Spring Validation)
+* **Spring Boot 4** (Spring MVC, Spring Data JPA, Spring Security, Spring Validation)
 * **PostgreSQL 16+** with **Flyway** for database migrations
 * **OpenAPI 3 / Swagger** (`springdoc-openapi`)
 * **Testcontainers & JUnit 5** for automated integration testing
